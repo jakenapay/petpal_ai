@@ -224,11 +224,22 @@
     </div>
 
     <div class="heroe">
-
+        
         <h1>Welcome to CodeIgniter <?= CodeIgniter\CodeIgniter::CI_VERSION ?></h1>
 
         <h2>The small framework with powerful features</h2>
+        <?= 'User ID: ' . session()->get('user_id'); ?><br>
+        <?= 'Username: ' . session()->get('username'); ?><br>
+        <?= 'Email: ' . session()->get('email'); ?><br>
+        <?= 'First Name: ' . session()->get('first_name'); ?><br>
+        <?= 'Last Name: ' . session()->get('last_name'); ?><br>
+        <?= 'Profile Image: ' . session()->get('profile_image'); ?><br>
+        <?= 'Status: ' . session()->get('status'); ?><br>
+        <?= 'Role: ' . session()->get('role'); ?><br>
+        <?= 'Logged In: ' . (session()->get('logged_in') ? 'Yes' : 'No'); ?><br>
 
+        <br>
+        <a href="<?= base_url('logout') ?>">Logout</a>
     </div>
 
 </header>
