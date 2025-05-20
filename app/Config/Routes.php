@@ -25,36 +25,45 @@ $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 $routes->group('api/v1', function($routes) {
 
     // Auth
-    $routes->post('auth/login',        'Api\v1\auth\Login::index');
-    $routes->post('auth/register',     'Api\v1\auth\Register::index');
-    $routes->post('auth/logout',       'Api\v1\auth\Logout::index');
-    $routes->post('auth/refresh-token','Api\v1\auth\RefreshToken::index');
+    $routes->post('auth/login',        'Api\V1\Auth\Login::index');
+    $routes->post('auth/register',     'Api\V1\Auth\Register::index');
+    $routes->post('auth/logout',       'Api\V1\Auth\Logout::index');
+    $routes->post('auth/refresh-token','Api\V1\Auth\RefreshToken::index');
 
     // Users
-    $routes->get('users/profile',      'Api\v1\users\Profile::index');
-    $routes->put('users/profile/',      'Api\v1\users\Profile::update');
-    $routes->put('users/settings',     'Api\v1\users\Settings::update');
+    $routes->get('users/profile',      'Api\V1\Users\Profile::index');
+    $routes->put('users/profile/',      'Api\V1\Users\Profile::update');
+    $routes->put('users/settings',     'Api\V1\Users\Settings::update');
 
     // Pets
-    $routes->get('pets',                   'Api\v1\pets\ListPets::index');
-    $routes->post('pets',                  'Api\v1\pets\CreatePet::index');
-    $routes->get('pets/(:num)',            'Api\v1\pets\ViewPet::show/$1');
-    $routes->put('pets/(:num)',            'Api\v1\pets\UpdatePet::update/$1');
-    $routes->get('pets/(:num)/state',      'Api\v1\pets\GetPetState::show/$1');
-    $routes->put('pets/(:num)/state',      'Api\v1\pets\UpdatePetState::update/$1');
-    $routes->post('pets/(:num)/interactions', 'Api\v1\pets\LogInteraction::index/$1');
+    $routes->get('pets',                   'Api\V1\Pets\ListPets::index');
+    $routes->post('pets',                  'Api\V1\Pets\CreatePet::index');
+    $routes->get('pets/(:num)',            'Api\V1\Pets\ViewPet::show/$1');
+    $routes->put('pets/(:num)',            'Api\V1\Pets\UpdatePet::update/$1');
+    $routes->get('pets/(:num)/state',      'Api\V1\Pets\GetPetState::show/$1');
+    $routes->put('pets/(:num)/state',      'Api\V1\Pets\UpdatePetState::update/$1');
+    $routes->post('pets/(:num)/interactions', 'Api\V1\Pets\LogInteraction::index/$1');
 
     // Store
-    $routes->get('store/products',         'Api\v1\store\Products::index');
-    $routes->get('store/products/(:num)',  'Api\v1\store\ProductDetails::show/$1');
-    $routes->get('store/cart',             'Api\v1\store\Cart::index');
-    $routes->post('store/cart',            'Api\v1\store\AddToCart::index');
-    $routes->get('store/orders',           'Api\v1\store\Orders::index');
-    $routes->post('store/orders',          'Api\v1\store\CreateOrder::index');
-    $routes->get('store/inventory',        'Api\v1\store\Inventory::index');
+    $routes->get('store/products',         'Api\V1\Store\Products::index');
+    $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
+    $routes->get('store/cart',             'Api\V1\Store\Cart::index');
+    $routes->post('store/cart',            'Api\V1\Store\AddToCart::index');
+    $routes->get('store/orders',           'Api\V1\Store\Orders::index');
+    $routes->post('store/orders',          'Api\V1\Store\CreateOrder::index');
+    $routes->get('store/inventory',        'Api\V1\Store\Inventory::index');
 
     // Payments
-    $routes->post('payments/process',       'Api\v1\payments\Process::index');
-    $routes->post('payments/verify',        'Api\v1\payments\Verify::index');
-    $routes->match(['get', 'post'], 'payments/subscriptions', 'Api\v1\payments\Subscriptions::index');
+    $routes->post('payments/process',       'Api\V1\Payments\Process::index');
+    $routes->post('payments/verify',        'Api\V1\Payments\Verify::index');
+    $routes->match(['get', 'post'], 'payments/subscriptions', 'Api\V1\Payments\Subscriptions::index');
+    
+    // Pet Adoption
+    $routes->get('pets/adoption/species',   'Api\V1\Pets\PetAdoption::showAllSpecies');
+    $routes->get('pets/adoption/dogbreeds',   'Api\V1\Pets\PetAdoption::showAllDogBreeds');
+    $routes->get('pets/adoption/dogpersonalities',   'Api\V1\Pets\PetAdoption::showAllDogPersonalities');
+    $routes->get('pets/adoption/catbreeds',   'Api\V1\Pets\PetAdoption::showAllCatBreeds');
+    $routes->get('pets/adoption/catpersonalities',   'Api\V1\Pets\PetAdoption::showAllCatPersonalities');
+
+    $routes->get('pets/adoption/generateName', 'Api\V1\Pets\PetAdoption::generateName');
 });

@@ -11,4 +11,9 @@ class ViewPet extends BaseController
     {
         //
     }
+
+    public function show($id)
+    {
+       
+    }
 }

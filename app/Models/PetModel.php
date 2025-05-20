@@ -7,12 +7,12 @@ use CodeIgniter\Model;
 class PetModel extends Model
 {
     protected $table            = 'pets';
-    protected $primaryKey       = 'id';
+    protected $primaryKey       = 'pet_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'appearance', 'birthdate', 'status', 'level', 'experience', 'created_at', 'updated_at']; 
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

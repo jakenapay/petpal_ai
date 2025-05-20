@@ -11,4 +11,8 @@ class Settings extends BaseController
     {
         //
     }
+
+    public function update(){
+        
+    }
 }
