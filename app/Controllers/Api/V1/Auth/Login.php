@@ -54,11 +54,17 @@ class Login extends BaseController
         // Generate JWT token
         $token = $this->generateJWT($user);
 
+        // Check if user has a pet
+        $petModel = new \App\Models\PetModel();
+        $petModel->where('user_id', $user['user_id']);
+        $count = $petModel->countAllResults();
+
         return $this->response
             ->setStatusCode(200)
             ->setJSON([
             'success' => 'Login successful',
             'user_id' => $user['user_id'],
+            'pet_count' => $count,
             'token'   => $token,
             ]);
     }
