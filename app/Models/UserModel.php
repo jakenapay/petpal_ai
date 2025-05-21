@@ -17,7 +17,8 @@ class UserModel extends Model
         'profile_image',
         'last_login',
         'status',
-        'role'
+        'role',
+        'verification_code',
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
