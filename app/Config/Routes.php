@@ -29,7 +29,7 @@ $routes->group('api/v1', function($routes) {
     $routes->post('auth/register',     'Api\V1\Auth\Register::index');
     $routes->post('auth/logout',       'Api\V1\Auth\Logout::index');
     $routes->post('auth/refresh-token','Api\V1\Auth\RefreshToken::index');
-    $routes->post('auth/resend',       'Api\V1\Auth\Register::sendVerificationEmail');
+    $routes->post('auth/resend',       'Api\V1\Auth\Register::resendVerificationCode');
     $routes->post('auth/verify',       'Api\V1\Auth\Register::verifyEmail');
 
     // Users

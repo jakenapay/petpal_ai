@@ -10,6 +10,7 @@ class Register extends BaseController
 {
     public function __construct()
     {
+        date_default_timezone_set('Asia/Manila');
     }
 
     public function index()
@@ -263,9 +264,9 @@ class Register extends BaseController
 
         $newVerificationCode = random_int(100000, 999999);
 
-        $userModel->update($user['id'], [
+        $userModel->update($user['user_id'], [
             'verification_code' => $newVerificationCode,
-            'verification_code_sent_at' => date('Y-m-d H:i:s')
+            'verification_expiration_date' => date('Y-m-d H:i:s')
         ]);
 
         if (!$this->sendVerificationEmail($email, $newVerificationCode)) {
@@ -278,7 +279,4 @@ class Register extends BaseController
             'success' => 'Verification code resent successfully.'
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
-
-
-
 }
