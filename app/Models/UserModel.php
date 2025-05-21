@@ -19,6 +19,7 @@ class UserModel extends Model
         'status',
         'role',
         'verification_code',
+        'verification_expiration_date',
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';

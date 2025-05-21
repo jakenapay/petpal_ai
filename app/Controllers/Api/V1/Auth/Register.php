@@ -83,6 +83,7 @@ class Register extends BaseController
             'status'     => 'inactive',
             'role'       => 'user',
             'verification_code' => $verificationCode,
+            'verification_expiration_date' => date('Y-m-d H:i:s', strtotime('+5 minutes'))
         ];
 
         $db = \Config\Database::connect();
@@ -253,7 +254,7 @@ class Register extends BaseController
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $lastSent = strtotime($user['verification_expiration_date'] ?? '1970-01-01');
+        $lastSent = strtotime($user['verification_expiration_date'] ?? '1970-01-01') - 300;
         $now = time();
 
         if (($now - $lastSent) < 60) { 
@@ -266,7 +267,7 @@ class Register extends BaseController
 
         $userModel->update($user['user_id'], [
             'verification_code' => $newVerificationCode,
-            'verification_expiration_date' => date('Y-m-d H:i:s')
+            'verification_expiration_date' => date('Y-m-d H:i:s', strtotime('+5 minutes'))
         ]);
 
         if (!$this->sendVerificationEmail($email, $newVerificationCode)) {
