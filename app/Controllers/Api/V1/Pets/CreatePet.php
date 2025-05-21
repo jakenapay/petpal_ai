@@ -23,20 +23,23 @@ class CreatePet extends BaseController
         $userId = $decoded->user_id;
 
         $data = $this->request->getJSON(true);
-
         $rules = [
             'name' => [
-                'rules' => 'required|min_length[2]|max_length[50]',
-                'filters' => 'trim|strip_tags'
+            'rules' => 'required|min_length[2]|max_length[50]',
+            'filters' => 'trim|strip_tags'
             ],
             'species' => [
-                'rules' => 'required|in_list[dog,cat]',
-                'filters' => 'trim|strip_tags'
+            'rules' => 'required|in_list[dog,cat]',
+            'filters' => 'trim|strip_tags'
             ],
             'appearance' => [
-                'rules' => 'required',
-                'filters' => 'trim|strip_tags'
-            ]
+            'rules' => 'permit_empty',
+            'filters' => 'trim|strip_tags'
+            ],
+            'personality' => [
+            'rules' => 'permit_empty',
+            'filters' => 'trim|strip_tags'
+            ],
         ];
 
         if (!$this->validate($rules)) {
@@ -52,7 +55,7 @@ class CreatePet extends BaseController
             'species' => $data['species'],
             'breed' => $data['breed'] ?? null,
             'appearance' => json_encode($data['appearance']),
-            'birthdate' => $data['birthdate'] ?? null,
+            'personality' => $data['personality']
         ];
 
         $petModel = new PetModel();
