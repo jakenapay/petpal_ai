@@ -61,6 +61,9 @@ class CreatePet extends BaseController
         $petModel = new PetModel();
         $petModel->insert($petData);
 
+        // insert in pet status table
+        
+
         return $this->response->setJSON([
             'success' => 'Pet created successfully',
             'pet_id' => $petModel->getInsertID()

@@ -4,6 +4,8 @@ namespace App\Controllers\Api\V1\Pets;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class ViewPet extends BaseController
 {
@@ -23,7 +25,7 @@ class ViewPet extends BaseController
         try {
             $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
             $userId = $decoded->user_id;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->response->setJSON(['error' => 'Invalid token'])->setStatusCode(401);
         }
 

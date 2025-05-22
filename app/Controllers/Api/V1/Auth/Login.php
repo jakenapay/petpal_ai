@@ -41,9 +41,16 @@ class Login extends BaseController
 
         // Check account status
         if (in_array($user['status'], ['inactive', 'suspended'])) {
+
+            // get user's email by username
+            $userEmail = $userModel->where('username', $username)->first()['email'];
+
             return $this->response
-                ->setStatusCode(403)
-                ->setJSON(['error' => 'Your account is ' . $user['status'] . '. Please contact support.']);
+            ->setStatusCode(403)
+            ->setJSON([
+                'error' => 'Your account is ' . $user['status'] . '. Please contact support.',
+                'email' => $userEmail,
+            ]);
         }
 
         // Insert last login time 
@@ -64,6 +71,19 @@ class Login extends BaseController
             ->setJSON([
             'success' => 'Login successful',
             'user_id' => $user['user_id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'role' => $user['role'],
+            'status' => $user['status'],
+            'last_login' => $user['last_login'],
+            'created_at' => $user['created_at'],
+            'updated_at' => $user['updated_at'],
+            'profile_img' => $user['profile_image'],
+            'mbti' => $user['mbti'],
+            'coins' => $user['coins'],
+            'user_grade' => $user['user_grade'],
             'pet_count' => $count,
             'token'   => $token,
             ]);
