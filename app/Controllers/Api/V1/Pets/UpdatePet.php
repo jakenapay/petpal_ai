@@ -12,7 +12,8 @@ class UpdatePet extends BaseController
         //
     }
 
-    public function update($pet_id) {
+    public function update($pet_id)
+    {
 
         // Check if the pet ID is valid
         if (!is_numeric($pet_id)) {
@@ -51,24 +52,24 @@ class UpdatePet extends BaseController
         $data = $this->request->getJSON(true);
         $rules = [
             'name' => [
-            'rules' => 'required|min_length[2]|max_length[50]',
-            'filters' => 'trim|strip_tags'
+                'rules' => 'required|min_length[2]|max_length[50]',
+                'filters' => 'trim|strip_tags'
             ],
             'species' => [
-            'rules' => 'required|in_list[dog,cat]',
-            'filters' => 'trim|strip_tags'
+                'rules' => 'required|in_list[dog,cat]',
+                'filters' => 'trim|strip_tags'
             ],
             'breed' => [
-            'rules' => 'permit_empty|max_length[50]',
-            'filters' => 'trim|strip_tags'
+                'rules' => 'permit_empty|max_length[50]',
+                'filters' => 'trim|strip_tags'
             ],
             'appearance' => [
-            'rules' => 'permit_empty',
-            'filters' => 'trim|strip_tags'
+                'rules' => 'permit_empty',
+                'filters' => 'trim|strip_tags'
             ],
             'personality' => [
-            'rules' => 'permit_empty',
-            'filters' => 'trim|strip_tags'
+                'rules' => 'permit_empty',
+                'filters' => 'trim|strip_tags'
             ],
         ];
 
@@ -104,8 +105,8 @@ class UpdatePet extends BaseController
                 'pet_id' => $pet_id,
                 'pet' => $petData
             ])->setStatusCode(ResponseInterface::HTTP_OK);
-        } else {
-            return $this->response->setJSON(['error' => 'Failed to update pet'])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
+        return $this->response->setJSON(['error' => 'Failed to update pet'])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+
     }
 }
