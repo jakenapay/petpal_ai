@@ -66,6 +66,8 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/adoption/dogpersonalities',   'Api\V1\Pets\PetAdoption::showAllDogPersonalities');
     $routes->get('pets/adoption/catbreeds',   'Api\V1\Pets\PetAdoption::showAllCatBreeds');
     $routes->get('pets/adoption/catpersonalities',   'Api\V1\Pets\PetAdoption::showAllCatPersonalities');
+    $routes->get('pets/adoption/EyeColor',  'Api\V1\Pets\PetAdoption::getEyeColors');
+    $routes->get('pets/adoption/FurColor',  'Api\V1\Pets\PetAdoption::getFurColors');
 
     $routes->get('pets/adoption/generateName', 'Api\V1\Pets\PetAdoption::generateName');
 });

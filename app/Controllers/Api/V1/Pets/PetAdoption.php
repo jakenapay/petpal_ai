@@ -68,4 +68,24 @@ class PetAdoption extends BaseController
         $name = $faker->firstName();
         return $this->response->setJSON(['name' => $name])->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
+    public function getEyeColors() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('EyeColor');
+        $builder->orderBy('id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function getFurColors() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('FurColor');
+        $builder->orderBy('id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
 }
