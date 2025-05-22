@@ -88,4 +88,24 @@ class PetAdoption extends BaseController
 
         return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
+    public function getCatPatterns() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('CatPatterns');
+        $builder->orderBy('pattern_id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function getDogPatterns() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('DogPatterns');
+        $builder->orderBy('pattern_id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
 }
