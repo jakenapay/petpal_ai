@@ -38,13 +38,13 @@ $routes->group('api/v1', function($routes) {
     $routes->put('users/settings',     'Api\V1\Users\Settings::update');
 
     // Pets
-    $routes->get('pets',                   'Api\V1\Pets\ListPets::index');
-    $routes->post('pets',                  'Api\V1\Pets\CreatePet::index');
-    $routes->get('pets/(:num)',            'Api\V1\Pets\ViewPet::show/$1');
-    $routes->put('pets/(:num)',            'Api\V1\Pets\UpdatePet::update/$1');
-    $routes->get('pets/(:num)/state',      'Api\V1\Pets\GetPetState::show/$1');
-    $routes->put('pets/(:num)/status',      'Api\V1\Pets\UpdatePetStatus::index/$1');
-    $routes->post('pets/(:num)/interactions', 'Api\V1\Pets\LogInteraction::index/$1');
+    $routes->get('pets',                        'Api\V1\Pets\ListPets::index');
+    $routes->post('pets',                       'Api\V1\Pets\CreatePet::index');
+    $routes->get('pets/(:num)',                 'Api\V1\Pets\ViewPet::show/$1');
+    $routes->put('pets/(:num)',                 'Api\V1\Pets\UpdatePet::update/$1');
+    $routes->get('pets/(:num)/status',          'Api\V1\Pets\GetPetStatus::index/$1');
+    $routes->put('pets/(:num)/status-update',   'Api\V1\Pets\UpdatePetStatus::index/$1');
+    $routes->post('pets/(:num)/interactions',   'Api\V1\Pets\LogInteraction::index/$1');
 
     // Store
     $routes->get('store/products',         'Api\V1\Store\Products::index');
