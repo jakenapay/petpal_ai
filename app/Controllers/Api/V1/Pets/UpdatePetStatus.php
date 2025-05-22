@@ -5,6 +5,8 @@ namespace App\Controllers\Api\V1\Pets;
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\PetStatusModel;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class UpdatePetStatus extends BaseController
 {
@@ -14,8 +16,9 @@ class UpdatePetStatus extends BaseController
     }
     public function index($petId)
     {
-        if (!$userId = $this->authorizationCheck()) {
-            return $this->response->setJSON(['error' => 'Token required'])
+        $userId = $this->authorizationCheck();
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Token required or invalid'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
@@ -86,11 +89,13 @@ class UpdatePetStatus extends BaseController
         $authHeader = $this->request->getHeaderLine('Authorization');
         $token = str_replace('Bearer ', '', $authHeader);
         if (!$token) {
-            return $this->response->setJSON(['error' => 'Token required'])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+            return null; 
         }
-        $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
-        $userId = $decoded->user_id;
-
-        return $userId;
+        try {
+            $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
+            return $decoded->user_id ?? null;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
