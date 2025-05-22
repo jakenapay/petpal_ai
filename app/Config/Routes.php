@@ -43,7 +43,7 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/(:num)',            'Api\V1\Pets\ViewPet::show/$1');
     $routes->put('pets/(:num)',            'Api\V1\Pets\UpdatePet::update/$1');
     $routes->get('pets/(:num)/state',      'Api\V1\Pets\GetPetState::show/$1');
-    $routes->put('pets/(:num)/state',      'Api\V1\Pets\UpdatePetState::update/$1');
+    $routes->put('pets/(:num)/status',      'Api\V1\Pets\UpdatePetStatus::index/$1');
     $routes->post('pets/(:num)/interactions', 'Api\V1\Pets\LogInteraction::index/$1');
 
     // Store
