@@ -40,6 +40,10 @@ class CreatePet extends BaseController
             'rules' => 'permit_empty',
             'filters' => 'trim|strip_tags'
             ],
+            'gender' => [
+            'rules' => 'permit_empty',
+            'filters' => 'trim|strip_tags'
+            ]
         ];
 
         if (!$this->validate($rules)) {
@@ -55,7 +59,8 @@ class CreatePet extends BaseController
             'species' => $data['species'],
             'breed' => $data['breed'] ?? null,
             'appearance' => json_encode($data['appearance']),
-            'personality' => $data['personality']
+            'personality' => $data['personality'],
+            'gender' => $data['gender']
         ];
 
         $petModel = new PetModel();
