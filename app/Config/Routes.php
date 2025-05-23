@@ -24,6 +24,9 @@ $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 // API v1 base
 $routes->group('api/v1', function($routes) {
 
+    // DB
+    $routes->get('db', 'Api\V1\Users\Settings::db');
+
     // Auth
     $routes->post('auth/login',        'Api\V1\Auth\Login::index');
     $routes->post('auth/register',     'Api\V1\Auth\Register::index');
