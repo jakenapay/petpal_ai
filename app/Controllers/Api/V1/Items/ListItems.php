@@ -17,7 +17,7 @@ class ListItems extends BaseController
 
         // Return all items
         $itemModel = new ItemModel();
-        $items = $itemModel->findAll();
+        $items = $itemModel->getItemsWithCategory();
 
         // Check if items are found
         if (empty($items)) {
