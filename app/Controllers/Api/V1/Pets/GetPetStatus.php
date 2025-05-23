@@ -12,7 +12,7 @@ class GetPetStatus extends BaseController
 {
     public function index($petId)
     {
-        $userId = $this->authorizationCheck();
+        $userId = authorizationCheck($this->request);
         if (!$userId) {
             return $this->response->setJSON(['error' => 'Token required or invalid'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
