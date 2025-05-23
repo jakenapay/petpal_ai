@@ -11,7 +11,7 @@ class ListItems extends BaseController
     public function index()
     {
         // Check if request method is GET
-        if ($this->request->getMethod() !== 'get') {
+        if ($this->request->getMethod() !== 'GET') {
             return $this->response->setJSON(['error' => 'Invalid request method'])->setStatusCode(ResponseInterface::HTTP_METHOD_NOT_ALLOWED);
         }
 
