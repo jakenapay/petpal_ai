@@ -92,7 +92,6 @@ class UpdatePet extends BaseController
             'status' => $data['status'],
             'level' => $data['level'],
             'experience' => $data['experience'],
-            'social_stats' => $data['social_stats'],
             'abilities' => $data['abilities']
         ];
 
