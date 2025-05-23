@@ -34,7 +34,7 @@ class UpdatePetStatus extends BaseController
             'current_mood' => 'permit_empty|string',
             'is_sick' => 'permit_empty|in_list[0,1,true,false]',
             'sickness_type' => 'permit_empty|string',
-            'sickness_severity' => 'permit_empty|string',
+            'sickness_severity' => 'permit_empty|decimal',
             'hibernation_mode' => 'permit_empty|in_list[0,1,true,false]',
         ];
 
