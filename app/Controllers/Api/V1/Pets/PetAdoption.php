@@ -108,4 +108,44 @@ class PetAdoption extends BaseController
 
         return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
+    public function getDogColors() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('dogcolors');
+        $builder->orderBy('color_id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function getCatColors() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('catcolors');
+        $builder->orderBy('color_id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function getDogEyeColors() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('dogeyecolors');
+        $builder->orderBy('color_id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function getCatEyeColors() {
+        $db = \Config\Database::connect();
+        $builder = $db->table('cateyecolors');
+        $builder->orderBy('color_id', 'ASC');
+        $query = $builder->get();
+        $result = $query->getResult();
+
+        return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
+    }
 }
