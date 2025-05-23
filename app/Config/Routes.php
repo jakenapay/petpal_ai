@@ -44,7 +44,7 @@ $routes->group('api/v1', function($routes) {
     $routes->put('pets/(:num)',                 'Api\V1\Pets\UpdatePet::update/$1');
     $routes->get('pets/(:num)/status',          'Api\V1\Pets\GetPetStatus::index/$1');
     $routes->put('pets/(:num)/status-update',   'Api\V1\Pets\UpdatePetStatus::index/$1');
-    $routes->post('pets/(:num)/interactions',   'Api\V1\Pets\LogInteraction::index/$1');
+    $routes->get('pets/(:num)/interactions',   'Api\V1\Pets\GetPetInteraction::index/$1');
 
     // Store
     $routes->get('store/products',         'Api\V1\Store\Products::index');
