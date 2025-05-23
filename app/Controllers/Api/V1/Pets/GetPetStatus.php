@@ -39,18 +39,4 @@ class GetPetStatus extends BaseController
             'data' => $petStatus])
             ->setStatusCode(ResponseInterface::HTTP_OK);
     }
-
-        public function authorizationCheck(){
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            $token = str_replace('Bearer ', '', $authHeader);
-            if (!$token) {
-                return null; 
-            }
-            try {
-                $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
-                return $decoded->user_id ?? null;
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
 }

@@ -16,7 +16,8 @@ class UpdatePetStatus extends BaseController
     }
     public function index($petId)
     {
-        $userId = $this->authorizationCheck();
+        $userId = authorizationCheck($this->request);
+
         if (!$userId) {
             return $this->response->setJSON(['error' => 'Token required or invalid'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
@@ -81,21 +82,6 @@ class UpdatePetStatus extends BaseController
             $updateData['pet_id'] = $petId;
             $petStatusModel->insert($updateData);
             return $this->response->setJSON(['message' => 'Pet status created successfully']);
-        }
-    }
-
-
-    public function authorizationCheck(){
-        $authHeader = $this->request->getHeaderLine('Authorization');
-        $token = str_replace('Bearer ', '', $authHeader);
-        if (!$token) {
-            return null; 
-        }
-        try {
-            $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
-            return $decoded->user_id ?? null;
-        } catch (\Exception $e) {
-            return null;
         }
     }
 }
