@@ -13,11 +13,10 @@ use CodeIgniter\Database\Exceptions\DatabaseException;
 
 class CreatePet extends BaseController
 {
-    public function createPetStatusDefault($petId, $user_id)
+    public function createPetStatusDefault($petId)
     {
         $data = [
             'pet_id' => $petId,
-            'user_id' => $user_id,
             'hunger_level' => 100.00,
             'happiness_level' => 100.00,
             'health_level' => 100.00,
@@ -95,22 +94,27 @@ class CreatePet extends BaseController
         ];
 
         $db = \Config\Database::connect();
-        // $db->transStart();
+        $db->transStart();
 
         $petModel = new PetModel();
         $inserted = $petModel->insert($petData);
+        
 
         if ($inserted) {
             $petId = $petModel->getInsertID();
-            if (!$this->createPetStatusDefault($petId, $userId)) {
+            if (!$this->createPetStatusDefault($petId)) {
+                $db->transRollback();
                 return $this->response->setJSON(['error' => 'Failed to create pet status'])
                     ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
         } else {
+            $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to create pet'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        $db->transComplete();
+        
         return $this->response->setJSON([
             'success' => 'Pet created successfully',
             'pet_id' => $petModel->getInsertID(),
