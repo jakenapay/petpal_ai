@@ -27,8 +27,9 @@ class GetPetInteraction extends BaseController
         $interactionModel = new LogInteractionModel();
 
         $interactions = $interactionModel
-            ->select('pet_interactions.*, interaction_types.name AS interaction_name, interaction_types.duration')
+            ->select('pet_interactions.*, interaction_types.name AS interaction_name, interaction_types.duration, items.item_name AS item_name')
             ->join('interaction_types', 'interaction_types.interaction_type_id = pet_interactions.interaction_id')
+            ->join('items', 'items.item_id = pet_interactions.item_used')
             ->where('pet_interactions.pet_id', $petId)
             ->findAll();
 

@@ -1,4 +1,5 @@
 <?php
+use CodeIgniter\HTTP\ResponseInterface;
 function authorizationCheck($request)
 {
     $authHeader = $request->getHeaderLine('Authorization');
@@ -8,7 +9,12 @@ function authorizationCheck($request)
     }
     try {
         $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key(getenv('JWT_SECRET'), 'HS256'));
-        return $decoded->user_id ?? null;
+        $userId = $decoded->user_id ?? null;
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Token required or invalid'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        return $userId;
     } catch (\Exception $e) {
         return null;
     }
