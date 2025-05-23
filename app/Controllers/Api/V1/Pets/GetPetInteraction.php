@@ -13,11 +13,6 @@ class GetPetInteraction extends BaseController
     public function index($petId)
     {
         $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON(['error' => 'Token required or invalid'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
-
         $petId = (int) $petId;
         if (!$petId) {
             return $this->response->setJSON(['error' => 'Pet ID is required'])
@@ -31,6 +26,8 @@ class GetPetInteraction extends BaseController
             ->join('interaction_types', 'interaction_types.interaction_type_id = pet_interactions.interaction_id')
             ->join('items', 'items.item_id = pet_interactions.item_used')
             ->where('pet_interactions.pet_id', $petId)
+            ->orderBy('pet_interactions.created_at', 'DESC')
+            ->limit(10)
             ->findAll();
 
 

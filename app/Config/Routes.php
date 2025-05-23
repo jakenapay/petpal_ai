@@ -76,4 +76,9 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/adoption/dogpatterns', 'Api\V1\Pets\PetAdoption::getDogPatterns');
 
     $routes->get('pets/adoption/generateName', 'Api\V1\Pets\PetAdoption::generateName');
+
+
+    // Constants
+    $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');
+
 });
