@@ -50,19 +50,19 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/(:num)/interactions',   'Api\V1\Pets\GetPetInteraction::index/$1');
     $routes->post('pets/log-interactions',   'Api\V1\Pets\LogInteraction::index');
 
-    // Store
-    $routes->get('store/products',         'Api\V1\Store\Products::index');
-    $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
-    $routes->get('store/cart',             'Api\V1\Store\Cart::index');
-    $routes->post('store/cart',            'Api\V1\Store\AddToCart::index');
-    $routes->get('store/orders',           'Api\V1\Store\Orders::index');
-    $routes->post('store/orders',          'Api\V1\Store\CreateOrder::index');
-    $routes->get('store/inventory',        'Api\V1\Store\Inventory::index');
+    // // Store
+    // $routes->get('store/products',         'Api\V1\Store\Products::index');
+    // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
+    // $routes->get('store/cart',             'Api\V1\Store\Cart::index');
+    // $routes->post('store/cart',            'Api\V1\Store\AddToCart::index');
+    // $routes->get('store/orders',           'Api\V1\Store\Orders::index');
+    // $routes->post('store/orders',          'Api\V1\Store\CreateOrder::index');
+    // $routes->get('store/inventory',        'Api\V1\Store\Inventory::index');
 
-    // Payments
-    $routes->post('payments/process',       'Api\V1\Payments\Process::index');
-    $routes->post('payments/verify',        'Api\V1\Payments\Verify::index');
-    $routes->match(['get', 'post'], 'payments/subscriptions', 'Api\V1\Payments\Subscriptions::index');
+    // // Payments
+    // $routes->post('payments/process',       'Api\V1\Payments\Process::index');
+    // $routes->post('payments/verify',        'Api\V1\Payments\Verify::index');
+    // $routes->match(['get', 'post'], 'payments/subscriptions', 'Api\V1\Payments\Subscriptions::index');
     
     // Pet Adoption
     $routes->get('pets/adoption/species',   'Api\V1\Pets\PetAdoption::showAllSpecies');
@@ -74,11 +74,18 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/adoption/FurColor',  'Api\V1\Pets\PetAdoption::getFurColors');
     $routes->get('pets/adoption/catpatterns', 'Api\V1\Pets\PetAdoption::getCatPatterns');
     $routes->get('pets/adoption/dogpatterns', 'Api\V1\Pets\PetAdoption::getDogPatterns');
+    $routes->get('pets/adoption/dogcolors', 'Api\V1\Pets\PetAdoption::getDogColors');
+    $routes->get('pets/adoption/catcolors', 'Api\V1\Pets\PetAdoption::getCatColors');
+    $routes->get('pets/adoption/dogeyecolors', 'Api\V1\Pets\PetAdoption::getDogEyeColors');
+    $routes->get('pets/adoption/cateyecolors', 'Api\V1\Pets\PetAdoption::getCatEyeColors');
 
     $routes->get('pets/adoption/generateName', 'Api\V1\Pets\PetAdoption::generateName');
 
 
     // Constants
     $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');
+
+    // Item
+    $routes->get('items', 'Api\V1\Items\ListItems::index');
 
 });
