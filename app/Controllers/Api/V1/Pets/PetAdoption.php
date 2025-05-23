@@ -15,7 +15,7 @@ class PetAdoption extends BaseController
     public function showAllSpecies()
     {
         $db = \Config\Database::connect();
-        $builder = $db->table('Species');
+        $builder = $db->table('species');
         $builder->orderBy('species_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -25,7 +25,7 @@ class PetAdoption extends BaseController
 
     public function showAllDogBreeds() {
         $db = \Config\Database::connect();
-        $builder = $db->table('DogBreeds');
+        $builder = $db->table('dogbreeds');
         $builder->orderBy('breed_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -35,7 +35,7 @@ class PetAdoption extends BaseController
 
     public function showAllDogPersonalities(){
         $db = \Config\Database::connect();
-        $builder = $db->table('DogPersonalities');
+        $builder = $db->table('dogpersonalities');
         $builder->orderBy('personality_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -45,7 +45,7 @@ class PetAdoption extends BaseController
 
     public function showAllCatBreeds() {
         $db = \Config\Database::connect();
-        $builder = $db->table('CatBreeds');
+        $builder = $db->table('catbreeds');
         $builder->orderBy('breed_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -55,7 +55,7 @@ class PetAdoption extends BaseController
 
     public function showAllCatPersonalities(){
         $db = \Config\Database::connect();
-        $builder = $db->table('CatPersonalities');
+        $builder = $db->table('catpersonalities');
         $builder->orderBy('personality_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -71,7 +71,7 @@ class PetAdoption extends BaseController
 
     public function getEyeColors() {
         $db = \Config\Database::connect();
-        $builder = $db->table('EyeColor');
+        $builder = $db->table('eyecolor');
         $builder->orderBy('id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -81,7 +81,7 @@ class PetAdoption extends BaseController
 
     public function getFurColors() {
         $db = \Config\Database::connect();
-        $builder = $db->table('FurColor');
+        $builder = $db->table('furcolor');
         $builder->orderBy('id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -91,7 +91,7 @@ class PetAdoption extends BaseController
 
     public function getCatPatterns() {
         $db = \Config\Database::connect();
-        $builder = $db->table('CatPatterns');
+        $builder = $db->table('catpatterns');
         $builder->orderBy('pattern_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
@@ -101,7 +101,7 @@ class PetAdoption extends BaseController
 
     public function getDogPatterns() {
         $db = \Config\Database::connect();
-        $builder = $db->table('DogPatterns');
+        $builder = $db->table('dogpatterns');
         $builder->orderBy('pattern_id', 'ASC');
         $query = $builder->get();
         $result = $query->getResult();
