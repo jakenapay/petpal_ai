@@ -24,7 +24,7 @@ class CreatePet extends BaseController
             'cleanliness_level' => 100.00,
             'energy_level' => 100.00,
             'stress_level' => 0.00,
-            'current_mood' => null,
+            'current_mood' => "happy",
             'is_sick' => 0,
             'sickness_type' => null,
             'sickness_severity' => 0.00,
@@ -49,10 +49,27 @@ class CreatePet extends BaseController
         if (!$token) {
             return $this->response->setJSON(['error' => 'Token required'])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
-
         $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
-        $userId = $decoded->user_id;
 
+        $userId = $decoded->user_id;
+        //get the count of the pets of the user
+        $petModel = new PetModel();
+        $petModel->where('user_id', $userId);
+        $count = $petModel->countAllResults();
+
+        //get the count of the limit of pets of the user
+        $petModel = new \App\Models\UserModel();        
+        $petModel->where('user_id', $userId);
+        $petModel->select('number_of_pet');
+        $user = $petModel->first();
+        if (!$user) {
+            return $this->response->setJSON(['error' => 'User not found'])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        $limit = $user['number_of_pet'];
+        if ($count >= $limit) {
+            return $this->response->setJSON(['error' => 'Pet limit reached'])->setStatusCode(ResponseInterface::HTTP_FORBIDDEN);
+        }
+    
         $data = $this->request->getJSON(true);
         $rules = [
             'name' => [
@@ -97,7 +114,6 @@ class CreatePet extends BaseController
         $db = \Config\Database::connect();
         $db->transStart();
 
-        $petModel = new PetModel();
         $petId = $petModel->insert($petData);
         log_message('info', 'Pet ID: ' . $petId);
 
