@@ -15,6 +15,7 @@ class CreatePet extends BaseController
 {
     public function createPetStatusDefault($petId)
     {
+
         $data = [
             'pet_id' => $petId,
             'hunger_level' => 100.00,
@@ -29,17 +30,17 @@ class CreatePet extends BaseController
             'sickness_severity' => 0.00,
             'hibernation_mode' => 0
         ];
-
-        $petModel = new PetStatusModel();
+        log_message('info', 'Pet status data: ' . json_encode($data));
+        $PetStatusModel = new PetStatusModel();
 
         try {
-            $petModel->insert($data);
+            $PetStatusModel->insert($data);
             return true;
         } catch (DatabaseException $e) {
-            log_message('error', $e->getMessage());
             return $e->getMessage();
         }
     }
+
 
     public function index()
     {
@@ -97,19 +98,19 @@ class CreatePet extends BaseController
         $db->transStart();
 
         $petModel = new PetModel();
-        $inserted = $petModel->insert($petData);
-        
+        $petId = $petModel->insert($petData);
+        log_message('info', 'Pet ID: ' . $petId);
 
-        if ($inserted) {
-            $petId = $petModel->getInsertID();
-            if (!$this->createPetStatusDefault($petId)) {
-                $db->transRollback();
-                return $this->response->setJSON(['error' => 'Failed to create pet status'])
-                    ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-            }
-        } else {
+        if (!$petId) {
             $db->transRollback();
-            return $this->response->setJSON(['error' => 'Failed to create pet'])
+            return $this->response->setJSON(['error' => 'Failed to insert pet data'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $petStatusCreated = $this->createPetStatusDefault($petId);
+        if ($petStatusCreated !== true) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Failed to create pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
 
