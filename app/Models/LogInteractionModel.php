@@ -13,7 +13,10 @@ class LogInteractionModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        
+        'pet_id',
+        'item_used',
+        'affinity_gained',
+        'interaction_id',
     ];
 
     protected bool $allowEmptyInserts = false;
