@@ -13,6 +13,8 @@ class PetStatusModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'user_id',
+        'pet_id',
         'hunger_level',
         'happiness_level',
         'health_level',
