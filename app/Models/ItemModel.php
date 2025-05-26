@@ -23,7 +23,7 @@ class ItemModel extends Model
         'is_tradeable',
         'is_consumable',
         'is_stackable',
-        // 'effect',
+        'effect',
         'duration',
         'created_at',
         'korean_name'
@@ -75,12 +75,17 @@ class ItemModel extends Model
             items.is_tradable,
             items.is_consumable,
             items.is_stackable,
+            items.effect,
+            item_effects.effect_name,
+            item_effects.effect_values,
             items.duration,
             items.created_at,
             items.korean_name
         FROM items 
         JOIN item_categories 
         ON items.category_id = item_categories.category_id
+        JOIN item_effects
+        ON items.effect = item_effects.effect_id
     ")->getResultArray();
     }
 

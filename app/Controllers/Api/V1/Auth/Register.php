@@ -65,9 +65,15 @@ class Register extends BaseController
 
         $userModel = new UserModel();
 
-        if ($userModel->where('email', $email)->orWhere('username', $username)->first()) {
+        if ($userModel->where('email', $email)->first()) {
             return $this->response->setJSON([
-                'error' => 'Email or username already exists.'
+            'error' => 'Email already exists.'
+            ])->setStatusCode(ResponseInterface::HTTP_CONFLICT);
+        }
+        
+        if ($userModel->where('username', $username)->first()) {
+            return $this->response->setJSON([
+            'error' => 'Username already exists.'
             ])->setStatusCode(ResponseInterface::HTTP_CONFLICT);
         }
         

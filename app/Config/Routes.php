@@ -88,5 +88,5 @@ $routes->group('api/v1', function($routes) {
 
     // Item
     $routes->get('items', 'Api\V1\Items\ListItems::index');
-
+    $routes->get('items/categories', 'Api\V1\Items\ListItemsCategories::index');
 });
