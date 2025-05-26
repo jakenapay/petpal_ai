@@ -24,4 +24,23 @@ class GetInteractions extends BaseController
             'data' => $interactions
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
+    public function getInteractionByCategory($category)
+    {
+        $userId = authorizationCheck($this->request);
+        
+        $interactionModel = new InteractionsModel();
+        $interactions = $interactionModel->where('category', $category)->findAll();
+        
+        if (!$interactions) {
+            return $this->response->setJSON(['error' => 'No interactions found for this category'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Interactions by \'' . $category . '\' category was retrieved successfully',
+            'data' => $interactions
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
+    }
 }

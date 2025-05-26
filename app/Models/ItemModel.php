@@ -59,6 +59,7 @@ class ItemModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
+    // Functions
     public function getItemsWithCategory()
     {
         return $this->db->query("
@@ -81,6 +82,43 @@ class ItemModel extends Model
         JOIN item_categories 
         ON items.category_id = item_categories.category_id
     ")->getResultArray();
+    }
+
+
+    public function getItemById($itemId)
+    {
+        /*
+            i have item_id, category_id, item_name, description, image_url, base_price, rarity, is_tradeable, is_consumable, is_stackable, effect, duration, created_at
+            i need to return the item with category_name from item_categories table
+            i need to return the item with effects from the item_effects table
+            i need to return the item rarity_name from item_rarity table
+        */
+
+        // Get the item with category and rarity info
+        $builder = $this->db->table('items');
+        $builder->select('
+            items.*,
+            item_categories.category_name,
+            item_rarity.rarity_name
+        ');
+        $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
+        $builder->join('item_rarity', 'items.rarity = item_rarity.rarity_id', 'left');
+        $builder->where('items.item_id', $itemId);
+        $item = $builder->get()->getRowArray();
+
+        if (!$item) {
+            return null;
+        }
+
+        // Get effects for the item
+        $effects = $this->db->table('item_effects')
+            ->where('effect_id', $item['effect_id'])
+            ->get()
+            ->getResultArray();
+
+        $item['effects'] = $effects;
+
+        return $item;
     }
 
 }

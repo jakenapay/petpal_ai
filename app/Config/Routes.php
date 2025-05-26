@@ -47,8 +47,8 @@ $routes->group('api/v1', function($routes) {
     $routes->put('pets/(:num)',                 'Api\V1\Pets\UpdatePet::update/$1');
     $routes->get('pets/(:num)/status',          'Api\V1\Pets\GetPetStatus::index/$1');
     $routes->put('pets/(:num)/status-update',   'Api\V1\Pets\UpdatePetStatus::index/$1');
-    $routes->get('pets/(:num)/interactions',   'Api\V1\Pets\GetPetInteraction::index/$1');
-    $routes->post('pets/log-interactions',   'Api\V1\Pets\LogInteraction::index');
+    $routes->get('pets/(:num)/get-interactions',   'Api\V1\Pets\GetPetInteraction::index/$1');
+    $routes->post('pets/(:num)/interactions',   'Api\V1\Pets\ProcessPetInteraction::index/$1');
 
     // // Store
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
@@ -84,6 +84,7 @@ $routes->group('api/v1', function($routes) {
 
     // Constants
     $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');
+    $routes->get('constants/interaction-types/(:any)', 'Api\V1\Constants\GetInteractions::getInteractionByCategory/$1');
 
     // Item
     $routes->get('items', 'Api\V1\Items\ListItems::index');

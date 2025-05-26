@@ -43,4 +43,18 @@ class PetModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    // Functions
+
+    public function getPetsByUserId($userId)
+    {
+        return $this->where('user_id', $userId)->findAll();
+    }
+    public function getPetById($petId)
+    {
+        if (!$petId) {
+            return null;
+        }
+        return $this->find($petId);
+    }
 }

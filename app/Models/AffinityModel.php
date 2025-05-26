@@ -4,34 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetStatusModel extends Model
+class AffinityModel extends Model
 {
-    protected $table            = 'pet_status';
-    protected $primaryKey       = 'status_id';
+    protected $table            = 'affinity_levels';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'pet_id',
-        'hunger_level',
-        'happiness_level',
-        'health_level',
-        'energy_level',
-        'cleanliness_level',
-        'stress_level',
-        'current_mood',
-        'is_sick',
-        'sickness_type',
-        'sickness_severity',
-        'last_hunger_update',
-        'last_happiness_update',
-        'last_health_update',
-        'last_cleanliness_update',
-        'last_energy_update',
-        'last_status_calculation',
-        'hibernation_mode',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -63,9 +44,10 @@ class PetStatusModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //Functions
-    public function getPetStatusByPetId($petId)
+    // Functions
+
+    public function getAfinityLevels()
     {
-        return $this->where('pet_id', $petId)->first();
+        return $this->findAll();
     }
 }

@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InteractionsModel extends Model
+class InteractionTypeModel extends Model
 {
-    protected $table            = 'interaction_types';
+    protected $table            = 'interaction_type';
     protected $primaryKey       = 'interaction_type_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -48,4 +48,17 @@ class InteractionsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getInteractions()
+    {
+        return $this->findAll();
+    }
+    public function getInteractionByCategory($category)
+    {
+        return $this->where('category', $category)->findAll();
+    }
+    public function getInteractionById($interactionId)
+    {
+        return $this->find($interactionId);
+    }
 }
