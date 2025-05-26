@@ -14,6 +14,7 @@ class PetStatusModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'pet_id',
+        'affinity',
         'hunger_level',
         'happiness_level',
         'health_level',
@@ -67,5 +68,12 @@ class PetStatusModel extends Model
     public function getPetStatusByPetId($petId)
     {
         return $this->where('pet_id', $petId)->first();
+    }
+    public function updatePetStatus($pet_id, array $data)
+    {
+        $query = $this->where('pet_id', $pet_id)->set($data)->update();
+
+        log_message('info', $query);
+        return $query;
     }
 }

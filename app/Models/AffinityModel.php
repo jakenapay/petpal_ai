@@ -50,4 +50,11 @@ class AffinityModel extends Model
     {
         return $this->findAll();
     }
+public function getAffinityLevelByPoints($points)
+{
+    return $this->where('required_points <=', $points)
+                ->orderBy('required_points', 'DESC')
+                ->first();
+}
+
 }

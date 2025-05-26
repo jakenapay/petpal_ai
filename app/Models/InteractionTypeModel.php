@@ -13,10 +13,9 @@ class InteractionTypeModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'name',
-        'duration',
-        'description',
-        'requires_item',
+        'interaction_type_id', 'category', 'interaction_name', 'base_points', 'max_daily_count',
+        'required_subscription', 'hunger_effect', 'happiness_effect', 'health_effect',
+        'cleanliness_effect', 'energy_effect', 'stress_effect', 'description', 'created_at'
     ];
 
     protected bool $allowEmptyInserts = false;

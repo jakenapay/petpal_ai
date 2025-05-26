@@ -4,7 +4,7 @@ namespace App\Controllers\Api\V1\Constants;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\InteractionsModel;
+use App\Models\InteractionTypeModel;
 
 class GetInteractions extends BaseController
 {
@@ -12,7 +12,7 @@ class GetInteractions extends BaseController
     {
         $userId = authorizationCheck($this->request);
         
-        $interactionModel = new InteractionsModel();
+        $interactionModel = new InteractionTypeModel();
         $interactions = $interactionModel->findAll();
         if (!$interactions) {
             return $this->response->setJSON(['error' => 'No interactions found'])
@@ -29,7 +29,7 @@ class GetInteractions extends BaseController
     {
         $userId = authorizationCheck($this->request);
         
-        $interactionModel = new InteractionsModel();
+        $interactionModel = new InteractionTypeModel();
         $interactions = $interactionModel->where('category', $category)->findAll();
         
         if (!$interactions) {
