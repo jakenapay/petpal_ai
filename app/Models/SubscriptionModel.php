@@ -3,18 +3,17 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\PlanModel;
 
-class DailyQuestModel extends Model
+class SubscriptionModel extends Model
 {
-    protected $table            = 'pet_daily_quests';
-    protected $primaryKey       = 'quest_id';
+    protected $table            = 'subscriptions';
+    protected $primaryKey       = 'subscription_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'quest_id',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -46,12 +45,33 @@ class DailyQuestModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //FUNCTIONS
-    public function getDailyQuests($petId)
+    // FUNCTIONS
+    
+    //get user subscription by user id
+    public function getUserSubscription($userId)
     {
-        if (!$petId) {
+        if (!$userId) {
             return [];
         }
-        return $this->where('pet_id', $petId)->findAll();
+        $subscription = $this->where('user_id', $userId)->first();
+        if (!$subscription) {
+            return [];
+        }
+        // Convert the subscription to an array if it's not already
+        if (!is_array($subscription)) {
+            $subscription = $subscription->toArray();
+        }
+        // Ensure the subscription has a 'plan_id' key
+        if (!isset($subscription['plan_id'])) {
+            $subscription['plan_id'] = null; // or set a default value
+        }
+        //get plan details by plan id
+        $planModel = new PlanModel();
+        $plan = $planModel->getPlanbyId($subscription['plan_id']);
+        if (!$plan) {
+            return []; // Return empty array if plan not found
+        }
+        return $plan;
     }
+
 }

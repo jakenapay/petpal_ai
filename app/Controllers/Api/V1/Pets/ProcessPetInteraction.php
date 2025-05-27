@@ -9,7 +9,10 @@ use App\Models\ItemModel;
 use App\Models\PetModel;
 use App\Models\PetStatusModel;
 use App\Models\AffinityModel;
+use App\Models\SubscriptionModel;
+use App\Models\PetLifeStageModel;
 use App\Libraries\InteractionService;
+
 
 
 class ProcessPetInteraction extends BaseController
@@ -88,8 +91,28 @@ class ProcessPetInteraction extends BaseController
             return $this->response->setJSON(['error' => 'Affinity levels not found'])
                 ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
+
+        //get the user current subscription
+        $subscriptionModel = new SubscriptionModel();
+        $subscription = $subscriptionModel->getUserSubscription($userId);
+        if (!$subscription) {
+            return $this->response->setJSON(['error' => 'User subscription not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        //get the pet life stage
+        $petLifeStageModel = new PetLifeStageModel();
+        $petLifeStage = $petLifeStageModel->getLifeStageById($pet['life_stage_id']);
+        if (!$petLifeStage) {
+            return $this->response->setJSON(['error' => 'Pet life stage not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        if (is_string($petLifeStage)) {
+            $petLifeStage = json_decode($petLifeStage, true);
+        }
+
+        //STEP 1: 
         
-        //STEP 1: Check Subscription Requirements
 
         //STEP 2: Check if the interaction is allowed today
         $todayStart = date('Y-m-d 00:00:00');
@@ -133,6 +156,15 @@ class ProcessPetInteraction extends BaseController
         //STEP 5: GET THE MULTIPLIERS from the affinity
         $multiplier = $affinityLevel['multiplier'];
 
+        //STEP 6: GET THE SUBSCRIPTION MULTIPLIER
+        $subs_multiplier = $subscription['multiplier'];
+
+        //STEP 7: GET THE LIFESTAGE MULTIPLIER
+        //log pet stage
+        log_message('info', 'Pet Life Stage: ' . json_encode($petLifeStage));
+        $petLifeStageMultiplier = $petLifeStage['multiplier']; 
+
+
         //STEP 6: CALCULATE THE PET STATUS EFFECTS WITH MULTIPLIERS
         $effects = $item['effects'];
 
@@ -145,7 +177,7 @@ class ProcessPetInteraction extends BaseController
         $updateData = $effectValues;
         log_message('info', 'Update data: ' . json_encode($updateData));
 
-        $updatePetStatusResult = $petStatusModel->updateStatusChange($pet_id, $updateData, $multiplier);
+        $updatePetStatusResult = $petStatusModel->updateStatusChange($pet_id, $updateData, $multiplier, $subs_multiplier, $petLifeStageMultiplier);
         if (!$updatePetStatusResult) {
             return $this->response->setJSON(['error' => 'Failed to update pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
@@ -178,7 +210,7 @@ class ProcessPetInteraction extends BaseController
             'cleanliness_change' => $flatUpdateData['cleanliness_level'] ?? 0,
             'energy_change' => $flatUpdateData['energy_level'] ?? 0,
             'stress_change' => $flatUpdateData['stress_level'] ?? 0,
-            'llm_response' => $data['llm_response'] ?? null,
+            'llm_response' => $data['llm_response'] ?? "no response",
             'llm_response_type' => $data['llm_response_type'] ?? null,
             't2m_animation_id' => $data['t2m_animation_id'] ?? null,
             'emotion_detected' => $data['emotion_detected'] ?? null,
@@ -216,7 +248,8 @@ class ProcessPetInteraction extends BaseController
                 'new_affinity' => $newAffinity,
                 'affinity_level' => $affinityLevel['level_name'],
                 'multiplier' => $multiplier,
-                'effects_applied' => $flatUpdateData
+                'effects_applied' => $flatUpdateData,
+                'pet_life_stage' => $petLifeStage
             ]
         ])->setStatusCode(ResponseInterface::HTTP_OK);      
     }

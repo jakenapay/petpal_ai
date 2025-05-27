@@ -4,17 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DailyQuestModel extends Model
+class AchievementModel extends Model
 {
-    protected $table            = 'pet_daily_quests';
-    protected $primaryKey       = 'quest_id';
+    protected $table            = 'pet_achievements';
+    protected $primaryKey       = 'achievement_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'quest_id',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -46,12 +44,13 @@ class DailyQuestModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //FUNCTIONS
-    public function getDailyQuests($petId)
+    // Functions
+    public function getAchievementsByPetId($petId)
     {
         if (!$petId) {
             return [];
         }
+
         return $this->where('pet_id', $petId)->findAll();
     }
 }

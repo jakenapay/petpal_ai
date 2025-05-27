@@ -74,9 +74,8 @@ class PetStatusModel extends Model
         $query = $this->where('pet_id', $pet_id)->set($data)->update();
         return $query;
     }
-    public function updateStatusChange($pet_id, $data, $multiplier)
+    public function updateStatusChange($pet_id, $data, $multiplier, $subs_multiplier, $petLifeStageMultiplier)
     {
-
         // Validation rules
         $validationRules = [
             'hunger_level' => 'permit_empty|decimal',
@@ -122,12 +121,15 @@ class PetStatusModel extends Model
         // Now use $flattenedData instead of $data
         $finalUpdateData = [];
 
+        //log the the multiplier values
+        log_message('debug', "Multipliers - Multiplier: $multiplier, Subscription Multiplier: $subs_multiplier, Pet Life Stage Multiplier: $petLifeStageMultiplier");
         foreach (['hunger_level', 'happiness_level', 'health_level', 'energy_level', 'cleanliness_level', 'stress_level'] as $key) {
             if (isset($flattenedData[$key])) {
-                $multipliedValue = $flattenedData[$key] * $multiplier;
+                $multipliedValue = $flattenedData[$key] * $multiplier * $subs_multiplier * $petLifeStageMultiplier;
                 $currentValue = isset($petStatus[$key]) ? (float)$petStatus[$key] : 0;
                 $newValue = max(min($currentValue + $multipliedValue, 100), 0);
                 $finalUpdateData[$key] = $newValue;
+                log_message('debug', "Updating pet status: $key from $currentValue to $newValue for pet_id: $pet_id");
             }
         }
 

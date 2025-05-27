@@ -4,17 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DailyQuestModel extends Model
+class PlanModel extends Model
 {
-    protected $table            = 'pet_daily_quests';
-    protected $primaryKey       = 'quest_id';
+    protected $table            = 'subscription_plans';
+    protected $primaryKey       = 'plan_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'quest_id',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -46,12 +44,12 @@ class DailyQuestModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //FUNCTIONS
-    public function getDailyQuests($petId)
+    // FUNCTIONS
+    public function getPlanbyId($planId)
     {
-        if (!$petId) {
+        if (!$planId) {
             return [];
         }
-        return $this->where('pet_id', $petId)->findAll();
+        return $this->where('plan_id', $planId)->first();
     }
 }
