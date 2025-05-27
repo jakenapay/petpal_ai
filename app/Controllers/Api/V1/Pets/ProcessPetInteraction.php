@@ -21,6 +21,10 @@ class ProcessPetInteraction extends BaseController
     public function index($pet_id)
     {
         $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
 
         //get the pet id from the url
         $pet_id = (int) $pet_id;
@@ -38,10 +42,10 @@ class ProcessPetInteraction extends BaseController
         //get the pet interaction history
         $petInteractionModel = new PetInteractionModel();
         $interactionHistory = $petInteractionModel->GetPetInteractionHistory($pet_id);
-        if (!$interactionHistory) {
-            return $this->response->setJSON(['error' => 'No interaction history found for this pet'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
+        // if (!$interactionHistory) {
+        //     return $this->response->setJSON(['error' => 'No interaction history found for this pet'])
+        //         ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        // }
 
         // Get what interaction is requested
         $interactionsModel = new InteractionTypeModel();
@@ -85,51 +89,12 @@ class ProcessPetInteraction extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
         
-        //FIRST STEP: Check if the interaction is allowed today
+        //STEP 1: Check Subscription Requirements
 
+        //STEP 2: Check if the interaction is allowed today
         $todayStart = date('Y-m-d 00:00:00');
         $todayEnd = date('Y-m-d 23:59:59');
 
-        // // Fetch today's usage per interaction type for this pet
-        // $todayUsage = $petInteractionModel->getTodayInteractionCountsByPet($pet_id);
-
-        // // Map usage by interaction_type_id for easy access
-        // $usageMap = [];
-        // foreach ($todayUsage as $usage) {
-        //     $usageMap[$usage['interaction_type_id']] = (int)$usage['count'];
-        // }
-
-        // // Build the final interaction summary
-        // $interactionSummary = [];
-        // $canProceed = false;
-        // foreach ($allInteractions as $interactionType) {
-        //     $interactionId = $interactionType['interaction_type_id'];
-        //     $usedCount = $usageMap[$interactionId] ?? 0;
-        //     $maxCount = (int)$interactionType['max_daily_count'];
-        //     $remaining = max(0, $maxCount - $usedCount);
-
-        //     $interactionSummary[] = [
-        //         'interaction_type_id' => $interactionId,
-        //         'interaction_name' => $interactionType['interaction_name'],
-        //         'used_today' => $usedCount,
-        //         'remaining_today' => $remaining
-        //     ];
-
-        //     // Check if this is the requested interaction
-        //     if ($interactionId == $data['interaction_id']) {
-        //         if ($remaining > 0) {
-        //             $canProceed = true;
-        //         }
-        //     }
-        // }
-
-        // // If not allowed, return error
-        // if (!$canProceed) {
-        //     return $this->response->setJSON([
-        //         'error' => 'You have reached the maximum allowed for this interaction today.'
-        //     ])->setStatusCode(ResponseInterface::HTTP_FORBIDDEN);
-        // }
-        // Get used count for this specific interaction
         $todayUsage = $petInteractionModel->getTodayInteractionCountsByPet($pet_id);
         $usedCount = 0;
         foreach ($todayUsage as $usage) {
@@ -148,30 +113,27 @@ class ProcessPetInteraction extends BaseController
             ])->setStatusCode(ResponseInterface::HTTP_FORBIDDEN);
         }
 
-        // STEP 1.1: Add the affinity gained to the pet's current affinity
+        //STEP 3: GET AND UPDATE THE AFFINITY GAINED
         $affinityGained = $data['affinity_gained'] ?? 0;
         $newAffinity = $petStatus['affinity'] + $affinityGained;
 
         // Update the pet_status with the new affinity
-        $result = $petStatusModel->updatePetStatus($pet_id, [
+        $result = $petStatusModel->updatePetAffinity($pet_id, [
             'affinity' => $newAffinity
         ]);
-
-        log_message('info', 'Updated pet status with new affinity: ' . json_encode($result));
-
 
         if (!$result) {
             return $this->response->setJSON(['error' => 'Failed to update pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // STEP 1.2: Get the affinity level using the new affinity value
+        // STEP 4: Get the affinity level using the new affinity value
         $affinityLevel = $affinityModel->getAffinityLevelByPoints($newAffinity);
 
-        //SECOND STEP: GET THE MULTIPLIERS 
-        //Third STEP: Process the interaction
-        // Calculate the effects of the interaction
+        //STEP 5: GET THE MULTIPLIERS from the affinity
+        $multiplier = $affinityLevel['multiplier'];
 
+        //STEP 6: CALCULATE THE PET STATUS EFFECTS WITH MULTIPLIERS
         $effects = $item['effects'];
 
         // Loop through each effect
@@ -180,43 +142,82 @@ class ProcessPetInteraction extends BaseController
             $effectValues = json_decode($effect['effect_values'], true);
         }
 
-        //send the effects to the interaction service
-        $interactionService = new InteractionService();
         $updateData = $effectValues;
-        // $result = $interactionService->update_pet_status($pet_id, $updateData, $multipliers);
+        log_message('info', 'Update data: ' . json_encode($updateData));
 
+        $updatePetStatusResult = $petStatusModel->updateStatusChange($pet_id, $updateData, $multiplier);
+        if (!$updatePetStatusResult) {
+            return $this->response->setJSON(['error' => 'Failed to update pet status'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        // STEP 7: MERON PA SI BOSS NA MARAMING MULTIPLIERS. BACKLOG NA LANG MUNA
+        
+
+        //extra: flatten the update data 
+        $flatUpdateData = array_merge(...$updateData);
 
         //create data for the interaction log - FOR POST ONLY. NOT YET WORKING I JUST WANT TO SEE FIRST WHAT THE DATA LOOKS LIKE
         $log_data = [
-            'log_id' => bin2hex(random_bytes(16)), //amats ni sir
-            // 'log_id' => null // auto-incremented by the database
+            'log_id' => bin2hex(random_bytes(16)),
             'pet_id' => $pet_id,
             'user_id' => $userId,
             'interaction_type_id' => $data['interaction_id'],
+            'interaction_category' => $interaction['category'],
+            'interaction_subcategory' => $interaction['subcategory'] ?? null,
             'item_used_id' => $data['item_used_id'],
-            'affinity_gained' => $data['affinity_gained'] ?? 0, // default to 0 if not provided
+            'item_used_name' => $item['item_name'],
+            'interaction_duration_seconds' => $data['interaction_duration_seconds'] ?? 0,
+            'interaction_quality' => $data['quality'] ?? null,
+            'base_points' => $data['base_points'] ?? 0,
+            'multiplier_total' => $multiplier,
+            'affinity_gained' => $newAffinity,
+            'coins_earned' => $data['coins_earned'] ?? 0,
+            'hunger_change' => $flatUpdateData['hunger_level'] ?? 0,
+            'happiness_change' => $flatUpdateData['happiness_level'] ?? 0,
+            'health_change' => $flatUpdateData['health_level'] ?? 0,
+            'cleanliness_change' => $flatUpdateData['cleanliness_level'] ?? 0,
+            'energy_change' => $flatUpdateData['energy_level'] ?? 0,
+            'stress_change' => $flatUpdateData['stress_level'] ?? 0,
+            'llm_response' => $data['llm_response'] ?? null,
+            'llm_response_type' => $data['llm_response_type'] ?? null,
+            't2m_animation_id' => $data['t2m_animation_id'] ?? null,
+            'emotion_detected' => $data['emotion_detected'] ?? null,
+            'platform' => $data['platform'] ?? 'mobile',
+            'session_id' => $data['session_id'] ?? null,
+            'client_timestamp' => $data['client_timestamp'] ?? date('Y-m-d H:i:s'),
+            'affinity_gained' => $data['affinity_gained'] ?? 0,
         ];
+
+        $interactionLogModel = new PetInteractionModel();
+
+        $inserted = $interactionLogModel->insert($log_data);
+
+        if ($inserted === false) {
+            log_message('error', 'DB error: ' . json_encode($interactionLogModel->errors()));
+            return $this->response->setJSON(['error' => 'Failed to log interaction'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        // if (!$interactionLogModel->insert($log_data)) {
+        //     return $this->response->setJSON(['error' => 'Failed to log interaction'])
+        //         ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        // }
 
 
         //return is for testing only - so far.
-        return 
-            $this->response->setJSON([
-                'status' => 'success',
-                'message' => 'Interaction logged successfully',
+        return $this->response->setJSON([
+            'message' => 'Pet interaction processed successfully',
+            'interaction_summary' => [
+                'interaction_type_id' => $data['interaction_id'],
+                'interaction_name' => $interaction['interaction_name'],
+                'interaction_category' => $interaction['category'],
+                'item_used_id' => $data['item_used_id'],
+                'item_used_name' => $item['item_name'],
+                'affinity_gained' => $affinityGained,
                 'new_affinity' => $newAffinity,
-                'remaining_today' => $remaining,
-                'effects' => $effects,
-                'effectValues' => $effectValues,
-                'affinityLevel' => $affinityLevel,
-                // 'history' => $interactionHistory,
-                // 'interaction' => $interaction, 
-                // 'item' => $item,
-                // 'pet' => $pet,
-                'pet_status' => $petStatus,
-                // 'affinity' => $affinity,
-
-            ])->setStatusCode(ResponseInterface::HTTP_OK);
-
-        
+                'affinity_level' => $affinityLevel['level_name'],
+                'multiplier' => $multiplier,
+                'effects_applied' => $flatUpdateData
+            ]
+        ])->setStatusCode(ResponseInterface::HTTP_OK);      
     }
 }

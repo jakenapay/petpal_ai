@@ -11,9 +11,7 @@ class InteractionService
     }
     public function update_pet_status($pet_id, $data)
     {
-
         $validationRules = [
-            'affinity' => 'permit_empty|decimal',
             'hunger_level' => 'permit_empty|decimal',
             'happiness_level' => 'permit_empty|decimal',
             'health_level' => 'permit_empty|decimal',
@@ -65,14 +63,16 @@ class InteractionService
 
         $existingStatus = $petStatusModel->where('pet_id', $pet_id)->first();
 
-        if ($existingStatus) {
-            $petStatusModel->where('pet_id', $pet_id)->set($updateData)->update();
-            return ['message' => 'Pet status updated successfully'];
-        } else {
-            $updateData['pet_id'] = $pet_id;
-            $petStatusModel->insert($updateData);
-            return ['message' => 'Pet status created successfully'];
-        }
+
+        
+        // if ($existingStatus) {
+        //     $petStatusModel->where('pet_id', $pet_id)->set($updateData)->update();
+        //     return ['message' => 'Pet status updated successfully'];
+        // } else {
+        //     $updateData['pet_id'] = $pet_id;
+        //     $petStatusModel->insert($updateData);
+        //     return ['message' => 'Pet status created successfully'];
+        // }
     }
 }
 

@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class AffinityModel extends Model
+class DailyQuestModel extends Model
 {
-    protected $table            = 'affinity_levels';
+    protected $table            = 'dailyquests';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -43,20 +43,4 @@ class AffinityModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    // Functions
-
-    public function getAfinityLevels()
-    {
-        return $this->findAll();
-    }
-public function getAffinityLevelByPoints($points)
-{
-    return $this->select('*')
-                ->where('required_points <=', $points)
-                ->orderBy('required_points', 'DESC')
-                ->first();
-    }
-    
-
 }

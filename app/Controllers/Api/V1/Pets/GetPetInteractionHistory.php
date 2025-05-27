@@ -13,6 +13,11 @@ class GetPetInteractionHistory extends BaseController
     public function index($petId)
     {
         $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        
         $petId = (int) $petId;
         if (!$petId) {
             return $this->response->setJSON(['error' => 'Pet ID is required'])
@@ -26,8 +31,22 @@ class GetPetInteractionHistory extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
         // Get the interaction history for the pet
-        $logInteractionModel = new LogInteractionModel();
-        $interactionHistory = $logInteractionModel->getInteractionHistoryByPetId($petId);
+        $logInteractionModel = new PetInteractionModel();
+        $interactionHistory = $logInteractionModel->GetPetInteractionHistory($petId);
+
+        if (!$interactionHistory) {
+            return $this->response->setJSON(['error' => 'No interaction history found for this pet'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        // Return the interaction history
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Pet interaction history retrieved successfully',
+            'data' => [
+                'history' => $interactionHistory
+            ]
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
+
         
 
     }
