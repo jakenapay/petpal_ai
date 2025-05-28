@@ -20,7 +20,82 @@ class ProcessPetInteraction extends BaseController
     public function __construct()
     {
         date_default_timezone_set('Asia/Manila'); // Set the default timezone to Asia/Manila
+        $this->petInteractionModel = new PetInteractionModel();
+        $this->interactionsModel = new InteractionTypeModel();
+        $this->interactionService = new InteractionService();
+        $this->petModel = new PetModel();
+        $this->petStatusModel = new PetStatusModel();
+        $this->affinityModel = new AffinityModel();
+        $this->subscriptionModel = new SubscriptionModel();
+        $this->petLifeStageModel = new PetLifeStageModel();
+        $this->itemsModel = new ItemModel();
+
     }
+
+
+    public function getInteraction($interaction_id){
+        $interaction = $this->interactionsModel->getInteractionById($interaction_id);
+        if (!$interaction) {
+            return $this->response->setJSON(['error' => 'Interaction not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $interaction;
+    }
+
+    public function getItemUsed($item_used_id){
+        $item = $this->itemsModel->getItemById($item_used_id);
+        if (!$item) {
+            return $this->response->setJSON(['error' => 'Item not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $item;
+    }
+    public function getPet($pet_id){
+        $pet = $this->petModel->getPetById($pet_id);
+        if (!$pet) {
+            return $this->response->setJSON(['error' => 'Pet not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $pet;
+    }
+
+    public function getPetStatus($pet_id){
+        $petStatus = $this->petStatusModel->getPetStatusByPetId($pet_id);
+        if (!$petStatus) {
+            return $this->response->setJSON(['error' => 'Pet status not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $petStatus;
+    }
+    public function getPetAffinity(){
+        $affinity = $this->affinityModel->getAfinityLevels();
+        if (!$affinity) {
+            return $this->response->setJSON(['error' => 'Affinity levels not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $affinity;
+    }
+    public function getSubscription($user_id){
+        $subscription = $this->subscriptionModel->getUserSubscription($user_id);
+        if (!$subscription) {
+            return $this->response->setJSON(['error' => 'User subscription not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $subscription;
+    }
+    public function getPetLifeStage($life_stage_id){
+        $petLifeStage = $this->petLifeStageModel->getLifeStageById($life_stage_id);
+        if (!$petLifeStage) {
+            return $this->response->setJSON(['error' => 'Pet life stage not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        if (is_string($petLifeStage)) {
+            $petLifeStage = json_decode($petLifeStage, true);
+        }
+        return $petLifeStage;
+    }
+
+
     public function index($pet_id)
     {
         $userId = authorizationCheck($this->request);
@@ -35,160 +110,144 @@ class ProcessPetInteraction extends BaseController
             return $this->response->setJSON(['error' => 'Pet ID is required'])
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
-
+        //get the payload
         $data = $this->request->getJSON(true);
-
-        //validate the data first
-        
-        
-        
-        //get the pet interaction history
-        $petInteractionModel = new PetInteractionModel();
-        $interactionHistory = $petInteractionModel->GetPetInteractionHistory($pet_id);
-        // if (!$interactionHistory) {
-        //     return $this->response->setJSON(['error' => 'No interaction history found for this pet'])
-        //         ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        // }
-
-        // Get what interaction is requested
-        $interactionsModel = new InteractionTypeModel();
-        $interaction = $interactionsModel->getInteractionById($data['interaction_id']);
-        $allInteractions = $interactionsModel->findAll();
-        if (!$interaction) {
-            return $this->response->setJSON(['error' => 'Interaction not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
-
+        //get the interaction type
+        $interaction = $this->getInteraction($data['interaction_id']);
         //get the item used in the interaction
-        $itemsModel = new ItemModel();
-        $item = $itemsModel->getItemById($data['item_used_id']);
-        if (!$item) {
-            return $this->response->setJSON(['error' => 'Item not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
+        $item = $this->getItemUsed($data['item_used_id']);
         //get the pet 
-        $petModel = new PetModel();
-        $pet = $petModel->getPetById($pet_id);
-        if (!$pet) {
-            return $this->response->setJSON(['error' => 'Pet not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
-        // get the pet status
-        $petStatusModel = new PetStatusModel();
-        $petStatus = $petStatusModel->getPetStatusByPetId($pet_id);
-        if (!$petStatus) {
-            return $this->response->setJSON(['error' => 'Pet status not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
-        //get the affinity table
-        $affinityModel = new AffinityModel();
-        $affinity = $affinityModel->getAfinityLevels();
-        if (!$affinity) {
-            return $this->response->setJSON(['error' => 'Affinity levels not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
+        $pet = $this->getPet($pet_id);
+        //get the pet status
+        $petStatus = $this->getPetStatus($pet_id);
+        //get the affinity
+        $affinity = $this->getPetAffinity();
         //get the user current subscription
-        $subscriptionModel = new SubscriptionModel();
-        $subscription = $subscriptionModel->getUserSubscription($userId);
-        if (!$subscription) {
-            return $this->response->setJSON(['error' => 'User subscription not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
+        $subscription = $this->getSubscription($userId);
         //get the pet life stage
-        $petLifeStageModel = new PetLifeStageModel();
-        $petLifeStage = $petLifeStageModel->getLifeStageById($pet['life_stage_id']);
-        if (!$petLifeStage) {
-            return $this->response->setJSON(['error' => 'Pet life stage not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-        if (is_string($petLifeStage)) {
-            $petLifeStage = json_decode($petLifeStage, true);
-        }
-
-        //STEP 1: 
-        
-
-        //STEP 2: Check if the interaction is allowed today
+        $petLifeStage = $this->getPetLifeStage($pet['life_stage_id']);
+        //set the date and time
         $todayStart = date('Y-m-d 00:00:00');
         $todayEnd = date('Y-m-d 23:59:59');
+        //start db transaction
+        $db = \Config\Database::connect();
+        $db->transStart();
 
-        $todayUsage = $petInteractionModel->getTodayInteractionCountsByPet($pet_id);
+        //-------------------------------------------------------------------------
+        //CHECK IF THE USER HAS REACHED THE MAXIMUM DAILY COUNT FOR THE INTERACTION
+        //-------------------------------------------------------------------------
+        $todayUsage = $this->petInteractionModel->getTodayInteractionCountsByPet($pet_id);
+        log_message('debug', print_r($todayUsage, true));
         $usedCount = 0;
-        foreach ($todayUsage as $usage) {
-            if ($usage['interaction_type_id'] == $data['interaction_id']) {
-                $usedCount = (int)$usage['count'];
-                break;
+
+        if ($todayUsage === false) {
+            $db->transRollback();
+            return $this->response->setJSON([
+                'error' => 'Failed to get pet interaction counts'
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }else{
+            foreach ($todayUsage as $usage) {
+                if ($usage['interaction_type_id'] == $data['interaction_id']) {
+                    $usedCount = (int)$usage['count'];
+                    break;
+                }
+            }
+            $maxCount = (int)$interaction['max_daily_count'];
+            $remaining = max(0, $maxCount - $usedCount);
+            if ($remaining <= 0) {
+                return $this->response->setJSON([
+                    'error' => 'You have reached the maximum allowed for this interaction today.'
+                ])->setStatusCode(ResponseInterface::HTTP_FORBIDDEN);
             }
         }
 
-        $maxCount = (int)$interaction['max_daily_count'];
-        $remaining = max(0, $maxCount - $usedCount);
-
-        if ($remaining <= 0) {
-            return $this->response->setJSON([
-                'error' => 'You have reached the maximum allowed for this interaction today.'
-            ])->setStatusCode(ResponseInterface::HTTP_FORBIDDEN);
-        }
-
-        //STEP 3: GET AND UPDATE THE AFFINITY GAINED
+        //-------------------------------------------------------------------------
+        // UPDATE THE PET STATUS AFFINITY BASED ON AFFINITY GAINED
+        //-------------------------------------------------------------------------
         $affinityGained = $data['affinity_gained'] ?? 0;
         $newAffinity = $petStatus['affinity'] + $affinityGained;
 
         // Update the pet_status with the new affinity
-        $result = $petStatusModel->updatePetAffinity($pet_id, [
+        $result = $this->petStatusModel->updatePetAffinity($pet_id, [
             'affinity' => $newAffinity
         ]);
 
         if (!$result) {
+            $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to update pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
+        //-------------------------------------------------------------------------
+        // GET ALL THE MULTIPLIERS
+        //-------------------------------------------------------------------------
+        $affinityLevel = $this->affinityModel->getAffinityLevelByPoints($newAffinity);
 
-        // STEP 4: Get the affinity level using the new affinity value
-        $affinityLevel = $affinityModel->getAffinityLevelByPoints($newAffinity);
+        if (!$affinityLevel) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Affinity level not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
 
-        //STEP 5: GET THE MULTIPLIERS from the affinity
         $multiplier = $affinityLevel['multiplier'];
 
-        //STEP 6: GET THE SUBSCRIPTION MULTIPLIER
+        if (!$multiplier) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Multiplier not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
         $subs_multiplier = $subscription['multiplier'];
 
-        //STEP 7: GET THE LIFESTAGE MULTIPLIER
-        //log pet stage
-        log_message('info', 'Pet Life Stage: ' . json_encode($petLifeStage));
+        if (!$subs_multiplier) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Subscription multiplier not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
         $petLifeStageMultiplier = $petLifeStage['multiplier']; 
 
+        if (!$petLifeStageMultiplier) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Pet life stage multiplier not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
 
-        //STEP 6: CALCULATE THE PET STATUS EFFECTS WITH MULTIPLIERS
+        //-------------------------------------------------------------------------
+        // GET ALL THE EFFECTS OF THE ITEM
+        //-------------------------------------------------------------------------
         $effects = $item['effects'];
 
+        if (!$effects) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Effects not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
         // Loop through each effect
         foreach ($effects as $effect) {
-            // Decode the JSON string in 'effect_values'
             $effectValues = json_decode($effect['effect_values'], true);
         }
 
         $updateData = $effectValues;
-        log_message('info', 'Update data: ' . json_encode($updateData));
-
-        $updatePetStatusResult = $petStatusModel->updateStatusChange($pet_id, $updateData, $multiplier, $subs_multiplier, $petLifeStageMultiplier);
+        //-------------------------------------------------------------------------
+        // UPDATE THE PET STATUS BASED ON THE MULTIPLIERS AND EFFECTS
+        //-------------------------------------------------------------------------
+        $updatePetStatusResult = $this->petStatusModel->updateStatusChange($pet_id, $updateData, $multiplier, $subs_multiplier, $petLifeStageMultiplier);
         if (!$updatePetStatusResult) {
+            $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to update pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-        // STEP 7: MERON PA SI BOSS NA MARAMING MULTIPLIERS. BACKLOG NA LANG MUNA
-        
-
-        //extra: flatten the update data 
+        //-------------------------------------------------------------------------
+        // FLATTEN THE DATA
+        //-------------------------------------------------------------------------
         $flatUpdateData = array_merge(...$updateData);
 
-        //create data for the interaction log - FOR POST ONLY. NOT YET WORKING I JUST WANT TO SEE FIRST WHAT THE DATA LOOKS LIKE
+        //backlogs: 1. Personality Multipliers
+        // 2. Quality Multiplier
+
+        //-------------------------------------------------------------------------
+        // BUILD THE DETAILS FOR INSERTION
+        //-------------------------------------------------------------------------
         $log_data = [
             'log_id' => bin2hex(random_bytes(16)),
             'pet_id' => $pet_id,
@@ -220,22 +279,16 @@ class ProcessPetInteraction extends BaseController
             'affinity_gained' => $data['affinity_gained'] ?? 0,
         ];
 
-        $interactionLogModel = new PetInteractionModel();
-
-        $inserted = $interactionLogModel->insert($log_data);
+        $inserted = $this->petInteractionModel->insert($log_data);
 
         if ($inserted === false) {
-            log_message('error', 'DB error: ' . json_encode($interactionLogModel->errors()));
+            $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to log interaction'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-        // if (!$interactionLogModel->insert($log_data)) {
-        //     return $this->response->setJSON(['error' => 'Failed to log interaction'])
-        //         ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        // }
+        //complete and commit the transaction
+        $db->transCommit();
 
-
-        //return is for testing only - so far.
         return $this->response->setJSON([
             'message' => 'Pet interaction processed successfully',
             'interaction_summary' => [
