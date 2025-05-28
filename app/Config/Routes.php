@@ -60,6 +60,7 @@ $routes->group('api/v1', function($routes) {
     $routes->get('store/(:num)/items',            'Api\V1\Store\Items::getItemsbyCategory/$1');
     $routes->get('store/items/search',            'Api\V1\Store\Items::search');
     $routes->get('store/items/featured',           'Api\V1\Store\Items::getFeaturedItems');
+    $routes->get('store/coin-packages',            'Api\V1\Store\CoinPackages::index');
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
     // $routes->get('store/cart',             'Api\V1\Store\Cart::index');

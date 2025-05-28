@@ -11,7 +11,6 @@ use App\Models\PetStatusModel;
 use App\Models\AffinityModel;
 use App\Models\SubscriptionModel;
 use App\Models\PetLifeStageModel;
-use App\Libraries\InteractionService;
 
 
 
@@ -22,7 +21,6 @@ class ProcessPetInteraction extends BaseController
         date_default_timezone_set('Asia/Manila'); // Set the default timezone to Asia/Manila
         $this->petInteractionModel = new PetInteractionModel();
         $this->interactionsModel = new InteractionTypeModel();
-        $this->interactionService = new InteractionService();
         $this->petModel = new PetModel();
         $this->petStatusModel = new PetStatusModel();
         $this->affinityModel = new AffinityModel();
