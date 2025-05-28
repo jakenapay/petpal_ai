@@ -24,4 +24,14 @@ class UserModel extends Model
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+
+    public function getUserBalance($user_id){
+        $user = $this->find($user_id);
+        //get only the diamonds and coins
+        $result = [
+            'diamonds' => $user['diamonds'],
+            'coins' => $user['coins']
+        ];
+        return $result;
+    }
 }

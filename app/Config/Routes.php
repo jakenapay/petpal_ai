@@ -40,6 +40,7 @@ $routes->group('api/v1', function($routes) {
     $routes->put('users/profile/',      'Api\V1\Users\Profile::update');
     $routes->put('users/settings',     'Api\V1\Users\Settings::update');
     $routes->get('users/get-subscription', 'Api\V1\Users\GetUserSubscription::index');
+    $routes->get('users/balance',          'Api\V1\Users\GetUserBalance::index');
 
     // Pets
     $routes->get('pets',                        'Api\V1\Pets\ListPets::index');
@@ -53,7 +54,9 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/(:num)/quests/daily', 'Api\V1\Pets\PetDailyQuestStatus::index/$1');
     $routes->get('pets/(:num)/achievements', 'Api\V1\Pets\GetPetAchievements::index/$1');
 
-    // // Store
+    // Store
+    $routes->get('store/categories',       'Api\V1\Store\GetItemCategories::index');
+
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
     // $routes->get('store/cart',             'Api\V1\Store\Cart::index');

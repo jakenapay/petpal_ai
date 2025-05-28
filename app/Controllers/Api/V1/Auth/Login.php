@@ -83,6 +83,7 @@ class Login extends BaseController
             'profile_img' => $user['profile_image'],
             'mbti' => $user['mbti'],
             'coins' => $user['coins'],
+            'diamonds' => $user['diamonds'],
             'user_grade' => $user['user_grade'],
             'pet_count' => $count,
             'token'   => $token,
