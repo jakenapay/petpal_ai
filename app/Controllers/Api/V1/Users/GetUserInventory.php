@@ -20,6 +20,13 @@ class GetUserInventory extends BaseController
 
         $inventoryModel = new InventoryModel();
         $inventory = $inventoryModel->where('user_id', $userId)->first();
+
+        if (!$inventory) {
+            return $this->response->setJSON([
+                'message' => 'Inventory not found for this user',
+            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        
         $itemList= json_decode($inventory['items_list'], true);
 
 
