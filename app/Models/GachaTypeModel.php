@@ -4,29 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InventoryModel extends Model
+class GachaTypeModel extends Model
 {
-    protected $table            = 'user_inventory';
+    protected $table            = 'gacha_types';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'user_id',
-        'items_list',
-        'scene_bundles_list',
-        'last_updated'
-    ];
-
-    protected $allowedFieldsForItemList = [
-        'item_id',
-        'acquisition_type_id',
-        'aquisition_date',
-        'expiration_date',
-        'is_equipped',
-        'quantity'
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -58,10 +44,9 @@ class InventoryModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function updateItemList($user_id, $item_list){
-        log_message('debug', "updateItemList($user_id, $item_list)");
-        $this->set('items_list', $item_list)
-            ->where('user_id', $user_id)
-            ->update();
+    public function getGachaTypes(){
+        //customize returns if needed
+        return $this->where('is_active', 1)->find();
     }
+    
 }

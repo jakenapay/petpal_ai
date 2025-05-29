@@ -4,28 +4,21 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InventoryModel extends Model
+class ItemTransactionsModel extends Model
 {
-    protected $table            = 'user_inventory';
-    protected $primaryKey       = 'id';
+    protected $table            = 'item_transactions';
+    protected $primaryKey       = 'transactions_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
         'user_id',
-        'items_list',
-        'scene_bundles_list',
-        'last_updated'
-    ];
-
-    protected $allowedFieldsForItemList = [
         'item_id',
-        'acquisition_type_id',
-        'aquisition_date',
-        'expiration_date',
-        'is_equipped',
-        'quantity'
+        'quantity',
+        'transaction_type',
+        'coins_spent',
+        'transaction_date'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -58,10 +51,13 @@ class InventoryModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function updateItemList($user_id, $item_list){
-        log_message('debug', "updateItemList($user_id, $item_list)");
-        $this->set('items_list', $item_list)
-            ->where('user_id', $user_id)
-            ->update();
+    public function insertTransaction($data){
+        log_message('info', 'Transaction data: ' . json_encode($data));
+        return $this->insert($data);
+    }
+    public function getLastTransaction($user_id){
+        return $this->where('user_id', $user_id)
+            ->orderBy('transaction_date', 'DESC')
+            ->first();
     }
 }

@@ -61,6 +61,11 @@ $routes->group('api/v1', function($routes) {
     $routes->get('store/items/search',            'Api\V1\Store\Items::search');
     $routes->get('store/items/featured',           'Api\V1\Store\Items::getFeaturedItems');
     $routes->get('store/coin-packages',            'Api\V1\Store\CoinPackages::index');
+    $routes->get('store/gacha/types',                    'Api\V1\Store\Gacha::gachaTypes');
+    $routes->get('store/gacha/pools',            'Api\V1\Store\Gacha::gachaPool');
+    $routes->get('store/gacha/pools/(:segment)', 'Api\V1\Store\Gacha::gachaPool/$1');
+
+    $routes->post('store/purchase' ,             'Api\V1\Store\Purchase::purchaseItem');
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
     // $routes->get('store/cart',             'Api\V1\Store\Cart::index');
