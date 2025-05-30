@@ -19,12 +19,12 @@ class Purchase extends BaseController
     }
 
     public function purchaseItem(){
-        $user_id = authorizationCheck($this->request);
-        if (!$user_id) {
-            return $this->response->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
-        // $user_id = 43; 
+        // $user_id = authorizationCheck($this->request);
+        // if (!$user_id) {
+        //     return $this->response->setJSON(['error' => 'Unauthorized'])
+        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
+        $user_id = 43; 
         $userModel = new UserModel();
         $user = $userModel->getUserBalance($user_id);
         if (!$user) {
@@ -100,10 +100,10 @@ class Purchase extends BaseController
         $itemFound = false;
         foreach ($itemlist as $key => $value) {
             if ($value['item_id'] === $item_id){
-                if ($itemStackable === "0"){
-                    return $this->response->setJSON(['error' => 'You already have the item'])
-                        ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-                }
+                // if ($itemStackable === "0"){
+                //     return $this->response->setJSON(['error' => 'You already have the item'])
+                //         ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+                // }
                 // Update existing item: increase quantity and optionally update other fields
                 $itemlist[$key]['quantity'] += $quantity;
                 $itemlist[$key]['acquisition_type_id'] = 2; // corrected spelling

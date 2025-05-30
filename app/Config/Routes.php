@@ -64,8 +64,11 @@ $routes->group('api/v1', function($routes) {
     $routes->get('store/gacha/types',                    'Api\V1\Store\Gacha::gachaTypes');
     $routes->get('store/gacha/pools',            'Api\V1\Store\Gacha::gachaPool');
     $routes->get('store/gacha/pools/(:segment)', 'Api\V1\Store\Gacha::gachaPool/$1');
+    $routes->get('store/gacha/pools/pull-options/(:segment)', 'Api\V1\Store\Gacha::pullOptions/$1');
 
     $routes->post('store/purchase' ,             'Api\V1\Store\Purchase::purchaseItem');
+    $routes->post('store/gacha/pull' ,             'Api\V1\Store\Gacha::gachaPull');
+    
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
     // $routes->get('store/cart',             'Api\V1\Store\Cart::index');

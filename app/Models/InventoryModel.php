@@ -64,4 +64,48 @@ class InventoryModel extends Model
             ->where('user_id', $user_id)
             ->update();
     }
+        public function addItemsToInventory($user_id, $items)
+    {
+        $inventoryModel = new InventoryModel();
+        $acquisition_type_id = 4; // Gacha
+
+        foreach ($items as $item) {
+            $item_id = $this->getItemIdFromItemCode($item['item_id']); // E.g. map "pet_004_siamese_cat" to 1
+            $now = date('Y-m-d H:i:s');
+
+            // Check if user already has this item from gacha
+            $existing = $inventoryModel
+                ->where('user_id', $user_id)
+                ->where('item_id', $item_id)
+                ->where('acquisition_type_id', $acquisition_type_id)
+                ->first();
+
+            if ($existing) {
+                // Just increase quantity
+                $inventoryModel->update($existing['id'], [
+                    'quantity' => $existing['quantity'] + 1
+                ]);
+            } else {
+                // Create new inventory row
+                $inventoryModel->insert([
+                    'user_id' => $user_id,
+                    'item_id' => $item_id,
+                    'acquisition_type_id' => $acquisition_type_id,
+                    'acquisition_date' => $now,
+                    'expiration_date' => null,
+                    'is_equipped' => false,
+                    'quantity' => 1
+                ]);
+            }
+        }
+    }
+
+    private function getItemIdFromItemCode($item_code)
+    {
+        $itemModel = new ItemModel(); 
+        $item = $itemModel->where('item_code', $item_code)->first();
+        return $item ? $item['item_id'] : null;
+    }
+
+
 }
