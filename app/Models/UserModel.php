@@ -38,13 +38,24 @@ class UserModel extends Model
         return $result;
     }
     public function updateCoins($user_id, $amount){
-        log_message('debug', "updateCoins($user_id, $amount)");
         $update =$this->update($user_id, ['coins' => $amount]);
         return $update;
     }
     public function updateDiamonds($user_id, $amount){
-        log_message('debug', "updateDiamonds($user_id, $amount)");
         $update = $this->update($user_id, ['diamonds' => $amount]);
         return $update;
     }
+    public function getUserExperience($user_id)
+    {
+        $user = $this->find($user_id);
+        if ($user) {
+            return [
+                'experience' => $user['experience'] ?? 0,
+                'user_level' => $user['user_grade'] ?? 0
+            ]; // Return experience or 0 if not set
+        }
+        return false; // User not found
+        
+    }
+
 }

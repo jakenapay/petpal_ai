@@ -4,10 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetLifeStageModel extends Model
+class PetLevelModel extends Model
 {
-    protected $table            = 'pet_life_stages';
-    protected $primaryKey       = 'stage_id';
+    protected $table            = 'petlevels';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
@@ -43,23 +43,4 @@ class PetLifeStageModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    // FUNCTIONS
-    public function getLifeStageById($stageId)
-    {
-        if (!$stageId) {
-            return json_encode([]);
-        }
-        $lifeStage = $this->where('stage_id', $stageId)->first();
-        return json_encode($lifeStage ?: []);
-    }
-
-    public function getPetLifeStageByID($stageId){
-        if (!$stageId) {
-            return null;
-        }
-        $lifeStage = $this->where('stage_id', $stageId)->first();
-        return $lifeStage ?: null;
-    }
-
 }

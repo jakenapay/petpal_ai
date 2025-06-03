@@ -108,11 +108,11 @@ class ProcessPetInteraction extends BaseController
     public function index($pet_id)
     {
         $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
-        // $userId = 43;
+        // if (!$userId) {
+        //     return $this->response->setJSON(['error' => 'Unauthorized'])
+        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
+        $userId = 50;
         //get the pet id from the url
         $pet_id = (int) $pet_id;
         if (!$pet_id) {
@@ -129,8 +129,7 @@ class ProcessPetInteraction extends BaseController
         $interaction = $this->getInteraction($data['interaction_id']);
         //get the interaction category
         $interactionCategory = $this->getInteractionCategory($interaction['category_id'], $data['interaction_id']);
-        //log the interaction category
-        log_message('info', print_r($interactionCategory, true));
+
         //get the item used in the interaction
         $item = $this->getItemUsed($itemUsedId);
         //get the pet 
@@ -208,8 +207,6 @@ class ProcessPetInteraction extends BaseController
         //-------------------------------------------------------------------------
         // UPDATE THE PET STATUS AFFINITY BASED ON AFFINITY GAINED
         //-------------------------------------------------------------------------
-        // $affinityGained = $data['affinity_gained'] ?? 0;
-        // $affinityGained = $item['affinity'];
         $newAffinity = $petStatus['affinity'] + $affinityGained;
 
         // Update the pet_status with the new affinity
@@ -222,6 +219,15 @@ class ProcessPetInteraction extends BaseController
             return $this->response->setJSON(['error' => 'Failed to update pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        // -------------------------------------------------------------------------
+        // UPDATE THE PET EXPERIENCE BASED ON THE INTERACTION
+        //-------------------------------------------------------------------------
+        
+        // $interactionExperience = $interaction['experience'] ?? 0;
+
+
+
         //-------------------------------------------------------------------------
         // GET ALL THE MULTIPLIERS
         //-------------------------------------------------------------------------
@@ -258,22 +264,6 @@ class ProcessPetInteraction extends BaseController
         }
 
         //-------------------------------------------------------------------------
-        // GET ALL THE EFFECTS OF THE ITEM
-        //-------------------------------------------------------------------------
-        // $effects = $item["effects"];
-        // if (!$effects) {
-        //     $db->transRollback();
-        //     return $this->response->setJSON(['error' => 'Effects not found'])
-        //         ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        // }
-        // // Loop through each effect
-        // foreach ($effects as $effect) {
-        //     $effectValues = json_decode($effect['effect_values'], true);
-        // }
-        // return $this->response->setJSON(['error' => 'Effects not found'])
-        //     ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-
-        //-------------------------------------------------------------------------
         // UPDATE THE PET STATUS BASED ON THE MULTIPLIERS AND EFFECTS
         //-------------------------------------------------------------------------
         $updatePetStatusResult = $this->petStatusModel->updateStatusChange($pet_id, $updateData, $multiplier, $subs_multiplier, $petLifeStageMultiplier);
@@ -282,14 +272,13 @@ class ProcessPetInteraction extends BaseController
             return $this->response->setJSON(['error' => 'Failed to update pet status'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-        //-------------------------------------------------------------------------
-        // FLATTEN THE DATA
-        //-------------------------------------------------------------------------
-        // $flatUpdateData = array_merge(...$updateData);
 
 
-        //backlogs: 1. Personality Multipliers
-        // 2. Quality Multiplier
+
+        //backlogs: 
+        // 1. Update the pet's experience based on the interaction
+        // 2. Personality Multipliers
+        // 3. Quality Multiplier
 
         //-------------------------------------------------------------------------
         // BUILD THE DETAILS FOR INSERTION

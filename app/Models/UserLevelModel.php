@@ -4,10 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetLifeStageModel extends Model
+class UserLevelModel extends Model
 {
-    protected $table            = 'pet_life_stages';
-    protected $primaryKey       = 'stage_id';
+    protected $table            = 'user_levels';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
@@ -43,23 +43,13 @@ class PetLifeStageModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+    // functions
 
-    // FUNCTIONS
-    public function getLifeStageById($stageId)
+    public function getUserRequiredExperience($user_level)
     {
-        if (!$stageId) {
-            return json_encode([]);
-        }
-        $lifeStage = $this->where('stage_id', $stageId)->first();
-        return json_encode($lifeStage ?: []);
+        return $this->asArray()
+                    ->select('experience_required')
+                    ->where('level', $user_level)
+                    ->first();
     }
-
-    public function getPetLifeStageByID($stageId){
-        if (!$stageId) {
-            return null;
-        }
-        $lifeStage = $this->where('stage_id', $stageId)->first();
-        return $lifeStage ?: null;
-    }
-
 }
