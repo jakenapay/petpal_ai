@@ -95,16 +95,17 @@ class PetStatusModel extends Model
         $validation->setRules($validationRules);
 
         // Flatten input data
-        $flattenedData = [];
-        foreach ($data as $entry) {
-            if (is_array($entry)) {
-                $flattenedData = array_merge($flattenedData, $entry);
-            }
-        }
+        // $flattenedData = [];
+        // foreach ($data as $entry) {
+        //     if (is_array($entry)) {
+        //         $flattenedData = array_merge($flattenedData, $entry);
+        //     }
+        // }
+
 
 
         // Validation
-        if (!$validation->run($flattenedData)) {
+        if (!$validation->run($data)) {
             return [
                 'error' => 'Validation failed',
                 'messages' => $validation->getErrors(),
@@ -118,14 +119,13 @@ class PetStatusModel extends Model
             ];
         }
 
-        // Now use $flattenedData instead of $data
         $finalUpdateData = [];
 
         //log the the multiplier values
         log_message('debug', "Multipliers - Multiplier: $multiplier, Subscription Multiplier: $subs_multiplier, Pet Life Stage Multiplier: $petLifeStageMultiplier");
         foreach (['hunger_level', 'happiness_level', 'health_level', 'energy_level', 'cleanliness_level', 'stress_level'] as $key) {
-            if (isset($flattenedData[$key])) {
-                $multipliedValue = $flattenedData[$key] * $multiplier * $subs_multiplier * $petLifeStageMultiplier;
+            if (isset($data[$key])) {
+                $multipliedValue = $data[$key] * $multiplier * $subs_multiplier * $petLifeStageMultiplier;
                 $currentValue = isset($petStatus[$key]) ? (float)$petStatus[$key] : 0;
                 $newValue = max(min($currentValue + $multipliedValue, 100), 0);
                 $finalUpdateData[$key] = $newValue;
@@ -135,19 +135,19 @@ class PetStatusModel extends Model
 
         // Add timestamps
         $now = date('Y-m-d H:i:s');
-        if (isset($flattenedData['hunger_level'])) {
+        if (isset($data['hunger_level'])) {
             $finalUpdateData['last_hunger_update'] = $now;
         }
-        if (isset($flattenedData['happiness_level'])) {
+        if (isset($data['happiness_level'])) {
             $finalUpdateData['last_happiness_update'] = $now;
         }
-        if (isset($flattenedData['health_level'])) {
+        if (isset($data['health_level'])) {
             $finalUpdateData['last_health_update'] = $now;
         }
-        if (isset($flattenedData['energy_level'])) {
+        if (isset($data['energy_level'])) {
             $finalUpdateData['last_energy_update'] = $now;
         }
-        if (isset($flattenedData['cleanliness_level'])) {
+        if (isset($data['cleanliness_level'])) {
             $finalUpdateData['last_cleanliness_update'] = $now;
         }
         $finalUpdateData['last_status_calculation'] = $now;

@@ -36,7 +36,8 @@ class GetPetStatus extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'message' => 'Pet status retrieved successfully',
-            'data' => $petStatus])
+            'data' => $petStatus
+            ])
             ->setStatusCode(ResponseInterface::HTTP_OK);
     }
 }

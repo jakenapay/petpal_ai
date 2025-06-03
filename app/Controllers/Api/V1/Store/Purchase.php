@@ -19,12 +19,12 @@ class Purchase extends BaseController
     }
 
     public function purchaseItem(){
-        // $user_id = authorizationCheck($this->request);
-        // if (!$user_id) {
-        //     return $this->response->setJSON(['error' => 'Unauthorized'])
-        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        // }
-        $user_id = 43; 
+        $user_id = authorizationCheck($this->request);
+        if (!$user_id) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        // $user_id = 43; 
         $userModel = new UserModel();
         $user = $userModel->getUserBalance($user_id);
         if (!$user) {
@@ -49,7 +49,7 @@ class Purchase extends BaseController
         }
 
         $userInventoryModel = new InventoryModel();
-        $userInventory = $userInventoryModel->where('user_id', $user_id)->first();
+        $userInventory = $userInventoryModel->getUserInventory($user_id);        
         if (!$userInventory) {
             return $this->response->setJSON(['error' => 'User inventory not found'])
                 ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
@@ -94,53 +94,66 @@ class Purchase extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $itemlist = json_decode($userInventory['items_list'], true);
+        $updateItemlist = [
+            'user_id' => $user_id,
+            'item_id' => $item_id,
+            'quantity' => $quantity,
+            'acquisition_type_id' => 2, //2 for store since this is purchase
+            'acquisition_date' => date('Y-m-d H:i:s'),
+            'expiration_date' => null,
+            'is_equipped' => false,
+        ];
+        
+        // // loop through the itemlist to see if the item is already in the list
+        // $itemFound = false;
+        // foreach ($itemlist as $key => $value) {
+        //     if ($value['item_id'] === $item_id){
+        //         // if ($itemStackable === "0"){
+        //         //     return $this->response->setJSON(['error' => 'You already have the item'])
+        //         //         ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        //         // }
+        //         // Update existing item: increase quantity and optionally update other fields
+        //         $itemlist[$key]['quantity'] += $quantity;
+        //         $itemlist[$key]['acquisition_type_id'] = 2; // corrected spelling
+        //         $itemlist[$key]['acquisition_date'] = date('Y-m-d H:i:s');
+        //         $itemlist[$key]['expiration_date'] = null;
+        //         $itemlist[$key]['is_equipped'] = false;
+        //         $itemFound = true;
+        //         break;
+        //     }
+        // }
 
-        // loop through the itemlist to see if the item is already in the list
-        $itemFound = false;
-        foreach ($itemlist as $key => $value) {
-            if ($value['item_id'] === $item_id){
-                // if ($itemStackable === "0"){
-                //     return $this->response->setJSON(['error' => 'You already have the item'])
-                //         ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-                // }
-                // Update existing item: increase quantity and optionally update other fields
-                $itemlist[$key]['quantity'] += $quantity;
-                $itemlist[$key]['acquisition_type_id'] = 2; // corrected spelling
-                $itemlist[$key]['acquisition_date'] = date('Y-m-d H:i:s');
-                $itemlist[$key]['expiration_date'] = null;
-                $itemlist[$key]['is_equipped'] = false;
-                $itemFound = true;
-                break;
-            }
-        }
-
-        // If item not found in list, add it
-        if (!$itemFound) {
-            $itemlist[] = [
-                'item_id' => $item_id,
-                'acquisition_type_id' => 2, // corrected spelling
-                'acquisition_date' => date('Y-m-d H:i:s'),
-                'expiration_date' => null,
-                'is_equipped' => false,
-                'quantity' => $quantity
-            ];
-        }
+        // // If item not found in list, add it
+        // if (!$itemFound) {
+        //     $itemlist[] = [
+        //         'item_id' => $item_id,
+        //         'acquisition_type_id' => 2, // corrected spelling
+        //         'acquisition_date' => date('Y-m-d H:i:s'),
+        //         'expiration_date' => null,
+        //         'is_equipped' => false,
+        //         'quantity' => $quantity
+        //     ];
+        // }
 
         // Start DB transaction
         $db = \Config\Database::connect();
         $db->transStart();
 
         // Update the user inventory
-        $userInventoryModel->updateItemList($user_id, json_encode($itemlist));
-
-        if ($userInventoryModel->errors()) {
+        // $userInventoryModel->updateItemList($user_id, json_encode($itemlist));
+        // if ($userInventoryModel->errors()) {
+        //     $db->transRollback();
+        //     return $this->response->setJSON(['error' => $userInventoryModel->errors()])
+        //         ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        // }
+        //add the item to the inventory
+        $updateUserInventory = $userInventoryModel->updateUserInventory($updateItemlist);
+        if($updateUserInventory === false || $updateUserInventory === null ){
             $db->transRollback();
-            return $this->response->setJSON(['error' => $userInventoryModel->errors()])
+            return $this->response->setJSON(['error' => 'Failed to update user inventory'])
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        log_message('info', 'NOW, UPDATE THE USER COINS AND DIAMONDS');
         // Update the user's coins and diamonds
         $userCoinsAfterPurchase = $userCoins - $totalItemPrice;
         $userDiamondsAfterPurchase = $userDiamonds - $totalItemPrice;
@@ -165,7 +178,7 @@ class Purchase extends BaseController
             'user_id' => $user_id,
             'item_id' => $item_id,
             'quantity' => $quantity,
-            'transaction_type' => 2, // corrected spelling
+            'transaction_type' => 2, 
             'coins_spent' => $totalItemPrice,
             'transaction_date' => date('Y-m-d H:i:s')
         ];

@@ -14,9 +14,14 @@ class InventoryModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'user_id',
-        'items_list',
-        'scene_bundles_list',
-        'last_updated'
+        'item_id',
+        'acquisition_type_id',
+        'quantity',
+        'aquisition_date',
+        'expiration_date',
+        'is_equipped'
+
+
     ];
 
     protected $allowedFieldsForItemList = [
@@ -58,13 +63,88 @@ class InventoryModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function updateItemList($user_id, $item_list){
-        log_message('debug', "updateItemList($user_id, $item_list)");
-        $this->set('items_list', $item_list)
-            ->where('user_id', $user_id)
-            ->update();
+    public function getUserInventory($user_id) {
+        $inventory = $this->where('user_id', $user_id)
+                        ->where('quantity >', 0)
+                        ->findAll();
+
+        if (empty($inventory)) return [];
+
+        $itemModel = new \App\Models\ItemModel();
+
+        foreach ($inventory as $key => $value) {
+            $itemDetails = $itemModel->getItemById($value['item_id']);
+
+            if ($itemDetails) {
+                $inventory[$key] = array_merge($value, $itemDetails);
+            } else {
+                $inventory[$key]['category_name'] = 'Uncategorized';
+            }
+        }
+
+        return $inventory;
     }
-        public function addItemsToInventory($user_id, $items)
+    
+    public function categorizedItemsInInventory($user_id, $categoryId = null) {
+        $userInventory = $this->getUserInventory($user_id);
+
+        if ($categoryId !== null) {
+            $userInventory = array_filter($userInventory, function ($item) use ($categoryId) {
+                return isset($item['category_id']) && $item['category_id'] == $categoryId;
+            });
+        }
+
+        $categorized = [];
+
+        foreach ($userInventory as $item) {
+            $categoryName = $item['category_name'] ?? 'Uncategorized';
+
+            if (!isset($categorized[$categoryName])) {
+                $categorized[$categoryName] = [];
+            }
+
+            $categorized[$categoryName][] = $item;
+        }
+
+        return $categorized;
+    }
+
+
+    public function checkItemInInventory($user_id, $item_id){
+        return $this->where('user_id', $user_id)
+            ->where('item_id', $item_id)
+            ->first();
+    }
+    public function updateUserInventory($updateItemlist) {
+        $user_id = $updateItemlist['user_id'];
+        $item_id = $updateItemlist['item_id'];
+        $quantity = $updateItemlist['quantity'];
+        $acquisition_date = $updateItemlist['acquisition_date']; 
+
+        $existing = $this->checkItemInInventory($user_id, $item_id); 
+
+        if ($existing) {
+            $newQuantity = $existing['quantity'] + $quantity;
+            $this->where('user_id', $user_id)
+                ->where('item_id', $item_id)
+                ->set('quantity', $newQuantity)
+                ->set('acquisition_date', $acquisition_date)
+                ->set('expiration_date', null)
+                ->update();
+        } else {
+            $this->insert($updateItemlist);
+        }
+
+        return $this->getUserInventory($user_id);
+    }
+
+    // public function updateItemList($user_id, $item_list){
+    //     log_message('debug', "updateItemList($user_id, $item_list)");
+    //     $this->set('items_list', $item_list)
+    //         ->where('user_id', $user_id)
+    //         ->update();
+    // }
+    public function addItemsToInventory($user_id, $items)
     {
         $inventoryModel = new InventoryModel();
         $acquisition_type_id = 4; // Gacha

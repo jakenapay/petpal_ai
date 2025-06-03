@@ -101,19 +101,23 @@ class ProcessPetInteraction extends BaseController
             return $this->response->setJSON(['error' => 'Unauthorized'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
-
+        // $userId = 43;
         //get the pet id from the url
         $pet_id = (int) $pet_id;
         if (!$pet_id) {
             return $this->response->setJSON(['error' => 'Pet ID is required'])
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
+        
         //get the payload
         $data = $this->request->getJSON(true);
+        //handle the values of data
+        $itemUsedId = $data['item_used_id'] ?? null;
+
         //get the interaction type
         $interaction = $this->getInteraction($data['interaction_id']);
         //get the item used in the interaction
-        $item = $this->getItemUsed($data['item_used_id']);
+        $item = $this->getItemUsed($itemUsedId);
         //get the pet 
         $pet = $this->getPet($pet_id);
         //get the pet status
@@ -135,7 +139,7 @@ class ProcessPetInteraction extends BaseController
         //CHECK IF THE USER HAS REACHED THE MAXIMUM DAILY COUNT FOR THE INTERACTION
         //-------------------------------------------------------------------------
         $todayUsage = $this->petInteractionModel->getTodayInteractionCountsByPet($pet_id);
-        log_message('debug', print_r($todayUsage, true));
+        log_message('info', print_r($todayUsage, true));
         $usedCount = 0;
 
         if ($todayUsage === false) {
@@ -160,9 +164,37 @@ class ProcessPetInteraction extends BaseController
         }
 
         //-------------------------------------------------------------------------
+        //FILTER IF THE INTERACTIONS HAVE ITEMS OR NOT
+        //-------------------------------------------------------------------------
+        if ($itemUsedId === null) {
+            $affinityGained = $interaction['affinity'];
+            $item_name = null;
+            $updateData = [
+                'hunger_level' => $interaction['hunger_level'],
+                'happiness_level' => $interaction['happiness_level'],
+                'health_level' => $interaction['health_level'],
+                'energy_level' => $interaction['energy_level'],
+                'cleanliness_level' => $interaction['hygiene_level'],
+                'stress_level' => $interaction['stress_level'],
+            ];
+        }else{
+            $affinityGained = $item['affinity'];
+            $item_name = $item['item_name'];
+            $updateData = [
+                'hunger_level' => $item['hunger_level'],
+                'happiness_level' => $item['happiness_level'],
+                'health_level' => $item['health_level'],
+                'energy_level' => $item['energy_level'],
+                'cleanliness_level' => $item['hygiene_level'],
+                'stress_level' => $item['stress_level'],
+            ];
+        }
+
+        //-------------------------------------------------------------------------
         // UPDATE THE PET STATUS AFFINITY BASED ON AFFINITY GAINED
         //-------------------------------------------------------------------------
-        $affinityGained = $data['affinity_gained'] ?? 0;
+        // $affinityGained = $data['affinity_gained'] ?? 0;
+        // $affinityGained = $item['affinity'];
         $newAffinity = $petStatus['affinity'] + $affinityGained;
 
         // Update the pet_status with the new affinity
@@ -213,19 +245,19 @@ class ProcessPetInteraction extends BaseController
         //-------------------------------------------------------------------------
         // GET ALL THE EFFECTS OF THE ITEM
         //-------------------------------------------------------------------------
-        $effects = $item['effects'];
+        // $effects = $item["effects"];
+        // if (!$effects) {
+        //     $db->transRollback();
+        //     return $this->response->setJSON(['error' => 'Effects not found'])
+        //         ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        // }
+        // // Loop through each effect
+        // foreach ($effects as $effect) {
+        //     $effectValues = json_decode($effect['effect_values'], true);
+        // }
+        // return $this->response->setJSON(['error' => 'Effects not found'])
+        //     ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
 
-        if (!$effects) {
-            $db->transRollback();
-            return $this->response->setJSON(['error' => 'Effects not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-        // Loop through each effect
-        foreach ($effects as $effect) {
-            $effectValues = json_decode($effect['effect_values'], true);
-        }
-
-        $updateData = $effectValues;
         //-------------------------------------------------------------------------
         // UPDATE THE PET STATUS BASED ON THE MULTIPLIERS AND EFFECTS
         //-------------------------------------------------------------------------
@@ -238,7 +270,8 @@ class ProcessPetInteraction extends BaseController
         //-------------------------------------------------------------------------
         // FLATTEN THE DATA
         //-------------------------------------------------------------------------
-        $flatUpdateData = array_merge(...$updateData);
+        // $flatUpdateData = array_merge(...$updateData);
+
 
         //backlogs: 1. Personality Multipliers
         // 2. Quality Multiplier
@@ -253,20 +286,21 @@ class ProcessPetInteraction extends BaseController
             'interaction_type_id' => $data['interaction_id'],
             'interaction_category' => $interaction['category'],
             'interaction_subcategory' => $interaction['subcategory'] ?? null,
-            'item_used_id' => $data['item_used_id'],
-            'item_used_name' => $item['item_name'],
+            'item_used_id' => $itemUsedId,
+            'item_used_name' => $item_name ?? null,
             'interaction_duration_seconds' => $data['interaction_duration_seconds'] ?? 0,
             'interaction_quality' => $data['quality'] ?? null,
             'base_points' => $data['base_points'] ?? 0,
-            'multiplier_total' => $multiplier,
+            'multiplier_total' => $multiplier * $subs_multiplier * $petLifeStageMultiplier,
+
             'affinity_gained' => $newAffinity,
             'coins_earned' => $data['coins_earned'] ?? 0,
-            'hunger_change' => $flatUpdateData['hunger_level'] ?? 0,
-            'happiness_change' => $flatUpdateData['happiness_level'] ?? 0,
-            'health_change' => $flatUpdateData['health_level'] ?? 0,
-            'cleanliness_change' => $flatUpdateData['cleanliness_level'] ?? 0,
-            'energy_change' => $flatUpdateData['energy_level'] ?? 0,
-            'stress_change' => $flatUpdateData['stress_level'] ?? 0,
+            'hunger_change' => $updateData['hunger_level'] ?? 0,
+            'happiness_change' => $updateData['happiness_level'] ?? 0,
+            'health_change' => $updateData['health_level'] ?? 0,
+            'cleanliness_change' => $updateData['cleanliness_level'] ?? 0,
+            'energy_change' => $updateData['energy_level'] ?? 0,
+            'stress_change' => $updateData['stress_level'] ?? 0,
             'llm_response' => $data['llm_response'] ?? "no response",
             'llm_response_type' => $data['llm_response_type'] ?? null,
             't2m_animation_id' => $data['t2m_animation_id'] ?? null,
@@ -293,13 +327,12 @@ class ProcessPetInteraction extends BaseController
                 'interaction_type_id' => $data['interaction_id'],
                 'interaction_name' => $interaction['interaction_name'],
                 'interaction_category' => $interaction['category'],
-                'item_used_id' => $data['item_used_id'],
-                'item_used_name' => $item['item_name'],
+                'item_used' => $itemUsedId ? "{$itemUsedId} - {$item_name}" : "No item used",
                 'affinity_gained' => $affinityGained,
                 'new_affinity' => $newAffinity,
                 'affinity_level' => $affinityLevel['level_name'],
-                'multiplier' => $multiplier,
-                'effects_applied' => $flatUpdateData,
+                'multiplier' => $multiplier * $subs_multiplier * $petLifeStageMultiplier,
+                'effects_applied' => $updateData,
                 'pet_life_stage' => $petLifeStage
             ]
         ])->setStatusCode(ResponseInterface::HTTP_OK);      

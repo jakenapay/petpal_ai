@@ -42,7 +42,7 @@ $routes->group('api/v1', function($routes) {
     $routes->get('users/get-subscription', 'Api\V1\Users\GetUserSubscription::index');
     $routes->get('users/balance',          'Api\V1\Users\GetUserBalance::index');
     $routes->get('users/inventory',        'Api\V1\Users\GetUserInventory::index');
-
+    $routes->get('users/inventory/category/(:num)',        'Api\V1\Users\GetUserInventory::getCategorizedItemsFromInventory/$1');
     // Pets
     $routes->get('pets',                        'Api\V1\Pets\ListPets::index');
     $routes->post('pets',                       'Api\V1\Pets\CreatePet::index');

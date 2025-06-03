@@ -130,13 +130,13 @@ class ItemModel extends Model
             return null;
         }
 
-        // Get effects for the item
-        $effects = $this->db->table('item_effects')
-            ->where('effect_id', $item['effect_id'])
-            ->get()
-            ->getResultArray();
+        // // Get effects for the item
+        // $effects = $this->db->table('item_effects')
+        //     ->where('effect_id', $item['effect_id'])
+        //     ->get()
+        //     ->getResultArray();
 
-        $item['effects'] = $effects;
+        // $item['effects'] = $effects;
 
         return $item;
     }
@@ -154,13 +154,13 @@ class ItemModel extends Model
         $items = $builder->get()->getResultArray();
 
         // Attach effects to each item
-        foreach ($items as &$item) {
-            $effects = $this->db->table('item_effects')
-                ->where('effect_id', $item['effect_id'])
-                ->get()
-                ->getResultArray();
-            $item['effects'] = $effects;
-        }
+        // foreach ($items as &$item) {
+        //     $effects = $this->db->table('item_effects')
+        //         ->where('effect_id', $item['effect_id'])
+        //         ->get()
+        //         ->getResultArray();
+        //     $item['effects'] = $effects;
+        // }
         return $items;
     }
 
@@ -229,14 +229,14 @@ class ItemModel extends Model
 
         $results = $builder->get()->getResultArray();
 
-        // Add effects to each item
-        foreach ($results as &$item) {
-            $effects = $this->db->table('item_effects')
-                ->where('effect_id', $item['effect_id'])
-                ->get()
-                ->getResultArray();
-            $item['effects'] = $effects;
-        }
+        // // Add effects to each item
+        // foreach ($results as &$item) {
+        //     $effects = $this->db->table('item_effects')
+        //         ->where('effect_id', $item['effect_id'])
+        //         ->get()
+        //         ->getResultArray();
+        //     $item['effects'] = $effects;
+        // }
 
         return $results;
     }
