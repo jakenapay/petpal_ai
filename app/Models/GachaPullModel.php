@@ -4,15 +4,25 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class GachaPullModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'gacha_pulls';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at']; 
+    protected $allowedFields    = [
+        // 'id',
+        'player_id',
+        'pool_id',
+        'item_received',
+        'spent',
+        'diamonds_spent',
+        'pull_timestamp',
+        'pity_count',
+        'is_pity',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,17 +54,28 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
+    public function getPityCount($player_id, $pool_id)
+    {
+        return $this->where('player_id', $player_id)
+                    ->where('pool_id', $pool_id)
+                    ->orderBy('id', 'DESC') // or 'id' if autoincrement
+                    ->limit(1)
+                    ->get()
+                    ->getRow('pity_count') ?? 0; // Return 0 if no pulls yet
+    }
 
-    public function getPetsByUserId($userId)
+
+    public function playerPull($data)
     {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
+        try {
+            return $this->insert($data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error inserting player pull: ' . $e->getMessage());
+            return false;
         }
-        return $this->find($petId);
     }
+
+
+
+    
 }

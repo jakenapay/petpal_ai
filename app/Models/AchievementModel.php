@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class AchievementModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'pet_achievements';
+    protected $primaryKey       = 'achievement_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -45,16 +45,12 @@ class PetModel extends Model
     protected $afterDelete    = [];
 
     // Functions
-
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
+    public function getAchievementsByPetId($petId)
     {
         if (!$petId) {
-            return null;
+            return [];
         }
-        return $this->find($petId);
+
+        return $this->where('pet_id', $petId)->findAll();
     }
 }

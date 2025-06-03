@@ -15,7 +15,8 @@ class ItemCategoriesModel extends Model
     protected $allowedFields = [
         'category_id',
         'category_name',
-        'category_description'
+        'category_description',
+        'img_url'
     ];
 
     protected bool $allowEmptyInserts = false;

@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class CoinPackageModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'coin_packages';
+    protected $primaryKey       = 'package_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,17 +44,8 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
-
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
+    public function getCoinpackages(){
+        //customize returns if needed
+        return $this->find();
     }
 }

@@ -4,19 +4,20 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class LogInteractionModel extends Model
+class GachaItemModel extends Model
 {
-    protected $table            = 'pet_interactions';
-    protected $primaryKey       = 'log_id';
+    protected $table            = 'gacha_items';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'pet_id',
-        'item_used',
-        'affinity_gained',
-        'interaction_id',
+        'pool_id',
+        'item_id',
+        'rarity',
+        'drop_rate',
+        'is_featured',
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -48,4 +49,8 @@ class LogInteractionModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getPoolItems($pool_id) {
+        return $this->where('pool_id', $pool_id)->findAll();
+    }
 }

@@ -3,21 +3,17 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\InteractionTypeModel;
 
-class InteractionsModel extends Model
+class InteractionCategoriesModel extends Model
 {
-    protected $table            = 'interaction_types';
-    protected $primaryKey       = 'interaction_type_id';
+    protected $table            = 'interaction_categories';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'name',
-        'duration',
-        'description',
-        'requires_item',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -48,4 +44,27 @@ class InteractionsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    //Functions to retrieve interaction categories
+    public function getInteractionCategories()
+    {
+        return $this->findAll();
+    }
+    public function getInteractionCategoryById($id, $interaction_id = null)
+    {
+        $interactionTypeModel = new InteractionTypeModel();
+
+        $builder = $interactionTypeModel->select('interaction_categories.name as category_name, interaction_type.*')
+            ->join('interaction_categories', 'interaction_type.category_id = interaction_categories.id', 'left')
+            ->where('interaction_type.category_id', $id);
+
+        if ($interaction_id !== null) {
+            $builder->where('interaction_type.interaction_type_id', $interaction_id);
+        }
+
+        $interaction = $builder->findAll();
+
+        return $interaction ?: null;
+    }
+
 }

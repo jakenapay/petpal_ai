@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class AffinityModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'affinity_levels';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -46,15 +46,17 @@ class PetModel extends Model
 
     // Functions
 
-    public function getPetsByUserId($userId)
+    public function getAfinityLevels()
     {
-        return $this->where('user_id', $userId)->findAll();
+        return $this->findAll();
     }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
+public function getAffinityLevelByPoints($points)
+{
+    return $this->select('*')
+                ->where('required_points <=', $points)
+                ->orderBy('required_points', 'DESC')
+                ->first();
     }
+    
+
 }
