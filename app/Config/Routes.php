@@ -102,8 +102,10 @@ $routes->group('api/v1', function($routes) {
 
     // Constants
     $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');
-    $routes->get('constants/interaction-types/(:any)', 'Api\V1\Constants\GetInteractions::getInteractionByCategory/$1');
-
+    $routes->get('constants/interaction-types/(:num)', 'Api\V1\Constants\GetInteractions::CategorizedInteractions/$1');
+    $routes->get('constants/interaction-types/(:num)/(:segment)', 'Api\V1\Constants\GetInteractions::CategorizedInteractions/$1/$2');
+    
+    $routes->get('constants/interaction-categories', 'Api\V1\Constants\GetInteractions::InteractionCategories');
     // Item
     $routes->get('items', 'Api\V1\Items\ListItems::index');
     $routes->get('items/categories', 'Api\V1\Items\ListItemsCategories::index');

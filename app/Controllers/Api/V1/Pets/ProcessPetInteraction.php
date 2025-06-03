@@ -11,6 +11,7 @@ use App\Models\PetStatusModel;
 use App\Models\AffinityModel;
 use App\Models\SubscriptionModel;
 use App\Models\PetLifeStageModel;
+use App\Models\InteractionCategoriesModel;
 
 
 
@@ -27,6 +28,7 @@ class ProcessPetInteraction extends BaseController
         $this->subscriptionModel = new SubscriptionModel();
         $this->petLifeStageModel = new PetLifeStageModel();
         $this->itemsModel = new ItemModel();
+        $this->interactionCategoriesModel = new InteractionCategoriesModel();
 
     }
 
@@ -92,6 +94,15 @@ class ProcessPetInteraction extends BaseController
         }
         return $petLifeStage;
     }
+    public function getInteractionCategory($category_id, $interaction_id)
+    {
+        $interactionCategories = $this->interactionCategoriesModel->getInteractionCategoryById($category_id, $interaction_id);
+        if (!$interactionCategories) {
+            return $this->response->setJSON(['error' => 'Category not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        return $interactionCategories;
+    }
 
 
     public function index($pet_id)
@@ -116,6 +127,10 @@ class ProcessPetInteraction extends BaseController
 
         //get the interaction type
         $interaction = $this->getInteraction($data['interaction_id']);
+        //get the interaction category
+        $interactionCategory = $this->getInteractionCategory($interaction['category_id'], $data['interaction_id']);
+        //log the interaction category
+        log_message('info', print_r($interactionCategory, true));
         //get the item used in the interaction
         $item = $this->getItemUsed($itemUsedId);
         //get the pet 
@@ -284,7 +299,7 @@ class ProcessPetInteraction extends BaseController
             'pet_id' => $pet_id,
             'user_id' => $userId,
             'interaction_type_id' => $data['interaction_id'],
-            'interaction_category' => $interaction['category'],
+            'interaction_category' => $interactionCategory[0]['category_name'] ?? null,
             'interaction_subcategory' => $interaction['subcategory'] ?? null,
             'item_used_id' => $itemUsedId,
             'item_used_name' => $item_name ?? null,
@@ -326,7 +341,8 @@ class ProcessPetInteraction extends BaseController
             'interaction_summary' => [
                 'interaction_type_id' => $data['interaction_id'],
                 'interaction_name' => $interaction['interaction_name'],
-                'interaction_category' => $interaction['category'],
+                'category_id' => $interaction['category_id'],
+                'interaction_category' => $interactionCategory[0]['category_name'] ?? null,
                 'item_used' => $itemUsedId ? "{$itemUsedId} - {$item_name}" : "No item used",
                 'affinity_gained' => $affinityGained,
                 'new_affinity' => $newAffinity,
@@ -334,7 +350,8 @@ class ProcessPetInteraction extends BaseController
                 'multiplier' => $multiplier * $subs_multiplier * $petLifeStageMultiplier,
                 'effects_applied' => $updateData,
                 'pet_life_stage' => $petLifeStage
-            ]
+            ],
+            'new_pet_status' => $this->petStatusModel->getPetStatusByPetId($pet_id),
         ])->setStatusCode(ResponseInterface::HTTP_OK);      
     }
 }
