@@ -12,7 +12,7 @@ class PetModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at']; 
+    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -56,5 +56,14 @@ class PetModel extends Model
             return null;
         }
         return $this->find($petId);
+    }
+
+    public function updatePet($petId, array $data)
+    {
+        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
+        if (!$petId || empty($data)) {
+            return false;
+        }
+        return $this->update($petId, $data);
     }
 }

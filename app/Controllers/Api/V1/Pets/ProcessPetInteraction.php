@@ -12,7 +12,7 @@ use App\Models\AffinityModel;
 use App\Models\SubscriptionModel;
 use App\Models\PetLifeStageModel;
 use App\Models\InteractionCategoriesModel;
-
+use DateTime;
 
 
 class ProcessPetInteraction extends BaseController
@@ -112,7 +112,7 @@ class ProcessPetInteraction extends BaseController
         //     return $this->response->setJSON(['error' => 'Unauthorized'])
         //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         // }
-        $userId = 50;
+        $userId = 43;
         //get the pet id from the url
         $pet_id = (int) $pet_id;
         if (!$pet_id) {
@@ -182,6 +182,8 @@ class ProcessPetInteraction extends BaseController
         //-------------------------------------------------------------------------
         if ($itemUsedId === null) {
             $affinityGained = $interaction['affinity'];
+            $interactionExperience = $interaction['experience'] ?? 0;
+
             $item_name = null;
             $updateData = [
                 'hunger_level' => $interaction['hunger_level'],
@@ -194,6 +196,9 @@ class ProcessPetInteraction extends BaseController
         }else{
             $affinityGained = $item['affinity'];
             $item_name = $item['item_name'];
+            $interactionExperience = $item['experience'] ?? 0;
+            $currentExperience = $pet['experience'] ?? 0;
+
             $updateData = [
                 'hunger_level' => $item['hunger_level'],
                 'happiness_level' => $item['happiness_level'],
@@ -203,6 +208,7 @@ class ProcessPetInteraction extends BaseController
                 'stress_level' => $item['stress_level'],
             ];
         }
+
 
         //-------------------------------------------------------------------------
         // UPDATE THE PET STATUS AFFINITY BASED ON AFFINITY GAINED
@@ -216,15 +222,86 @@ class ProcessPetInteraction extends BaseController
 
         if (!$result) {
             $db->transRollback();
-            return $this->response->setJSON(['error' => 'Failed to update pet status'])
+            return $this->response->setJSON(['error' => 'Failed to update pet affinity'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        // BACKLOG
+        // -------------------------------------------------------------------------
+        // VERIFY IF THE USER HAS THE ITEM IN THEIR INVENTORY
+        // IF YES, DEDUCE THE QUANTITY OF THE ITEM USED
+        // -------------------------------------------------------------------------
+
 
         // -------------------------------------------------------------------------
         // UPDATE THE PET EXPERIENCE BASED ON THE INTERACTION
         //-------------------------------------------------------------------------
+        //get the current experience of the pet
+        $currentExperience = $pet['experience'] ?? 0;
+
+        //get the level of the pet
+        $petLevel = $pet['level'] ?? null;
+        if (!$petLevel) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Pet level not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        //required experience for the next level
+        $requiredExperience = null;
+        $maxLifeStageReached = false;
+        $nextLifeStage = $this->getPetLifeStage($pet['life_stage_id'] + 1);
+        if ($nextLifeStage) {
+            $requiredExperience = $nextLifeStage['experience_required'] ?? null;
+        } else {
+            $requiredExperience = null;
+            $maxLifeStageReached = true; // No next level available
+        }
+        $newExperience = $currentExperience + $interactionExperience;
+        $newlevel = $petLevel;
+        $newLifeStage = $pet['life_stage_id'] ?? null;
+        $newLifeStageName = $petLifeStage['stage_name'] ?? null;
         
-        // $interactionExperience = $interaction['experience'] ?? 0;
+        //if the current experience is > the required experience, then level up the pet
+        if ($newExperience >= $requiredExperience && !$maxLifeStageReached) {
+            $newLevel = $petLevel + 1;
+            $newLifeStage = $petLifeStage['stage_id'] + 1;
+            $requiredExperience = $this->getPetLifeStage($newLifeStage)['experience_required'] ?? null;
+            $result = $this->petModel->updatePet($pet_id, [
+                'experience' => $newExperience,
+                'level' => $newLevel,
+                'life_stage_id' => $newLifeStage
+            ]);
+            if (!$result) {
+                $db->transRollback();
+                return $this->response->setJSON(['error' => 'Failed to update pet level'])
+                    ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }else if ($currentExperience < $requiredExperience && !$maxLifeStageReached) {
+            //if the current experience is less than the required experience, then just update the experience
+            $result = $this->petModel->updatePet($pet_id, [
+                'experience' => $newExperience,
+            ]);
+            if (!$result) {
+                $db->transRollback();
+                return $this->response->setJSON(['error' => 'Failed to update pet experience'])
+                    ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+        
+        else{
+            //max level reached, do not update the level or experience
+            $newLevel = $petLevel; // Keep the current level
+            $newLifeStage = $pet['life_stage_id']; // Keep the current life stage
+            $requiredExperience = null; // No next level available
+            
+        }
+        
+
+        
+
+
+
 
 
 
@@ -276,7 +353,6 @@ class ProcessPetInteraction extends BaseController
 
 
         //backlogs: 
-        // 1. Update the pet's experience based on the interaction
         // 2. Personality Multipliers
         // 3. Quality Multiplier
 
@@ -296,7 +372,6 @@ class ProcessPetInteraction extends BaseController
             'interaction_quality' => $data['quality'] ?? null,
             'base_points' => $data['base_points'] ?? 0,
             'multiplier_total' => $multiplier * $subs_multiplier * $petLifeStageMultiplier,
-
             'affinity_gained' => $newAffinity,
             'coins_earned' => $data['coins_earned'] ?? 0,
             'hunger_change' => $updateData['hunger_level'] ?? 0,
@@ -325,22 +400,31 @@ class ProcessPetInteraction extends BaseController
         //complete and commit the transaction
         $db->transCommit();
 
+        $newPetStatus = $this->petStatusModel->getPetStatusByPetId($pet_id);
+        if (!$newPetStatus) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Failed to build the return for an updated pet status'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $interactionSummary = [
+            'remaining_interactions_today' => max(0, $maxCount - $usedCount - 1),
+            'affinity_gained' => $affinityGained,
+            'pet_level' => $newLevel ?? $pet['level'],
+            'pet_life_stage' => $this->getPetLifeStage($newLifeStage)['stage_name'] ?? null,
+            'experience_gained' => $interactionExperience,
+            'current_experience' => $currentExperience,
+            'new_experience' => $pet['experience'] + $interactionExperience,
+            'required_experience_for_next_level' => $this->getPetLifeStage($newLifeStage + 1)['experience_required'] ?? null,
+            'pet_abilities' => json_decode($pet['abilities'], true) ?? [],
+            'pet_age' => (new DateTime($pet['birthdate']))->diff(new DateTime())->format('%y years, %m months, %d days'),
+            'personality' => $pet['personality'] ?? null,
+            'social_stats'=> "not implemented yet",
+        ];
         return $this->response->setJSON([
             'message' => 'Pet interaction processed successfully',
-            'interaction_summary' => [
-                'interaction_type_id' => $data['interaction_id'],
-                'interaction_name' => $interaction['interaction_name'],
-                'category_id' => $interaction['category_id'],
-                'interaction_category' => $interactionCategory[0]['category_name'] ?? null,
-                'item_used' => $itemUsedId ? "{$itemUsedId} - {$item_name}" : "No item used",
-                'affinity_gained' => $affinityGained,
-                'new_affinity' => $newAffinity,
-                'affinity_level' => $affinityLevel['level_name'],
-                'multiplier' => $multiplier * $subs_multiplier * $petLifeStageMultiplier,
-                'effects_applied' => $updateData,
-                'pet_life_stage' => $petLifeStage
-            ],
-            'new_pet_status' => $this->petStatusModel->getPetStatusByPetId($pet_id),
-        ])->setStatusCode(ResponseInterface::HTTP_OK);      
+            'new_pet_status' => array_merge($interactionSummary, $newPetStatus),
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
 }
