@@ -78,42 +78,17 @@ class ItemModel extends Model
     public function getItemsWithCategory()
     {
         return $this->db->query("
-        SELECT 
-            items.item_id,
-            items.category_id,
-            item_categories.category_name,
-            items.item_name,
-            items.description,
-            items.image_url,
-            items.base_price,
-            items.rarity,
-            items.is_tradable,
-            items.is_consumable,
-            items.is_stackable,
-            items.effect,
-            item_effects.effect_name,
-            item_effects.effect_values,
-            items.duration,
-            items.created_at,
-            items.korean_name
+        SELECT items.*, 
+        item_categories.category_name
         FROM items 
         JOIN item_categories 
         ON items.category_id = item_categories.category_id
-        JOIN item_effects
-        ON items.effect = item_effects.effect_id
     ")->getResultArray();
     }
 
 
     public function getItemById($itemId)
     {
-        /*
-            i have item_id, category_id, item_name, description, image_url, base_price, rarity, is_tradeable, is_consumable, is_stackable, effect, duration, created_at
-            i need to return the item with category_name from item_categories table
-            i need to return the item with effects from the item_effects table
-            i need to return the item rarity_name from item_rarity table
-        */
-
         // Get the item with category and rarity info
         $builder = $this->db->table('items');
         $builder->select('

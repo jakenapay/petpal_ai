@@ -52,10 +52,9 @@ class UserModel extends Model
             return [
                 'experience' => $user['experience'] ?? 0,
                 'user_level' => $user['user_grade'] ?? 0
-            ]; // Return experience or 0 if not set
+            ];
         }
-        return false; // User not found
-        
+        return false; 
     }
 
 }

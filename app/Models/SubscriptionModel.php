@@ -13,7 +13,21 @@ class SubscriptionModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        'user_id',
+        'plan_id',
+        'start_date',
+        'end_date',
+        'status',
+        'created_at',
+        'updated_at',
+        'payment_method',
+        'last_payment_date',
+        'next_payment_date',
+        'auto_renew',
+
+
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -73,5 +87,36 @@ class SubscriptionModel extends Model
         }
         return $plan;
     }
+
+    public function defaultUserSubscription($userId){
+        $planModel = new PlanModel();
+        //default is free so get the plan id 1
+        $plan = $planModel->getPlanbyId(1);
+        if (!$plan) {
+            return []; // Return empty array if plan not found
+        }
+        //build the subscription data
+        $data = [
+            'user_id' => $userId,
+            'plan_id' => $plan['plan_id'],
+            'start_date' => date('Y-m-d H:i:s'),
+            'end_date' => null, // No end date for free plan
+            'status' => 'active',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'payment_method' => 'free',
+            'last_payment_date' => null,
+            'next_payment_date' => null,
+            'auto_renew' => 0
+        ];
+        //insert the subscription data
+        $result = $this->insert($data);
+        if (!$result) {
+            return []; // Return empty array if insertion fails
+        }
+        //return the subscription data
+        return $result;
+    }
+
 
 }

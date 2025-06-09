@@ -20,8 +20,6 @@ class InventoryModel extends Model
         'aquisition_date',
         'expiration_date',
         'is_equipped'
-
-
     ];
 
     protected $allowedFieldsForItemList = [
@@ -185,6 +183,27 @@ class InventoryModel extends Model
         $itemModel = new ItemModel(); 
         $item = $itemModel->where('item_code', $item_code)->first();
         return $item ? $item['item_id'] : null;
+    }
+
+    public function addDefaultItems($user_id, $defaultItems){
+        $acquisition_type_id = 1; //Registration x Default
+        $now = date('Y-m-d H:i:s');
+
+        $dataToInsert = [];
+        foreach ($defaultItems as $item) {
+            $dataToInsert[] = [
+                'user_id' => $user_id,
+                'item_id' => $item['item_id'],
+                'acquisition_type_id' => $acquisition_type_id,
+                'acquisition_date' => $now,
+                'expiration_date' => null,
+                'is_equipped' => false,
+                'quantity' => $item['quantity'] ?? 1
+            ];
+        }
+        $this->insertBatch($dataToInsert);
+
+        return $this->getUserInventory($user_id);
     }
 
 

@@ -5,7 +5,9 @@ use App\Controllers\BaseController;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Email\Email;
-
+use App\Models\DefaultItemsModel;
+use App\Models\InventoryModel;
+use App\Models\SubscriptionModel;
 class Register extends BaseController
 {
     public function __construct()
@@ -102,6 +104,18 @@ class Register extends BaseController
                     'error' => 'Failed to register user.'
                 ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
+            if (!$this->setDefaultItems($userId)) {
+                $db->transRollback();
+                return $this->response->setJSON([
+                    'error' => 'Failed to add default items.'
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            if (!$this->defaultSubscriptions($userId)) {
+                $db->transRollback();
+                return $this->response->setJSON([
+                    'error' => 'Failed to set default subscription.'
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
             if (!$this->sendVerificationEmail($email, $verificationCode)) {
                 $db->transRollback();
                 return $this->response->setJSON([
@@ -109,9 +123,11 @@ class Register extends BaseController
                 ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
 
+
             $db->transComplete();
             
         } catch (\Exception $e) { 
+            log_message('error', 'Registration error: ' . $e->getMessage());
             $db->transRollback();          
             return $this->response->setJSON([
                 'error' => 'Registration failed. Please try again.'
@@ -285,5 +301,32 @@ class Register extends BaseController
         return $this->response->setJSON([
             'success' => 'Verification code resent successfully.'
         ])->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function setDefaultItems($user_id){
+        //life stage id is default to 1 since this is registration.
+        $life_stage_id = 2;
+        $defaultItemsModel = new DefaultItemsModel();
+        $defaultItems = $defaultItemsModel->getDefaultItems($life_stage_id);
+        
+        if (empty($defaultItems || !$defaultItems)) {
+            return false;
+        }
+        //access the user inventory and add the default items to it.
+        $inventoryModel = new InventoryModel();
+        $result = $inventoryModel->addDefaultItems($user_id, $defaultItems);
+        if (!$result) {
+            return false; 
+        }
+        return true;
+    }
+
+    public function defaultSubscriptions($userId){
+        $subscriptionModel = new SubscriptionModel();
+        $defaultSubscriptions = $subscriptionModel->defaultUserSubscription($userId);
+        if (!$defaultSubscriptions) {
+            return false;
+        }
+        return true;
     }
 }
