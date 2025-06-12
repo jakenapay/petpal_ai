@@ -24,7 +24,7 @@ class GetUserInventory extends BaseController
         if (!$inventory) {
             return $this->response->setJSON([
                 'message' => 'Inventory not found for this user',
-            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+            ])->setStatusCode(ResponseInterface::HTTP_OK);
         }
         return $this->response->setJSON([
             'message' => 'Inventory retrieved successfully',
@@ -47,7 +47,7 @@ class GetUserInventory extends BaseController
         if (!$inventory) {
             return $this->response->setJSON([
                 'message' => 'No items found for the category selected',
-            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+            ])->setStatusCode(ResponseInterface::HTTP_OK);
         }
         return $this->response->setJSON([
             'message' => 'Categorized Inventory retrieved successfully',

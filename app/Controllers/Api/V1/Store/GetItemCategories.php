@@ -11,12 +11,12 @@ class GetItemCategories extends BaseController
     public function index()
     {
         //auth chech
-        $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON([
-                'message' => 'Unauthorized',
-            ])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
+        // $userId = authorizationCheck($this->request);
+        // if (!$userId) {
+        //     return $this->response->setJSON([
+        //         'message' => 'Unauthorized',
+        //     ])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
         $itemCategoriesModel = new ItemCategoriesModel();
         $itemCategories = $itemCategoriesModel->findAll();
         if (!$itemCategories) {

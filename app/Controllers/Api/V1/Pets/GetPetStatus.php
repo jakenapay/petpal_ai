@@ -55,7 +55,7 @@ class GetPetStatus extends BaseController
         $petExperience = $pet['experience'] ?? 0;
 
         //get the required experience for next level
-        $petLifeStageExperienceRequired = $petLifestageModel->getPetLifeStageByID($pet['life_stage_id'] +1 )['experience_required'] ?? "Max Level";
+        $petLifeStageExperienceRequired = $petLifestageModel->getPetLifeStageByID($pet['life_stage_id'] +1 )['experience_required'] ?? $petLifestageModel->getPetLifeStageByID($pet['life_stage_id'])['experience_required'];
 
         /*
             "pet_level": "1",

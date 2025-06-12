@@ -54,7 +54,7 @@ class InteractionCategoriesModel extends Model
     {
         $interactionTypeModel = new InteractionTypeModel();
 
-        $builder = $interactionTypeModel->select('interaction_categories.name as category_name, interaction_type.*')
+        $builder = $interactionTypeModel->select('interaction_categories.name as category_name, interaction_type.*, interaction_categories.item_dependent as item_dependent')
             ->join('interaction_categories', 'interaction_type.category_id = interaction_categories.id', 'left')
             ->where('interaction_type.category_id', $id);
 
@@ -66,5 +66,6 @@ class InteractionCategoriesModel extends Model
 
         return $interaction ?: null;
     }
+    
 
 }

@@ -18,7 +18,7 @@ class PetInteractionModel extends Model
         'interaction_quality', 'base_points', 'multiplier_total', 'affinity_gained', 'coins_earned',
         'hunger_change', 'happiness_change', 'health_change', 'cleanliness_change', 'energy_change',
         'stress_change', 'llm_response', 't2m_animation_id', 'emotion_detected', 'platform',
-        'session_id', 'client_timestamp', 'created_at'
+        'session_id', 'client_timestamp', 'created_at', 'experience_gained' 
     ];
 
     protected bool $allowEmptyInserts = false;

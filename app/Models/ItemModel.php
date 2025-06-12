@@ -86,6 +86,46 @@ class ItemModel extends Model
     ")->getResultArray();
     }
 
+    // public function getItemsByIds(array $itemIds)
+    // {
+    //     if (empty($itemIds)) {
+    //         return [];
+    //     }
+
+    //     $builder = $this->db->table('items');
+    //     $builder->select('
+    //         items.*,
+    //         item_categories.category_name,
+    //         item_rarity.rarity_name
+    //     ');
+    //     $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
+    //     $builder->join('item_rarity', 'items.rarity = item_rarity.rarity_id', 'left');
+    //     $builder->whereIn('items.item_id', $itemIds);
+
+    //     return $builder->get()->getResultArray();
+    // }
+
+    public function getItems($itemIds)
+    {
+        $builder = $this->db->table('items');
+        $builder->select('
+            items.*,
+            item_categories.category_name,
+            item_rarity.rarity_name
+        ');
+        $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
+        $builder->join('item_rarity', 'items.rarity = item_rarity.rarity_id', 'left');
+
+        if (is_array($itemIds)) {
+            $builder->whereIn('items.item_id', $itemIds);
+            return $builder->get()->getResultArray();
+        } else {
+            $builder->where('items.item_id', $itemIds);
+            return $builder->get()->getRowArray();
+        }
+    }
+
+    //Same lang sila. Kaso gamit ko yung getItemById somewhere else so di ko muna tatanggalin.
 
     public function getItemById($itemId)
     {
@@ -104,15 +144,6 @@ class ItemModel extends Model
         if (!$item) {
             return null;
         }
-
-        // // Get effects for the item
-        // $effects = $this->db->table('item_effects')
-        //     ->where('effect_id', $item['effect_id'])
-        //     ->get()
-        //     ->getResultArray();
-
-        // $item['effects'] = $effects;
-
         return $item;
     }
     public function getItemsByCategory($categoryId)

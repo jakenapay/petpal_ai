@@ -4,15 +4,29 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class CoinPackageModel extends Model
+class DiamondPackagesPurchaseHistoryModel extends Model
 {
-    protected $table            = 'coin_packages';
-    protected $primaryKey       = 'package_id';
+    protected $table            = 'diamond_package_purchases';
+    protected $primaryKey       = 'purchase_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        'user_id',
+        'package_id',
+        'diamonds_purchased',
+        'bonus_diamonds_received',
+        'total_diamonds_received',
+        'real_price_paid',
+        'currency',
+        'payment_method',
+        'payment_transaction_id',
+        'platform',
+        'purchase_date',
+        'status',
+        'receipt_data',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,12 +58,9 @@ class CoinPackageModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function getCoinpackages(){
-        //customize returns if needed
-        return $this->find();
-    }
-    public function getCoinPackageById($id){
-        //customize returns if needed
-        return $this->where('is_active', 1)->find($id);
+    public function logPurchase($data)
+    {
+        // Customize the insert logic if needed
+        return $this->insert($data);
     }
 }

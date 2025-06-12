@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class CoinPackageModel extends Model
+class DiamondPackageModel extends Model
 {
-    protected $table            = 'coin_packages';
+    protected $table            = 'diamond_packages';
     protected $primaryKey       = 'package_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -44,12 +44,14 @@ class CoinPackageModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function getCoinpackages(){
-        //customize returns if needed
+    public function getDiamondPackages()
+    {
+        // Customize returns if needed
         return $this->find();
     }
-    public function getCoinPackageById($id){
-        //customize returns if needed
+    public function getDiamondPackageById($id)
+    {
+        // Customize returns if needed
         return $this->where('is_active', 1)->find($id);
     }
 }

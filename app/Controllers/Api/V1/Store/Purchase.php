@@ -50,10 +50,10 @@ class Purchase extends BaseController
 
         $userInventoryModel = new InventoryModel();
         $userInventory = $userInventoryModel->getUserInventory($user_id);        
-        if (!$userInventory) {
-            return $this->response->setJSON(['error' => 'User inventory not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
+        // if (!$userInventory) {
+        //     return $this->response->setJSON(['error' => 'User inventory not found'])
+        //         ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        // }
 
         //first check
         //how much do the item cost. get the final price.

@@ -14,12 +14,12 @@ class Items extends BaseController
     }
     public function getItemsbyCategory($categoryId)
     {
-        $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON([
-                'message' => 'Unauthorized',
-            ])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
+        // $userId = authorizationCheck($this->request);
+        // if (!$userId) {
+        //     return $this->response->setJSON([
+        //         'message' => 'Unauthorized',
+        //     ])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
         $itemModel = new ItemModel();
         $items = $itemModel->getItemsByCategory($categoryId);
         if (!$items) {
@@ -35,11 +35,11 @@ class Items extends BaseController
 
     public function search()
     {
-        $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON(['message' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
+        // $userId = authorizationCheck($this->request);
+        // if (!$userId) {
+        //     return $this->response->setJSON(['message' => 'Unauthorized'])
+        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
 
         $filters = $this->request->getGet(); 
         $itemModel = new ItemModel();
@@ -52,11 +52,11 @@ class Items extends BaseController
     }
 
     public function getFeaturedItems(){
-        $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON(['message' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
+        // $userId = authorizationCheck($this->request);
+        // if (!$userId) {
+        //     return $this->response->setJSON(['message' => 'Unauthorized'])
+        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
         $itemModel = new ItemModel();
         $items = $itemModel->featuredItems();
         if (!$items) {
