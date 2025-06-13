@@ -55,8 +55,9 @@ $routes->group('api/v1', function($routes) {
     $routes->put('pets/(:num)/status-update',   'Api\V1\Pets\UpdatePetStatus::index/$1');
     $routes->get('pets/(:num)/get-interactions',   'Api\V1\Pets\GetPetInteractionHistory::index/$1');
     $routes->post('pets/(:num)/interactions',   'Api\V1\Pets\ProcessPetInteraction::index/$1');
-    $routes->get('pets/(:num)/quests/daily', 'Api\V1\Pets\PetDailyQuestStatus::index/$1');
+    // $routes->get('pets/(:num)/quests/daily', 'Api\V1\Pets\PetDailyQuestStatus::index/$1');
     $routes->get('pets/(:num)/achievements', 'Api\V1\Pets\GetPetAchievements::index/$1');
+    
 
     // Store
     $routes->get('store/categories',       'Api\V1\Store\GetItemCategories::index');
@@ -109,9 +110,16 @@ $routes->group('api/v1', function($routes) {
     $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');
     $routes->get('constants/interaction-types/(:num)', 'Api\V1\Constants\GetInteractions::CategorizedInteractions/$1');
     $routes->get('constants/interaction-types/(:num)/(:segment)', 'Api\V1\Constants\GetInteractions::CategorizedInteractions/$1/$2');
-    
     $routes->get('constants/interaction-categories', 'Api\V1\Constants\GetInteractions::InteractionCategories');
+
     // Item
     $routes->get('items', 'Api\V1\Items\ListItems::index');
     $routes->get('items/categories', 'Api\V1\Items\ListItemsCategories::index');
+
+
+    //Quests (DAILY x WEEKLY x MONTHLY)
+    $routes->get('quests/daily-quests', 'Api\V1\Quest\Quests::dailyQuestStatus');
+    $routes->get('quests/weekly-quests', 'Api\V1\Quest\Quests::weeklyQuests');
+    // $routes->get('quests/daily-quests-status', 'Api\V1\Quest\Quests::dailyQuestStatus');
+    $routes->put('quests/daily-quests/complete-daily-quest', 'Api\V1\Quest\Quests::updateDailyQuest');
 });

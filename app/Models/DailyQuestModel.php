@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\DailyQuestsLogsModel;
 
 class DailyQuestModel extends Model
 {
-    protected $table            = 'pet_daily_quests';
+    protected $table            = 'daily_quests';
     protected $primaryKey       = 'quest_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -14,6 +15,15 @@ class DailyQuestModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'quest_id',
+        'quest_name',
+        'quest_type',
+        'description',
+        'target_count',
+        'reward_coins',
+        'reward_experience',
+        'is_mandatory',
+        'is_active',
+        'created_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -47,11 +57,27 @@ class DailyQuestModel extends Model
     protected $afterDelete    = [];
 
     //FUNCTIONS
-    public function getDailyQuests($petId)
+    public function getDailyQuests()
     {
-        if (!$petId) {
-            return [];
+        return $this->where('is_active', 1)
+            ->findAll();
+    }
+
+    public function getDailyQuestById($questId)
+    {
+        return $this->where('quest_id', $questId)
+            ->first();
+    }
+
+
+    public function getDailyQuestStatus($userId)
+    {
+        $dailyQuestsLogsModel = new DailyQuestsLogsModel();
+        $result = $dailyQuestsLogsModel->getDailyQuestLogs($userId);
+        if (!$result) {
+            return null; // No logs found for the user
         }
-        return $this->where('pet_id', $petId)->findAll();
+        return $result;
+        
     }
 }

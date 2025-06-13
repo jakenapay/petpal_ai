@@ -22,7 +22,10 @@ class UserModel extends Model
         'verification_expiration_date',
         'number_of_pets',
         'coins',
-        'diamonds'
+        'diamonds',
+        'experience',
+        'user_grade',
+        
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
@@ -45,6 +48,13 @@ class UserModel extends Model
         $update = $this->update($user_id, ['diamonds' => $amount]);
         return $update;
     }
+    public function updateUserExperience($user_id, $experience, $user_grade)
+    {
+        return $this->update($user_id, [
+            'experience' => $experience,
+            'user_grade' => $user_grade
+        ]);
+    }
     public function getUserExperience($user_id)
     {
         $user = $this->find($user_id);
@@ -55,6 +65,11 @@ class UserModel extends Model
             ];
         }
         return false; 
+    }
+    public function getUserById($userId)
+    {
+        // Retrieve user details by user ID
+        return $this->where('user_id', $userId)->first();
     }
 
 }

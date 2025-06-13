@@ -13,12 +13,12 @@ class GetPetInteractionHistory extends BaseController
 {
     public function index($petId)
     {
-        // $userId = authorizationCheck($this->request);
-        // if (!$userId) {
-        //     return $this->response->setJSON(['error' => 'Unauthorized'])
-        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        // }
-        $userId = 43;
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        // $userId = 43;
         $petId = (int) $petId;
         if (!$petId) {
             return $this->response->setJSON(['error' => 'Pet ID is required'])
