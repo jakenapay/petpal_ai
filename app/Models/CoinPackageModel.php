@@ -4,20 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class LogInteractionModel extends Model
+class CoinPackageModel extends Model
 {
-    protected $table            = 'pet_interactions';
-    protected $primaryKey       = 'log_id';
+    protected $table            = 'coin_packages';
+    protected $primaryKey       = 'package_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'pet_id',
-        'item_used',
-        'affinity_gained',
-        'interaction_id',
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -48,4 +43,13 @@ class LogInteractionModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getCoinpackages(){
+        //customize returns if needed
+        return $this->find();
+    }
+    public function getCoinPackageById($id){
+        //customize returns if needed
+        return $this->where('is_active', 1)->find($id);
+    }
 }

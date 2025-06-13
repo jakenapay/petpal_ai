@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class PetLifeStageModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'pet_life_stages';
+    protected $primaryKey       = 'stage_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +44,22 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
-
-    public function getPetsByUserId($userId)
+    // FUNCTIONS
+    public function getLifeStageById($stageId)
     {
-        return $this->where('user_id', $userId)->findAll();
+        if (!$stageId) {
+            return json_encode([]);
+        }
+        $lifeStage = $this->where('stage_id', $stageId)->first();
+        return json_encode($lifeStage ?: []);
     }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
+
+    public function getPetLifeStageByID($stageId){
+        if (!$stageId) {
             return null;
         }
-        return $this->find($petId);
+        $lifeStage = $this->where('stage_id', $stageId)->first();
+        return $lifeStage ?: null;
     }
 
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
-        }
-        return $this->update($petId, $data);
-    }
 }

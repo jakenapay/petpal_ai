@@ -39,7 +39,13 @@ $routes->group('api/v1', function($routes) {
     $routes->get('users/profile',      'Api\V1\Users\Profile::index');
     $routes->put('users/profile/',      'Api\V1\Users\Profile::update');
     $routes->put('users/settings',     'Api\V1\Users\Settings::update');
-
+    $routes->get('users/get-subscription', 'Api\V1\Users\GetUserSubscription::index');
+    $routes->get('users/balance',          'Api\V1\Users\GetUserBalance::index');
+    $routes->get('users/inventory',        'Api\V1\Users\GetUserInventory::index');
+    $routes->get('users/inventory/category/(:num)',        'Api\V1\Users\GetUserInventory::getCategorizedItemsFromInventory/$1');
+    $routes->get('users/level',            'Api\V1\Users\GetUserLevel::index');
+    
+    
     // Pets
     $routes->get('pets',                        'Api\V1\Pets\ListPets::index');
     $routes->post('pets',                       'Api\V1\Pets\CreatePet::index');
@@ -47,10 +53,28 @@ $routes->group('api/v1', function($routes) {
     $routes->put('pets/(:num)',                 'Api\V1\Pets\UpdatePet::update/$1');
     $routes->get('pets/(:num)/status',          'Api\V1\Pets\GetPetStatus::index/$1');
     $routes->put('pets/(:num)/status-update',   'Api\V1\Pets\UpdatePetStatus::index/$1');
-    $routes->get('pets/(:num)/interactions',   'Api\V1\Pets\GetPetInteraction::index/$1');
-    $routes->post('pets/log-interactions',   'Api\V1\Pets\LogInteraction::index');
+    $routes->get('pets/(:num)/get-interactions',   'Api\V1\Pets\GetPetInteractionHistory::index/$1');
+    $routes->post('pets/(:num)/interactions',   'Api\V1\Pets\ProcessPetInteraction::index/$1');
+    // $routes->get('pets/(:num)/quests/daily', 'Api\V1\Pets\PetDailyQuestStatus::index/$1');
+    $routes->get('pets/(:num)/achievements', 'Api\V1\Pets\GetPetAchievements::index/$1');
+    
 
-    // // Store
+    // Store
+    $routes->get('store/categories',       'Api\V1\Store\GetItemCategories::index');
+    $routes->get('store/(:num)/items',            'Api\V1\Store\Items::getItemsbyCategory/$1');
+    $routes->get('store/items/search',            'Api\V1\Store\Items::search');
+    $routes->get('store/items/featured',           'Api\V1\Store\Items::getFeaturedItems');
+    $routes->get('store/coin-packages',            'Api\V1\Store\CoinPackages::index');
+    $routes->get('store/diamond-packages',         'Api\V1\Store\DiamondPackages::index');
+    $routes->get('store/gacha/types',                    'Api\V1\Store\Gacha::gachaTypes');
+    $routes->get('store/gacha/pools',            'Api\V1\Store\Gacha::gachaPool');
+    $routes->get('store/gacha/pools/(:segment)', 'Api\V1\Store\Gacha::gachaPool/$1');
+    $routes->get('store/gacha/pools/pull-options/(:segment)', 'Api\V1\Store\Gacha::pullOptions/$1');
+    $routes->post('store/purchase' ,             'Api\V1\Store\Purchase::purchaseItem');
+    $routes->post('store/purchase/coins',       'Api\V1\Store\PurchaseCoins::index');
+    $routes->post('store/purchase/diamonds',    'Api\V1\Store\PurchaseDiamonds::index');
+    $routes->post('store/gacha/pull' ,             'Api\V1\Store\Gacha::gachaPull');
+    
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
     // $routes->get('store/cart',             'Api\V1\Store\Cart::index');
@@ -84,8 +108,18 @@ $routes->group('api/v1', function($routes) {
 
     // Constants
     $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');
+    $routes->get('constants/interaction-types/(:num)', 'Api\V1\Constants\GetInteractions::CategorizedInteractions/$1');
+    $routes->get('constants/interaction-types/(:num)/(:segment)', 'Api\V1\Constants\GetInteractions::CategorizedInteractions/$1/$2');
+    $routes->get('constants/interaction-categories', 'Api\V1\Constants\GetInteractions::InteractionCategories');
 
     // Item
     $routes->get('items', 'Api\V1\Items\ListItems::index');
     $routes->get('items/categories', 'Api\V1\Items\ListItemsCategories::index');
+
+
+    //Quests (DAILY x WEEKLY x MONTHLY)
+    $routes->get('quests/daily-quests', 'Api\V1\Quest\Quests::dailyQuestStatus');
+    $routes->get('quests/weekly-quests', 'Api\V1\Quest\Quests::weeklyQuests');
+    // $routes->get('quests/daily-quests-status', 'Api\V1\Quest\Quests::dailyQuestStatus');
+    $routes->put('quests/daily-quests/complete-daily-quest', 'Api\V1\Quest\Quests::updateDailyQuest');
 });

@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\InteractionTypeModel;
 
-class PetModel extends Model
+class InteractionCategoriesModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'interaction_categories';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +45,27 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
+    //Functions to retrieve interaction categories
+    public function getInteractionCategories()
+    {
+        return $this->findAll();
+    }
+    public function getInteractionCategoryById($id, $interaction_id = null)
+    {
+        $interactionTypeModel = new InteractionTypeModel();
 
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
-    }
+        $builder = $interactionTypeModel->select('interaction_categories.name as category_name, interaction_type.*, interaction_categories.item_dependent as item_dependent')
+            ->join('interaction_categories', 'interaction_type.category_id = interaction_categories.id', 'left')
+            ->where('interaction_type.category_id', $id);
 
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
+        if ($interaction_id !== null) {
+            $builder->where('interaction_type.interaction_type_id', $interaction_id);
         }
-        return $this->update($petId, $data);
+
+        $interaction = $builder->findAll();
+
+        return $interaction ?: null;
     }
+    
+
 }

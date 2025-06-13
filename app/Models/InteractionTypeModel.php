@@ -4,15 +4,19 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class InteractionTypeModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'interaction_type';
+    protected $primaryKey       = 'interaction_type_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [
+        'interaction_type_id', 'category', 'interaction_name', 'base_points', 'max_daily_count',
+        'required_subscription', 'hunger_effect', 'happiness_effect', 'health_effect',
+        'cleanliness_effect', 'energy_effect', 'stress_effect', 'description', 'created_at'
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +48,19 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
+    public function getInteractions()
+    {
+        return $this->findAll();
+    }
+    public function getInteractionByCategory($category)
+    {
+        return $this->where('category', $category)->findAll();
+    }
+    public function getInteractionById($interactionId)
+    {
+        return $this->find($interactionId);
+    }
 
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
-    }
 
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
-        }
-        return $this->update($petId, $data);
-    }
+
 }

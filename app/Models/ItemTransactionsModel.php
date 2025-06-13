@@ -4,15 +4,22 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class ItemTransactionsModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'item_transactions';
+    protected $primaryKey       = 'transactions_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [
+        'user_id',
+        'item_id',
+        'quantity',
+        'transaction_type',
+        'coins_spent',
+        'transaction_date'
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +51,13 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
-
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
+    public function insertTransaction($data){
+        log_message('info', 'Transaction data: ' . json_encode($data));
+        return $this->insert($data);
     }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
-    }
-
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
-        }
-        return $this->update($petId, $data);
+    public function getLastTransaction($user_id){
+        return $this->where('user_id', $user_id)
+            ->orderBy('transaction_date', 'DESC')
+            ->first();
     }
 }

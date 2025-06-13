@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class GachaPoolModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'gacha_pools';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +44,15 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
-
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
+    public function getGachaPools($pool_id = null) {
+        $builder = $this->db->table($this->table);
+        $builder->where('is_active', 1);
+        if ($pool_id) {
+            $builder->where('id', $pool_id);
+            return $builder->get()->getRowArray();
+        } else {
+            return $builder->get()->getResultArray();
         }
-        return $this->find($petId);
     }
 
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
-        }
-        return $this->update($petId, $data);
-    }
 }

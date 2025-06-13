@@ -4,15 +4,29 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PetModel extends Model
+class DiamondPackagesPurchaseHistoryModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'diamond_package_purchases';
+    protected $primaryKey       = 'purchase_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [
+        'user_id',
+        'package_id',
+        'diamonds_purchased',
+        'bonus_diamonds_received',
+        'total_diamonds_received',
+        'real_price_paid',
+        'currency',
+        'payment_method',
+        'payment_transaction_id',
+        'platform',
+        'purchase_date',
+        'status',
+        'receipt_data',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +58,9 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
-
-    public function getPetsByUserId($userId)
+    public function logPurchase($data)
     {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
-    }
-
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
-        }
-        return $this->update($petId, $data);
+        // Customize the insert logic if needed
+        return $this->insert($data);
     }
 }

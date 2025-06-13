@@ -4,19 +4,29 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InteractionsModel extends Model
+class CoinPackagesPurchaseHistoryModel extends Model
 {
-    protected $table            = 'interaction_types';
-    protected $primaryKey       = 'interaction_type_id';
+    protected $table            = 'coin_package_purchases';
+    protected $primaryKey       = 'purchase_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'name',
-        'duration',
-        'description',
-        'requires_item',
+        'user_id',
+        'package_id',
+        'coins_purchased',
+        'bonus_coins_received',
+        'total_coins_received',
+        'real_price_paid',
+        'currency',
+        'payment_method',
+        'payment_transaction_id',
+        'platform',
+        'purchase_date',
+        'status',
+        'receipt_data',
+        // 'created_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -48,4 +58,10 @@ class InteractionsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function logPurchase(array $data)
+    {
+        // Insert the purchase log into the database
+        return $this->insert($data);
+    }
 }

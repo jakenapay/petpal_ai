@@ -3,16 +3,28 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\DailyQuestsLogsModel;
 
-class PetModel extends Model
+class DailyQuestModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'daily_quests';
+    protected $primaryKey       = 'quest_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [
+        'quest_id',
+        'quest_name',
+        'quest_type',
+        'description',
+        'target_count',
+        'reward_coins',
+        'reward_experience',
+        'is_mandatory',
+        'is_active',
+        'created_at'
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +56,28 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
-
-    public function getPetsByUserId($userId)
+    //FUNCTIONS
+    public function getDailyQuests()
     {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
-        }
-        return $this->find($petId);
+        return $this->where('is_active', 1)
+            ->findAll();
     }
 
-    public function updatePet($petId, array $data)
+    public function getDailyQuestById($questId)
     {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
+        return $this->where('quest_id', $questId)
+            ->first();
+    }
+
+
+    public function getDailyQuestStatus($userId)
+    {
+        $dailyQuestsLogsModel = new DailyQuestsLogsModel();
+        $result = $dailyQuestsLogsModel->getDailyQuestLogs($userId);
+        if (!$result) {
+            return null; // No logs found for the user
         }
-        return $this->update($petId, $data);
+        return $result;
+        
     }
 }

@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\PetModel;
 
-class PetModel extends Model
+class DefaultItemsModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table            = 'default_items';
+    protected $primaryKey       = 'default_item_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +45,17 @@ class PetModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Functions
+    //Functions
 
-    public function getPetsByUserId($userId)
-    {
-        return $this->where('user_id', $userId)->findAll();
-    }
-    public function getPetById($petId)
-    {
-        if (!$petId) {
-            return null;
+    public function getDefaultItems($life_stage_id){
+        // Get all default items from the database
+        $defaultItems = $this->where('stage_id', $life_stage_id)
+            ->findAll();
+        // If no items found, return an empty array
+        if (empty($defaultItems)) {
+            return [];
         }
-        return $this->find($petId);
-    }
-
-    public function updatePet($petId, array $data)
-    {
-        log_message('debug', 'Updating pet with ID: ' . $petId . ' and data: ' . json_encode($data));
-        if (!$petId || empty($data)) {
-            return false;
-        }
-        return $this->update($petId, $data);
+        // Return the default items
+        return $defaultItems;
     }
 }
