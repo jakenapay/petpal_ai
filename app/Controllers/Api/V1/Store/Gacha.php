@@ -15,7 +15,8 @@ use App\Models\InventoryModel;
 
 class Gacha extends BaseController
 {
-    public function __construct() {
+    public function __construct()
+    {
         date_default_timezone_set('Asia/Manila');
     }
     public function index()
@@ -35,7 +36,8 @@ class Gacha extends BaseController
             'data' => $gachaTypes
         ]);
     }
-    public function gachaPool($pool_id = null) {
+    public function gachaPool($pool_id = null)
+    {
         $gachaPoolModel = new GachaPoolModel();
         $gachaPool = $gachaPoolModel->getGachaPools($pool_id);
 
@@ -52,11 +54,12 @@ class Gacha extends BaseController
         ]);
     }
 
-    public function pullOptions($pool_id = null) {
+    public function pullOptions($pool_id = null)
+    {
         //user auth
         $PullOptionsModel = new PullOptionsModel();
         $pullOptions = $PullOptionsModel->getPullOptions($pool_id);
-        if(!$pullOptions){
+        if (!$pullOptions) {
             return $this->response->setStatusCode(404)->setJSON([
                 'message' => 'Pull options not found',
                 'data' => null
@@ -112,8 +115,10 @@ class Gacha extends BaseController
         $userDiamonds = $user['diamonds'];
         $totalCost = $cost;
 
-        if (($currency === 'coins' && $userCoins < $totalCost) || 
-            ($currency === 'diamonds' && $userDiamonds < $totalCost)) {
+        if (
+            ($currency === 'coins' && $userCoins < $totalCost) ||
+            ($currency === 'diamonds' && $userDiamonds < $totalCost)
+        ) {
             return $this->response->setJSON([
                 'error' => 'Insufficient currency',
                 'message' => 'You need ' . $totalCost . ' ' . $currency . ' to pull ' . $pull_count . ' times'
@@ -201,7 +206,7 @@ class Gacha extends BaseController
 
         // TODO: Add items to inventory
         // $this->addItemsToInventory($user_id, $insertedItems);
-        
+
         // Commit the transaction
 
         $db->transCommit();
@@ -236,11 +241,20 @@ class Gacha extends BaseController
                 $weighted[] = $item;
             }
         }
-        if (empty($weighted)) return null;
+        if (empty($weighted))
+            return null;
         return $weighted[array_rand($weighted)];
     }
 
 
+    // Gacha Pull History
+    public function history()
+    {
+        $gachaPullModel = new GachaPullModel();
+        $data = $gachaPullModel->findAll();
+
+        return $this->response->setJSON($data);
+    }
 
 
 

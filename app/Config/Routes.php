@@ -74,6 +74,7 @@ $routes->group('api/v1', function($routes) {
     $routes->post('store/purchase/coins',       'Api\V1\Store\PurchaseCoins::index');
     $routes->post('store/purchase/diamonds',    'Api\V1\Store\PurchaseDiamonds::index');
     $routes->post('store/gacha/pull' ,             'Api\V1\Store\Gacha::gachaPull');
+    $routes->get('store/gacha/history',            'Api\V1\Store\Gacha::history');
     
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
