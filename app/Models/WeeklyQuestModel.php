@@ -4,10 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DailiesExtraRewardsModel extends Model
+class WeeklyQuestModel extends Model
 {
-    protected $table            = 'daily_quest_rewards';
-    protected $primaryKey       = 'reward_id';
+    protected $table            = 'weekly_quests';
+    protected $primaryKey       = 'quest_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
@@ -44,12 +44,28 @@ class DailiesExtraRewardsModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //functions
+    //FUNCTIONS
+    public function getWeeklyQuests()
+    {
+        return $this->where('is_active', 1)
+            ->findAll();
+    }
 
-    public function getExtraRewards(){
-        // this week's records
-        // $today = date('Y-m-d');
-        // $this->where('DATE(created_at)', $today);
-        return $this->findAll();
+    public function getWeeklyQuestById($questId)
+    {
+        return $this->where('quest_id', $questId)
+            ->first();
+    }
+
+
+    public function getWeeklyQuestStatus($userId)
+    {
+        $dailyQuestsLogsModel = new DailyQuestsLogsModel();
+        $result = $dailyQuestsLogsModel->getDailyQuestLogs($userId);
+        if (!$result) {
+            return null; // No logs found for the user
+        }
+        return $result;
+        
     }
 }
