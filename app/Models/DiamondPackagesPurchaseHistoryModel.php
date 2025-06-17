@@ -63,4 +63,7 @@ class DiamondPackagesPurchaseHistoryModel extends Model
         // Customize the insert logic if needed
         return $this->insert($data);
     }
+    public function getAllTransactions($userId){
+        return $this->where('user_id', $userId)->findAll();
+    }
 }

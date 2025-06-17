@@ -60,4 +60,10 @@ class ItemTransactionsModel extends Model
             ->orderBy('transaction_date', 'DESC')
             ->first();
     }
+
+    public function getAllTransactions($user_id){
+        return $this->where('user_id', $user_id)
+            ->orderBy('transaction_date', 'DESC')
+            ->findAll();
+    }
 }

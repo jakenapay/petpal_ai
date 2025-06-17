@@ -116,7 +116,6 @@ $routes->group('api/v1', function($routes) {
     $routes->get('items', 'Api\V1\Items\ListItems::index');
     $routes->get('items/categories', 'Api\V1\Items\ListItemsCategories::index');
 
-
     //Quests (DAILY x WEEKLY x MONTHLY)
     $routes->get('quests/daily-quests', 'Api\V1\Quest\Quests::dailyQuestStatus');
     $routes->get('quests/weekly-quests', 'Api\V1\Quest\Quests::weeklyQuestStatus');
@@ -125,4 +124,10 @@ $routes->group('api/v1', function($routes) {
     $routes->put('quests/daily-quests/complete-daily-quest', 'Api\V1\Quest\Quests::updateDailyQuest');
     $routes->put('quests/weekly-quests/complete-weekly-quest', 'Api\V1\Quest\Quests::updateWeeklyQuest');
     $routes->post('quests/claim-extra-reward', 'Api\V1\Quest\Quests::claimExtraReward');
+
+    //Transactions
+    $routes->get('transactions/items', 'Api\V1\Items\ItemTransactions::index');
+    $routes->get('transactions/coin-packages', 'Api\V1\Store\CoinPackagesTransaction::index');
+    $routes->get('transactions/diamond-packages', 'Api\V1\Store\DiamondPackagesTransaction::index');
+    
 });
