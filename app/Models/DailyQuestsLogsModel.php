@@ -75,6 +75,7 @@ class DailyQuestsLogsModel extends Model
     }
     public function getDailyQuestLogs($userId, $questId = null){
         //get the daily quest log for the user today
+        
         $today = date('Y-m-d');
         return $this->where('user_id', $userId)
                     ->where('DATE(created_at)', $today)
@@ -82,6 +83,15 @@ class DailyQuestsLogsModel extends Model
                         return $query->where('quest_id', $questId);
                     })
                     ->findAll();
+    }
+    public function getCompletedQuestCountThisWeek($userId){
+        // Count the completed daily quest logs for the user for tpday
+        $today = date('Y-m-d');
+        
+        return $this->where('user_id', $userId)
+                    ->where('is_completed', 1)
+                    ->where('DATE(created_at)', $today)
+                    ->countAllResults();
     }
 
     public function updateDailyQuestLog($quest_id, $data)

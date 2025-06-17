@@ -23,3 +23,13 @@ ini_set('display_errors', '0');
  | release of the framework.
  */
 defined('CI_DEBUG') || define('CI_DEBUG', false);
+
+
+/*
+ |--------------------------------------------------------------------------
+ | APP TIMEZONE
+ |--------------------------------------------------------------------------
+ | This is the default timezone that will be used by the application.
+ | It can be overridden in the .env file.
+ */
+date_default_timezone_set('Asia/Manila');
