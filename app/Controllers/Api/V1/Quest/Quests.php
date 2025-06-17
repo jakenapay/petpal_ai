@@ -47,7 +47,7 @@ class Quests extends BaseController
         if ($existingLogs) {
             return $this->response->setJSON([
                 'message' => 'Daily quests status for user was successfully retrieved.',
-                'quests' => [
+                'data' => [
                     'daily_quests' => $dailyQuests,
                     'daily_quests_status' => $existingLogs
                     ]
@@ -367,8 +367,8 @@ class Quests extends BaseController
         if ($existingLogs) {
             return $this->response->setJSON([
                 'message' => 'Weekly quests status for user was successfully retrieved.',
-                'quests' => ['
-                    weekly_quests' => $weeklyQuests, 
+                'data' => [
+                    'weekly_quests' => $weeklyQuests, 
                     'weekly_quests_status' => $existingLogs]
             ])
             ->setStatusCode(ResponseInterface::HTTP_OK);
