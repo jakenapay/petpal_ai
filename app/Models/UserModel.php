@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\UserLevelModel;
 
 class UserModel extends Model
 {
@@ -55,6 +56,43 @@ class UserModel extends Model
             'user_grade' => $user_grade
         ]);
     }
+
+    public function handleUserLevelUp($user_id, $newExperience)
+    {
+        // Get the current user's experience and level
+        $user = $this->find($user_id);
+        $currentExperience = $user['experience'] ?? 0;
+        $userLevel = $user['user_grade'] ?? 0;
+
+        // Get the total number of levels from the table
+        $userLevelModel = new UserLevelModel();
+        $totalLevels = $userLevelModel->countAllResults();
+
+        // If user is already at max level, just return true without changing anything
+        if ($userLevel >= $totalLevels) {
+            return true;
+        }
+
+        // Get required XP for next level
+        $userNextLevel = $userLevelModel->getUserRequiredExperience($userLevel + 1);
+        if (!$userNextLevel) {
+            log_message('error', 'User level not found for user ID: ' . $user_id);
+            return false;
+        }
+
+        // Check if user qualifies for level up
+        if ($newExperience >= $userNextLevel['experience_required']) {
+            $userLevel += 1;
+        }
+
+        // Update user experience and level
+        return $this->update($user_id, [
+            'experience' => $newExperience,
+            'user_grade' => $userLevel
+        ]);
+    }
+
+
     public function getUserExperience($user_id)
     {
         $user = $this->find($user_id);
