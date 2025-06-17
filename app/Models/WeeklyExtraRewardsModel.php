@@ -6,8 +6,8 @@ use CodeIgniter\Model;
 
 class WeeklyExtraRewardsModel extends Model
 {
-    protected $table            = 'weeklyextrarewards';
-    protected $primaryKey       = 'id';
+    protected $table            = 'weekly_quest_rewards';
+    protected $primaryKey       = 'reward_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
@@ -43,4 +43,12 @@ class WeeklyExtraRewardsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    // Functions
+    public function getExtraRewards(){
+        // this week's records
+        // $today = date('Y-m-d');
+        // $this->where('DATE(created_at)', $today);
+        return $this->findAll();
+    }
 }
