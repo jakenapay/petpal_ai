@@ -119,9 +119,10 @@ $routes->group('api/v1', function($routes) {
 
     //Quests (DAILY x WEEKLY x MONTHLY)
     $routes->get('quests/daily-quests', 'Api\V1\Quest\Quests::dailyQuestStatus');
-    $routes->get('quests/daily-quests/extra-rewards', 'Api\V1\Quest\Quests::dailyQuestExtraRewards');
-    $routes->get('quests/weekly-quests', 'Api\V1\Quest\Quests::weeklyQuests');
-    // $routes->get('quests/daily-quests-status', 'Api\V1\Quest\Quests::dailyQuestStatus');
+    $routes->get('quests/weekly-quests', 'Api\V1\Quest\Quests::weeklyQuestStatus');
+    $routes->get('quests/daily-quests/daily-extra-rewards', 'Api\V1\Quest\Quests::dailyQuestExtraRewards');
+    $routes->get('quests/daily-quests/weekly-extra-rewards', 'Api\V1\Quest\Quests::weeklyQuestExtraRewards');
     $routes->put('quests/daily-quests/complete-daily-quest', 'Api\V1\Quest\Quests::updateDailyQuest');
+    $routes->put('quests/daily-quests/complete-weekly-quest', 'Api\V1\Quest\Quests::updateWeeklyQuest');
     $routes->post('quests/daily-quests/claim-extra-reward', 'Api\V1\Quest\Quests::claimExtraReward');
 });
