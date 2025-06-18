@@ -102,8 +102,9 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/adoption/catcolors', 'Api\V1\Pets\PetAdoption::getCatColors');
     $routes->get('pets/adoption/dogeyecolors', 'Api\V1\Pets\PetAdoption::getDogEyeColors');
     $routes->get('pets/adoption/cateyecolors', 'Api\V1\Pets\PetAdoption::getCatEyeColors');
-
     $routes->get('pets/adoption/generateName', 'Api\V1\Pets\PetAdoption::generateName');
+    $routes->get('pets/adoption/cat-textures/(:num)', 'Api\V1\Pets\PetAdoption::showCatTexturebyBreed/$1');
+    $routes->get('pets/adoption/dog-textures/(:num)', 'Api\V1\Pets\PetAdoption::showDogTexturebyBreed/$1');
 
 
     // Constants

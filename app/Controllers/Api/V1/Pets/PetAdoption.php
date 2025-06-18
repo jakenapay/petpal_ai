@@ -4,6 +4,7 @@ namespace App\Controllers\Api\V1\Pets;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\AdoptionModel;
 
 class PetAdoption extends BaseController
 {
@@ -42,6 +43,44 @@ class PetAdoption extends BaseController
 
         return $this->response->setJSON($result)->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
+    public function showCatTexturebyBreed($breed_id){
+        $adoptionModel = new AdoptionModel();
+        $breed_id = (int) $breed_id;
+
+        $result = $adoptionModel->getCatTexture($breed_id);
+
+        if (!$result || empty($result)) {
+            return $this->response->setJSON([
+                'error' => 'No cat texture found for this breed'
+            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        return $this->response->setJSON([
+            'breed_id' => $breed_id,
+            'textures' => $result
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+    public function showDogTexturebyBreed($breed_id){
+        $adoptionModel = new AdoptionModel();
+        $breed_id = (int) $breed_id;
+
+        $result = $adoptionModel->getDogTexture($breed_id);
+
+        if (!$result || empty($result)) {
+            return $this->response->setJSON([
+                'error' => 'No dog texture found for this breed'
+            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        return $this->response->setJSON([
+            'breed_id' => $breed_id,
+            'textures' => $result
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
+    }
+
+
 
     public function showAllCatBreeds() {
         $db = \Config\Database::connect();
