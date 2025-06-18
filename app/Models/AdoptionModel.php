@@ -4,22 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ItemTransactionsModel extends Model
+class AdoptionModel extends Model
 {
-    protected $table            = 'item_transactions';
-    protected $primaryKey       = 'transactions_id';
+    protected $table            = 'adoptionmodel';
+    protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'user_id',
-        'item_id',
-        'quantity',
-        'transaction_type',
-        'coins_spent',
-        'transaction_date'
-    ];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -51,19 +44,26 @@ class ItemTransactionsModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function insertTransaction($data){
-        log_message('info', 'Transaction data: ' . json_encode($data));
-        return $this->insert($data);
-    }
-    public function getLastTransaction($user_id){
-        return $this->where('user_id', $user_id)
-            ->orderBy('transaction_date', 'DESC')
-            ->first();
+    //Functions
+
+    public function getCatTexture($breed_id){
+        $db = \Config\Database::connect();
+        $builder = $db->table('cat_texture');
+        $builder->where('breed_id', $breed_id);
+        $builder->orderBy('id', 'ASC');
+        $query = $builder->get();
+
+        return $query->getResult(); 
     }
 
-    public function getAllTransactions($user_id){
-        return $this->where('user_id', $user_id)
-            ->orderBy('transaction_date', 'DESC')
-            ->findAll();
+    public function getDogTexture($breed_id){
+        $db = \Config\Database::connect();
+        $builder = $db->table('cat_texture');
+        $builder->where('breed_id', $breed_id);
+        $builder->orderBy('id', 'ASC');
+        $query = $builder->get();
+
+        return $query->getResult(); 
     }
+
 }

@@ -64,4 +64,7 @@ class CoinPackagesPurchaseHistoryModel extends Model
         // Insert the purchase log into the database
         return $this->insert($data);
     }
+    public function getAllTransactions($userId){
+        return $this->where('user_id', $userId)->findAll();
+    }
 }
