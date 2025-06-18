@@ -27,7 +27,13 @@ class Gacha extends BaseController
 
 
     public function gachaTypes()
-    {
+    {   
+        $user_id = authorizationCheck($this->request);
+        if (!$user_id) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        
         //auth check to be followed.
         $gachaTypeModel = new GachaTypeModel();
         $gachaTypes = $gachaTypeModel->getGachaTypes();
@@ -38,6 +44,11 @@ class Gacha extends BaseController
     }
     public function gachaPool($pool_id = null)
     {
+        $user_id = authorizationCheck($this->request);
+        if (!$user_id) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
         $gachaPoolModel = new GachaPoolModel();
         $gachaPool = $gachaPoolModel->getGachaPools($pool_id);
 
@@ -81,7 +92,12 @@ class Gacha extends BaseController
 
     public function gachaPull()
     {
-        $user_id = 43; // Replace with authenticated user
+        // $user_id = 43; // Replace with authenticated user
+        $user_id = authorizationCheck($this->request);
+        if (!$user_id) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
         $data = $this->request->getJSON(true);
         $pool_option_id = $data['pool_option_id'] ?? null;
         $db = \Config\Database::connect();
@@ -204,11 +220,16 @@ class Gacha extends BaseController
             }
         }
 
-        // TODO: Add items to inventory
-        // $this->addItemsToInventory($user_id, $insertedItems);
-
+        $inventoryModel = new InventoryModel();
+        $addedToInventory = $inventoryModel->addItemsToInventory($user_id, $insertedItems);
+        
+        // if($addedToInventory) {
+        //     return $this->response->setJSON([
+        //         'message' => $insertedItems
+        //     ]);
+        // }
+        
         // Commit the transaction
-
         $db->transCommit();
 
         return $this->response->setJSON([
@@ -250,6 +271,11 @@ class Gacha extends BaseController
     // Gacha Pull History
     public function history()
     {
+        $user_id = authorizationCheck($this->request);
+        if (!$user_id) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
         $gachaPullModel = new GachaPullModel();
         $data = $gachaPullModel->findAll();
 

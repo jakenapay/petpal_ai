@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\GachaItemModel;
 
 class InventoryModel extends Model
 {
-    protected $table            = 'user_inventory';
-    protected $primaryKey       = 'id';
+    protected $table = 'user_inventory';
+    protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+    protected $protectFields = true;
+    protected $allowedFields = [
         'user_id',
         'item_id',
         'acquisition_type_id',
@@ -39,34 +40,36 @@ class InventoryModel extends Model
 
     // Dates
     protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $dateFormat = 'datetime';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
+    protected $validationRules = [];
+    protected $validationMessages = [];
+    protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    protected $beforeInsert = [];
+    protected $afterInsert = [];
+    protected $beforeUpdate = [];
+    protected $afterUpdate = [];
+    protected $beforeFind = [];
+    protected $afterFind = [];
+    protected $beforeDelete = [];
+    protected $afterDelete = [];
 
-    public function getUserInventory($user_id) {
+    public function getUserInventory($user_id)
+    {
         $inventory = $this->where('user_id', $user_id)
-                        ->where('quantity >', 0)
-                        ->findAll();
+            ->where('quantity >', 0)
+            ->findAll();
 
-        if (empty($inventory)) return [];
+        if (empty($inventory))
+            return [];
 
         $itemModel = new \App\Models\ItemModel();
 
@@ -82,8 +85,9 @@ class InventoryModel extends Model
 
         return $inventory;
     }
-    
-    public function categorizedItemsInInventory($user_id, $categoryId = null) {
+
+    public function categorizedItemsInInventory($user_id, $categoryId = null)
+    {
         $userInventory = $this->getUserInventory($user_id);
 
         if ($categoryId !== null) {
@@ -108,18 +112,20 @@ class InventoryModel extends Model
     }
 
 
-    public function checkItemInInventory($user_id, $item_id){
+    public function checkItemInInventory($user_id, $item_id)
+    {
         return $this->where('user_id', $user_id)
             ->where('item_id', $item_id)
             ->first();
     }
-    public function updateUserInventory($updateItemlist) {
+    public function updateUserInventory($updateItemlist)
+    {
         $user_id = $updateItemlist['user_id'];
         $item_id = $updateItemlist['item_id'];
         $quantity = $updateItemlist['quantity'];
-        $acquisition_date = $updateItemlist['acquisition_date']; 
+        $acquisition_date = $updateItemlist['acquisition_date'];
 
-        $existing = $this->checkItemInInventory($user_id, $item_id); 
+        $existing = $this->checkItemInInventory($user_id, $item_id);
 
         if ($existing) {
             $newQuantity = $existing['quantity'] + $quantity;
@@ -148,10 +154,12 @@ class InventoryModel extends Model
         $acquisition_type_id = 4; // Gacha
 
         foreach ($items as $item) {
-            $item_id = $this->getItemIdFromItemCode($item['item_id']); // E.g. map "pet_004_siamese_cat" to 1
-            $now = date('Y-m-d H:i:s');
+            $item_id = $this->getItemIdFromItemCode($item['item_id']);
+            if (!$item_id) {
+                continue;
+            }
 
-            // Check if user already has this item from gacha
+            $now = date('Y-m-d H:i:s');
             $existing = $inventoryModel
                 ->where('user_id', $user_id)
                 ->where('item_id', $item_id)
@@ -159,12 +167,10 @@ class InventoryModel extends Model
                 ->first();
 
             if ($existing) {
-                // Just increase quantity
                 $inventoryModel->update($existing['id'], [
                     'quantity' => $existing['quantity'] + 1
                 ]);
             } else {
-                // Create new inventory row
                 $inventoryModel->insert([
                     'user_id' => $user_id,
                     'item_id' => $item_id,
@@ -176,16 +182,20 @@ class InventoryModel extends Model
                 ]);
             }
         }
+        return true;
     }
+
 
     private function getItemIdFromItemCode($item_code)
     {
-        $itemModel = new ItemModel(); 
-        $item = $itemModel->where('item_code', $item_code)->first();
+        // $itemModel = new ItemModel(); 
+        $itemModel = new GachaItemModel();
+        $item = $itemModel->where('item_id', $item_code)->first();
         return $item ? $item['item_id'] : null;
     }
 
-    public function addDefaultItems($user_id, $defaultItems){
+    public function addDefaultItems($user_id, $defaultItems)
+    {
         $acquisition_type_id = 1; //Registration x Default
         $now = date('Y-m-d H:i:s');
 
