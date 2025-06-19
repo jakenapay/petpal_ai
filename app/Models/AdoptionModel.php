@@ -58,7 +58,7 @@ class AdoptionModel extends Model
 
     public function getDogTexture($breed_id){
         $db = \Config\Database::connect();
-        $builder = $db->table('cat_texture');
+        $builder = $db->table('dog_texture');
         $builder->where('breed_id', $breed_id);
         $builder->orderBy('id', 'ASC');
         $query = $builder->get();

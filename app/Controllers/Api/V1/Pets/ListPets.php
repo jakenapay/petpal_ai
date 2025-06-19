@@ -61,26 +61,48 @@ class ListPets extends BaseController
     //         'pets' => $pets
     //         ])->setStatusCode(ResponseInterface::HTTP_OK);
     // }
-    public function index()
-    {
-        $authHeader = $this->request->getHeaderLine('Authorization');
-        $token = str_replace('Bearer ', '', $authHeader);
+    // public function index()
+    // {
+    //     $authHeader = $this->request->getHeaderLine('Authorization');
+    //     $token = str_replace('Bearer ', '', $authHeader);
 
-        if (!$token) {
-            return $this->response->setJSON(['error' => 'Token required'])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
+    //     if (!$token) {
+    //         return $this->response->setJSON(['error' => 'Token required'])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+    //     }
 
-        try {
-            $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
-            $userId = $decoded->user_id;
+    //     try {
+    //         $decoded = JWT::decode($token, new Key(getenv('JWT_SECRET'), 'HS256'));
+    //         $userId = $decoded->user_id;
 
-            $petModel = new PetModel();
-            $pets = $petModel->where('user_id', $userId)->findAll();
+    //         $petModel = new PetModel();
+    //         // $pets = $petModel->where('user_id', $userId)->findAll();
+    //         $pets = $petModel->getAllPets($userId);
+
+    //         if (empty($pets)) {
+    //             return $this->response->setJSON(['error' => 'No pets found for this user'])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+    //         }
             
-            return $this->response->setJSON(['pets' => $pets])->setStatusCode(ResponseInterface::HTTP_OK);
+    //         return $this->response->setJSON(['pets' => $pets])->setStatusCode(ResponseInterface::HTTP_OK);
 
-        } catch (Exception $e) {
-            return $this->response->setJSON(['error' => 'Invalid token'])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+    //     } catch (Exception $e) {
+    //         return $this->response->setJSON(['error' => 'Invalid token'])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+    //     }
+    // }
+
+    public function index(){
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Token required'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
+        $petModel = new PetModel();
+        $pets = $petModel->getAllPets($userId);
+        // $pets = $petModel->where('user_id', $userId)->findAll();
+
+
+        return $this->response->setJson([
+            'message' => 'Pets retrieved successfully',
+            'pets' => $pets
+        ]);
     }
 }
