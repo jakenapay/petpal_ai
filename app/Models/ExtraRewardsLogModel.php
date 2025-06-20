@@ -51,7 +51,7 @@ class ExtraRewardsLogModel extends Model
     protected $afterDelete    = [];
 
     // Functions
-    public function getExtraRewardsLog($userId, $rewardId)
+    public function getExtraRewardsLogDaily($userId, $rewardId)
     {
         // Get today's date in Asia/Manila timezone
         $today = date('Y-m-d');
@@ -62,6 +62,21 @@ class ExtraRewardsLogModel extends Model
             $this->where('reward_id', $rewardId);
         }
         $this->where('DATE(created_at)', $today);
+
+        return $this->findAll();
+    }
+    public function getExtraRewardsLogWeekly($userId, $rewardId)
+    {
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+
+        // Query to get today's extra rewards log for the user
+        $this->where('user_id', $userId);
+        if ($rewardId !== "ALL") {
+            $this->where('reward_id', $rewardId);
+        }
+        $this->where('DATE(created_at) >=', $startOfWeek);
+        $this->where('DATE(created_at) <=', $endOfWeek);
 
         return $this->findAll();
     }

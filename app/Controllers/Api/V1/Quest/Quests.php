@@ -14,6 +14,8 @@ use App\Models\WeeklyExtraRewardsModel;
 use App\Models\ItemModel;
 use App\Models\WeeklyQuestModel;
 use App\Models\WeeklyQuestsLogsModel;
+use App\Models\InventoryModel;
+
 class Quests extends BaseController
 {
     public function __construct()
@@ -27,7 +29,7 @@ class Quests extends BaseController
         // daily_care_quest_templates
     }
     public function dailyQuestStatus(){
-        //auth check
+        // auth check
         $userId = authorizationCheck($this->request);
         if (!$userId) {
             return $this->response->setJSON(['error' => 'Unauthorized'])
@@ -200,7 +202,7 @@ class Quests extends BaseController
         }
         //count the number of finished task of the user this day
         $dailyQuestLogsModel = new DailyQuestsLogsModel();
-        $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisWeek($userId) ?? 0;
+        $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisDay($userId) ?? 0;
         $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
         $extraRewards = $dailiesExtraRewardsModel->getExtraRewards();
 
@@ -219,7 +221,7 @@ class Quests extends BaseController
             $extraRewardsLogModel->insert($data);
         }
 
-        $extraRewardsLog = $extraRewardsLogModel->getExtraRewardsLog($userId, $rewardId = "ALL");
+        $extraRewardsLog = $extraRewardsLogModel->getExtraRewardsLogDaily($userId, $rewardId = "ALL");
 
 
         //loop through the extra rewards and match it with the extra rewards log so that i can show 
@@ -242,109 +244,6 @@ class Quests extends BaseController
             ]
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
-
-    public function claimExtraReward(){
-        $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
-        // $userId = 43;
-
-        $data = $this->request->getJSON(true);
-        if (!$data || !isset($data['reward_id'])) {
-            return $this->response->setJSON(['error' => 'Reward ID is required'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-        }
-        $rewardId = (int) $data['reward_id'];
-        if (!$rewardId) {
-            return $this->response->setJSON(['error' => 'Invalid Reward ID'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-        }
-        //get the details of the reward
-        $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
-        $weeklyExtraRewardsModel = new WeeklyExtraRewardsModel();
-        $rewardDetails = $dailiesExtraRewardsModel->find($rewardId);
-        $rewardCategory = 'daily';
-
-        if (!$rewardDetails) {
-            $rewardDetails = $weeklyExtraRewardsModel->find($rewardId);
-            $rewardCategory = 'weekly';
-        }
-        //check if the user already claimed the reward
-        $extraRewardsLogModel = new ExtraRewardsLogModel();
-        $existingLog = $extraRewardsLogModel->getExtraRewardsLog($userId, $rewardId);
-        if ($existingLog) {
-            return $this->response->setJSON(['info' => 'Reward already claimed'])
-                ->setStatusCode(ResponseInterface::HTTP_OK);
-        }
-
-        //count the number of finished task of the user this day
-        $dailyQuestLogsModel = new DailyQuestsLogsModel();
-        $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisWeek($userId) ?? 0;
-        $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
-        $extraRewards = $dailiesExtraRewardsModel->getExtraRewards();
-        // Check if the user has completed enough tasks to claim the reward
-        if ($completedTaskCount < $rewardDetails['requirement_value']) {
-            return $this->response->setJSON(['error' => 'You need to finish ' . $rewardDetails['requirement_value'] . ' tasks to claim this reward'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-        }
-
-
-        //if not claimed, insert the log
-        $db = \Config\Database::connect();
-        $db->transStart();
-        $data = [
-            'user_id' => $userId,
-            'reward_id' => $rewardId,
-            'reward_category' => $rewardCategory,
-            'is_claimed' => 1,
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
-        $result = $extraRewardsLogModel->insert($data);
-        if (!$result) {
-            $db->transRollback();
-            return $this->response->setJSON(['error' => 'Failed to claim extra reward'])
-                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-
-        $itemModel = new ItemModel();
-        //get the "reward value" and make it as the item id
-        $itemId = $rewardDetails['reward_value'];
-
-        //check if the item exists
-        $itemExists = $itemModel->find($itemId);
-        if (!$itemExists) {
-            $db->transRollback();
-            return $this->response->setJSON(['error' => 'Item not found'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-        //get the quantity to be add in the user inventory
-        $quantity = $rewardDetails['reward_quantity'] ?? 1; 
-        //add the item to the user's inventory
-        //not required yet 
-        
-        $itemDetails = [
-            'item_id' => $itemId,
-            'item_name' => $itemExists['item_name'],
-        ];
-
-        //complete the transaction
-        $db->transComplete();
-        if ($db->transStatus() === false) {
-            return $this->response->setJSON(['error' => 'Transaction failed'])
-                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
-        return $this->response->setJSON([
-            'message' => 'Extra reward has been claimed successfully',
-            'item_details' => $itemDetails,
-            'quantity' => $quantity,
-        ])->setStatusCode(ResponseInterface::HTTP_OK);
-        
-
-    }
-
 
     public function weeklyQuestStatus(){
         //auth check
@@ -516,7 +415,7 @@ class Quests extends BaseController
         }
         //count the number of finished task of the user this day
         $weeklyQuestsLogsModel= new WeeklyQuestsLogsModel();
-        $completedTaskCount = $weeklyQuestsLogsModel->getCompletedQuestCountToday($userId) ?? 0;
+        $completedTaskCount = $weeklyQuestsLogsModel->getCompletedQuestCountThisWeek($userId) ?? 0;
         $weeklyExtraRewardsModel = new WeeklyExtraRewardsModel();
         $extraRewards = $weeklyExtraRewardsModel->getExtraRewards();
 
@@ -535,7 +434,7 @@ class Quests extends BaseController
             $extraRewardsLogModel->insert($data);
         }
 
-        $extraRewardsLog = $extraRewardsLogModel->getExtraRewardsLog($userId, $rewardId = "ALL");
+        $extraRewardsLog = $extraRewardsLogModel->getExtraRewardsLogWeekly($userId, $rewardId = "ALL");
 
 
         //loop through the extra rewards and match it with the extra rewards log so that i can show 
@@ -558,6 +457,152 @@ class Quests extends BaseController
             ]
         ])->setStatusCode(ResponseInterface::HTTP_OK);
 
+
+    }
+    public function claimExtraReward(){
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        // $userId = 43;
+
+        $data = $this->request->getJSON(true);
+        if (!$data || !isset($data['reward_id'])) {
+            return $this->response->setJSON(['error' => 'Reward ID is required'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+        $rewardId = (int) $data['reward_id'];
+        if (!$rewardId) {
+            return $this->response->setJSON(['error' => 'Invalid Reward ID'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+        //get the details of the reward
+        $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
+        $weeklyExtraRewardsModel = new WeeklyExtraRewardsModel();
+        $rewardDetails = $dailiesExtraRewardsModel->find($rewardId);
+        $rewardCategory = 'daily';
+
+        if (!$rewardDetails) {
+            $rewardDetails = $weeklyExtraRewardsModel->find($rewardId);
+            $rewardCategory = 'weekly';
+        }
+        //check if the user already claimed the reward
+        $extraRewardsLogModel = new ExtraRewardsLogModel();
+        if ($rewardCategory === 'weekly') {
+            $existingLog = $extraRewardsLogModel->getExtraRewardsLogWeekly($userId, $rewardId);
+        }else if ($rewardCategory === 'daily') {
+            $existingLog = $extraRewardsLogModel->getExtraRewardsLogDaily($userId, $rewardId);
+        }
+
+        if ($existingLog) {
+            return $this->response->setJSON(['info' => 'Reward already claimed'])
+                ->setStatusCode(ResponseInterface::HTTP_OK);
+        }
+
+        //count the number of finished task of the user this day
+        $dailyQuestLogsModel = new DailyQuestsLogsModel();
+        $weeklyQuestLogsModel = new WeeklyQuestsLogsModel();
+        if ($rewardCategory === 'weekly') {
+            $completedTaskCount = $weeklyQuestLogsModel->getCompletedQuestCountThisWeek($userId);
+        } else if ($rewardCategory === 'daily') {
+            $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisDay($userId);
+        }
+        
+        // $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisWeek($userId) ?? 0;
+        // $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
+        // $extraRewards = $dailiesExtraRewardsModel->getExtraRewards();
+        // Check if the user has completed enough tasks to claim the reward
+        if ($completedTaskCount < $rewardDetails['requirement_value']) {
+            return $this->response->setJSON(['error' => 'You need to finish ' . $rewardDetails['requirement_value'] . ' tasks to claim this reward'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+
+        //if not claimed, insert the log
+        $db = \Config\Database::connect();
+        $db->transStart();
+        $data = [
+            'user_id' => $userId,
+            'reward_id' => $rewardId,
+            'reward_category' => $rewardCategory,
+            'is_claimed' => 1,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        $result = $extraRewardsLogModel->insert($data);
+        if (!$result) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Failed to claim extra reward'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+
+        $itemModel = new ItemModel();
+        //get the "reward value" and make it as the item id
+        $itemId = $rewardDetails['reward_value'];
+
+        //check if the item exists
+        $itemExists = $itemModel->find($itemId);
+        if (!$itemExists) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Item not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        //get the quantity to be add in the user inventory
+        $quantity = $rewardDetails['reward_quantity'] ?? 1; 
+
+        $inventoryData = [
+            'user_id' => $userId,
+            'item_id' => $itemId,
+            'quantity' => $quantity,
+            'acquisition_type_id' => 3, //3 for quest
+            'acquisition_date' => date('Y-m-d H:i:s'),
+        ];
+        //add the item to the user's inventory
+        $inventoryModel = new InventoryModel();
+        $inventoryResult = $inventoryModel->updateUserInventory($inventoryData);
+        if (!$inventoryResult) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Failed to add item to inventory'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $coin_reward = $rewardDetails['coin_reward'] ?? 0;
+        //add the coins
+        $userModel = new UserModel();
+        $user = $userModel->getUserById($userId);
+        if (!$user) {
+            return $this->response->setJSON(['error' => 'User not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        $newCoins = $user['coins'] + $coin_reward;
+        $updateCoinsResult = $userModel->updateCoins($userId, $newCoins);
+        if (!$updateCoinsResult) {
+            $db->transRollback();
+            return $this->response->setJSON(['error' => 'Failed to update coins'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        
+        $itemDetails = [
+            'item_id' => $itemId,
+            'item_name' => $itemExists['item_name'],
+            'url' => $itemExists['image_url'] ?? '',
+            'quantity' => $quantity
+        ];
+
+        //complete the transaction
+        $db->transComplete();
+        if (!$db->transStatus()) {
+            return $this->response->setJSON(['error' => 'Failed to claim extra reward'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->response->setJSON([
+            'message' => 'Extra reward has been claimed successfully',
+            'item_details' => $itemDetails,
+            'coin_reward' => $coin_reward
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
+        
 
     }
 

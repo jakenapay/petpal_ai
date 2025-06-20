@@ -75,37 +75,54 @@ class WeeklyQuestsLogsModel extends Model
         return $this->whereIn('quest_id', $questIds)
             ->findAll();
     }
-    public function getWeeklyQuestLogs($userId, $questId = null){
-        //get the daily quest log for the user today
+    // public function getWeeklyQuestLogs($userId, $questId = null){
+    //     //get the daily quest log for the user today
         
-        $today = date('Y-m-d');
+    //     $today = date('Y-m-d');
+    //     return $this->where('user_id', $userId)
+    //                 ->where('DATE(created_at)', $today)
+    //                 ->when($questId, function($query) use ($questId) {
+    //                     return $query->where('quest_id', $questId);
+    //                 })
+    //                 ->findAll();
+    // }
+
+    public function getWeeklyQuestLogs($userId, $questId = null) {
+        // Get the start (Monday) and end (Sunday) of the current week
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+
         return $this->where('user_id', $userId)
-                    ->where('DATE(created_at)', $today)
+                    ->where('DATE(created_at) >=', $startOfWeek)
+                    ->where('DATE(created_at) <=', $endOfWeek)
                     ->when($questId, function($query) use ($questId) {
                         return $query->where('quest_id', $questId);
                     })
                     ->findAll();
     }
-    public function getCompletedQuestCountToday($userId){
-        // Count the weekly daily quest logs for the user for tpday
-        $today = date('Y-m-d');
-        
+
+    public function getCompletedQuestCountThisWeek($userId){
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+
         return $this->where('user_id', $userId)
                     ->where('is_completed', 1)
-                    ->where('DATE(created_at)', $today)
+                    ->where('DATE(created_at) >=', $startOfWeek)
+                    ->where('DATE(created_at) <=', $endOfWeek)
                     ->countAllResults();
     }
 
+
     public function updateWeeklyQuestLog($quest_id, $data)
     {
-        log_message('info', 'Updating weekly quest log for quest_id: ' . $quest_id);
-        log_message('info', 'Data to update: ' . json_encode($data));
-        //get the today's date
-        $today = date('Y-m-d');
-        // Update a specific daily quest log entry
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+
         return $this->where('quest_id', $quest_id)
-                    ->where('DATE(created_at)', $today)
+                    ->where('DATE(created_at) >=', $startOfWeek)
+                    ->where('DATE(created_at) <=', $endOfWeek)
                     ->set($data)
                     ->update();
-    }
+
+            }
 }
