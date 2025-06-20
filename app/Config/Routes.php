@@ -132,4 +132,10 @@ $routes->group('api/v1', function($routes) {
     $routes->get('transactions/coin-packages', 'Api\V1\Store\CoinPackagesTransaction::index');
     $routes->get('transactions/diamond-packages', 'Api\V1\Store\DiamondPackagesTransaction::index');
     
+
+    // Motions
+    $routes->get('motions/motion-tags', 'Api\V1\Motion\MotionTags::index');
+    $routes->get('motions/get-saved-motions', 'Api\V1\Motion\GetSavedMotions::index');
+    $routes->post('motions/save-motion', 'Api\V1\Motion\SaveMotions::index');
+    
 });

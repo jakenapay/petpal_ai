@@ -84,7 +84,7 @@ class DailyQuestsLogsModel extends Model
                     })
                     ->findAll();
     }
-    public function getCompletedQuestCountThisWeek($userId){
+    public function getCompletedQuestCountThisDay($userId){
         // Count the completed daily quest logs for the user for tpday
         $today = date('Y-m-d');
         
