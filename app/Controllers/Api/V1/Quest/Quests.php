@@ -80,13 +80,13 @@ class Quests extends BaseController
         }
 
 
-        
+        $status = $dailyQuestLogsModel->getDailyQuestLogs($userId);
         // Return the daily quests
         return $this->response->setJSON([
             'message' => 'Daily quests retrieved successfully',
             'data' => [
-                'quests' => $dailyQuests,
-                'quests_status' => $existingLogs
+                'daily_quests' => $dailyQuests,
+                'daily_quests_status' => $status
             ]
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
@@ -298,11 +298,12 @@ class Quests extends BaseController
         return $this->response->setJSON([
             'message' => 'Weekly quests status for user was successfully retrieved.',
             'data' => [
-                'quests' => $weeklyQuests,
+                'weekly_quests' => $weeklyQuests,
                 'weekly_quests_status' => $existingLogs
             ]
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
+
 
     public function updateWeeklyQuest(){
         //auth check
@@ -465,7 +466,6 @@ class Quests extends BaseController
             return $this->response->setJSON(['error' => 'Unauthorized'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
-        // $userId = 43;
 
         $data = $this->request->getJSON(true);
         if (!$data || !isset($data['reward_id'])) {
@@ -509,9 +509,7 @@ class Quests extends BaseController
             $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisDay($userId);
         }
         
-        // $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisWeek($userId) ?? 0;
-        // $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
-        // $extraRewards = $dailiesExtraRewardsModel->getExtraRewards();
+
         // Check if the user has completed enough tasks to claim the reward
         if ($completedTaskCount < $rewardDetails['requirement_value']) {
             return $this->response->setJSON(['error' => 'You need to finish ' . $rewardDetails['requirement_value'] . ' tasks to claim this reward'])
