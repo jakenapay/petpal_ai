@@ -43,7 +43,7 @@ class SaveMotions extends BaseController
         $payload = [
             'user_id' => $userId,
             'pet_id' => $pet_id,
-            'motion_name' => $motion_name,
+            'motion_name' => $motion_name ?? "Not Provided",
             "original_prompt" => $data['original_prompt'] ?? "Not Provided",
             'motion_tags' => json_encode($motionTags),
             "motion_category" => $data['motion_category'] ?? "No Table to get category from",
