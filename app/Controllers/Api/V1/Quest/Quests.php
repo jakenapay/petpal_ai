@@ -191,6 +191,7 @@ class Quests extends BaseController
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
 
+    //BUG FOUND!!!!!!
     public function dailyQuestExtraRewards(){
         // $userId = 43;
 
@@ -203,23 +204,23 @@ class Quests extends BaseController
         //count the number of finished task of the user this day
         $dailyQuestLogsModel = new DailyQuestsLogsModel();
         $completedTaskCount = $dailyQuestLogsModel->getCompletedQuestCountThisDay($userId) ?? 0;
+        //get the extra rewards
         $dailiesExtraRewardsModel = new DailiesExtraRewardsModel();
         $extraRewards = $dailiesExtraRewardsModel->getExtraRewards();
 
-        //post to the logs of extra rewards for the user
         $extraRewardsLogModel = new ExtraRewardsLogModel();
-        if ($completedTaskCount === 0){
-            //add logs so that we will just update it later.
-            $data = [
-                'user_id' => $userId,
-                'reward_id' => 0, // No reward claimed yet
-                'reward_category' => 'N/A',
-                'is_claimed' => 0,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ];
-            $extraRewardsLogModel->insert($data);
-        }
+        // if ($completedTaskCount === 0){
+        //     //add logs so that we will just update it later.
+        //     $data = [
+        //         'user_id' => $userId,
+        //         'reward_id' => 0, // No reward claimed yet
+        //         'reward_category' => 'N/A',
+        //         'is_claimed' => 0,
+        //         'created_at' => date('Y-m-d H:i:s'),
+        //         'updated_at' => date('Y-m-d H:i:s')
+        //     ];
+        //     $extraRewardsLogModel->insert($data);
+        // }
 
         $extraRewardsLog = $extraRewardsLogModel->getExtraRewardsLogDaily($userId, $rewardId = "ALL");
 
@@ -405,6 +406,7 @@ class Quests extends BaseController
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
 
+    //BUG FOUND!!!!!!
     public function weeklyQuestExtraRewards(){
         // $userId = 43;
 
@@ -417,23 +419,24 @@ class Quests extends BaseController
         //count the number of finished task of the user this day
         $weeklyQuestsLogsModel= new WeeklyQuestsLogsModel();
         $completedTaskCount = $weeklyQuestsLogsModel->getCompletedQuestCountThisWeek($userId) ?? 0;
+        //get the extra rewards
         $weeklyExtraRewardsModel = new WeeklyExtraRewardsModel();
         $extraRewards = $weeklyExtraRewardsModel->getExtraRewards();
 
         //post to the logs of extra rewards for the user
         $extraRewardsLogModel = new ExtraRewardsLogModel();
-        if ($completedTaskCount === 0){
-            //add logs so that we will just update it later.
-            $data = [
-                'user_id' => $userId,
-                'reward_id' => 0, // No reward claimed yet
-                'reward_category' => 'N/A',
-                'is_claimed' => 0,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ];
-            $extraRewardsLogModel->insert($data);
-        }
+        // if ($completedTaskCount === 0){
+        //     //add logs so that we will just update it later.
+        //     $data = [
+        //         'user_id' => $userId,
+        //         'reward_id' => 0, // No reward claimed yet
+        //         'reward_category' => 'N/A',
+        //         'is_claimed' => 0,
+        //         'created_at' => date('Y-m-d H:i:s'),
+        //         'updated_at' => date('Y-m-d H:i:s')
+        //     ];
+        //     $extraRewardsLogModel->insert($data);
+        // }
 
         $extraRewardsLog = $extraRewardsLogModel->getExtraRewardsLogWeekly($userId, $rewardId = "ALL");
 
@@ -525,9 +528,12 @@ class Quests extends BaseController
             'reward_id' => $rewardId,
             'reward_category' => $rewardCategory,
             'is_claimed' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ];
+        log_message('info', 'Data to insert: ' . json_encode($data));
         $result = $extraRewardsLogModel->insert($data);
+        
         if (!$result) {
             $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to claim extra reward'])
@@ -589,6 +595,7 @@ class Quests extends BaseController
         ];
 
         //complete the transaction
+        $db->transCommit();
         $db->transComplete();
         if (!$db->transStatus()) {
             return $this->response->setJSON(['error' => 'Failed to claim extra reward'])

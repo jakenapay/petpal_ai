@@ -5,6 +5,8 @@ namespace App\Controllers\Api\V1\Motion;
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\SavedMotionsModel;
+use App\Models\UserModel;
+
 class SaveMotions extends BaseController
 {
     public function index()
