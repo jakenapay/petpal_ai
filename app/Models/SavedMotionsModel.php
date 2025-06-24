@@ -111,13 +111,9 @@ class SavedMotionsModel extends Model
 
     public function handleSaveMotions($user_id, $data)
     {
-        log_message('error', 'Insert payload: ' . json_encode($data));
-
         if ($this->insert($data)) {
             return $this->getInsertID();
         }
-
-        log_message('error', 'Insert failed: ' . json_encode($this->errors()));
         return false;
     }
 
