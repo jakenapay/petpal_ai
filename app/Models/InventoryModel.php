@@ -270,5 +270,9 @@ class InventoryModel extends Model
         return $this->getUserInventory($user_id);
     }
 
+    public function reduceItemQuantity($user_id, $item_id, $quantity){
+        
+    }
+
 
 }

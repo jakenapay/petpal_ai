@@ -137,5 +137,7 @@ $routes->group('api/v1', function($routes) {
     $routes->get('motions/motion-tags', 'Api\V1\Motion\MotionTags::index');
     $routes->get('motions/get-saved-motions', 'Api\V1\Motion\GetSavedMotions::index');
     $routes->post('motions/save-motion', 'Api\V1\Motion\SaveMotions::index');
+    $routes->delete('motions/delete-motion/(:num)', 'Api\V1\Motion\DeleteMotions::index/$1');
+
     
 });
