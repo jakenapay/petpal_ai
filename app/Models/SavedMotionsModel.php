@@ -21,6 +21,7 @@ class SavedMotionsModel extends Model
         'motion_category',
         'difficulty_level',
         'bvh_data',
+        'bvh_duration_seconds',
         'bvh_frames_count',
         'is_favorite',
         'user_rating',
@@ -117,7 +118,13 @@ class SavedMotionsModel extends Model
         return false;
     }
 
+    public function deleteMotion($motion_id)
+    {
+        return $this->delete($motion_id);
+    }
 
-
-
+    public function getMotionById($motion_id)
+    {
+        return $this->find($motion_id);
+    }
 }
