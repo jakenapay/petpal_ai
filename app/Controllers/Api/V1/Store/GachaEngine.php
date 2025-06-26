@@ -128,11 +128,11 @@ class GachaEngine extends BaseController
     {
         // User authentication check
         $user_id = authorizationCheck($this->request);
-        $user_id = 43;
-        // if (!$user_id) {
-        //     return $this->response->setJSON(['error' => 'Unauthorized'])
-        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        // }
+        // $user_id = 43;
+        if (!$user_id) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
 
         // Get the pool option ID from the request
         $data = $this->request->getJSON(true);
