@@ -124,19 +124,37 @@ class InventoryModel extends Model
         $item_id = $updateItemlist['item_id'];
         $quantity = $updateItemlist['quantity'];
         $acquisition_date = $updateItemlist['acquisition_date'];
+        $acquisition_type = $updateItemlist['acquisition_type_id'] ?? 1;
 
+        $addData = [
+            'user_id' => $user_id,
+            'item_id' => $item_id,
+            'quantity' => $quantity,
+            'acquisition_type_id' => $acquisition_type,
+            'acquisition_date' => $acquisition_date,
+            'expiration_date' => null
+        ];
+        log_message('info', 'Add data: ' . json_encode($addData));
         $existing = $this->checkItemInInventory($user_id, $item_id);
 
         if ($existing) {
             $newQuantity = $existing['quantity'] + $quantity;
-            $this->where('user_id', $user_id)
-                ->where('item_id', $item_id)
-                ->set('quantity', $newQuantity)
-                ->set('acquisition_date', $acquisition_date)
-                ->set('expiration_date', null)
-                ->update();
+            try {
+                $this->where('user_id', $user_id)
+                    ->where('item_id', $item_id)
+                    ->set('quantity', $newQuantity)
+                    ->set('acquisition_date', $acquisition_date)
+                    ->set('expiration_date', null)
+                    ->update();
+            } catch (\Exception $e) {
+                log_message('error', 'Failed to update inventory: ' . $e->getMessage());
+            }
         } else {
-            $this->insert($updateItemlist);
+            try {
+                $this->insert($addData);
+            } catch (\Exception $e) {
+                log_message('error', 'Failed to insert data: ' . $e->getMessage());
+            }
         }
 
         return $this->getUserInventory($user_id);
@@ -185,6 +203,42 @@ class InventoryModel extends Model
         return true;
     }
 
+    public function handleAddItemsToInventory($user_id, $items)
+    {
+        $inventoryModel = new InventoryModel();
+        $acquisition_type_id = 4; // Gacha
+
+        foreach ($items as $item) {
+            $item_id = $this->getItemIdFromItemCode($item['item_id']);
+            if (!$item_id) {
+                continue;
+            }
+
+            $now = date('Y-m-d H:i:s');
+            $existing = $inventoryModel
+                ->where('user_id', $user_id)
+                ->where('item_id', $item_id)
+                ->where('acquisition_type_id', $acquisition_type_id)
+                ->first();
+
+            if ($existing) {
+                $inventoryModel->update($existing['id'], [
+                    'quantity' => $existing['quantity'] + 1
+                ]);
+            } else {
+                $inventoryModel->insert([
+                    'user_id' => $user_id,
+                    'item_id' => $item_id,
+                    'acquisition_type_id' => $acquisition_type_id,
+                    'acquisition_date' => $now,
+                    'expiration_date' => null,
+                    'is_equipped' => false,
+                    'quantity' => 1
+                ]);
+            }
+        }
+        return true;
+    }
 
     private function getItemIdFromItemCode($item_code)
     {
@@ -214,6 +268,10 @@ class InventoryModel extends Model
         $this->insertBatch($dataToInsert);
 
         return $this->getUserInventory($user_id);
+    }
+
+    public function reduceItemQuantity($user_id, $item_id, $quantity){
+        
     }
 
 

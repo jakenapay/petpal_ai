@@ -4,15 +4,19 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class AdoptionModel extends Model
+class MotionTagsModel extends Model
 {
-    protected $table            = 'adoptionmodel';
+    protected $table            = 'tags';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        'name',
+        'category',
+        'created_at',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,26 +48,13 @@ class AdoptionModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //Functions
-
-    public function getCatTexture($breed_id){
-        $db = \Config\Database::connect();
-        $builder = $db->table('cat_texture');
-        $builder->where('breed_id', $breed_id);
-        $builder->orderBy('id', 'ASC');
-        $query = $builder->get();
-
-        return $query->getResult(); 
+    public function getAllMotionTags(){
+        return $this->findAll();
     }
-
-    public function getDogTexture($breed_id){
-        $db = \Config\Database::connect();
-        $builder = $db->table('dog_texture');
-        $builder->where('breed_id', $breed_id);
-        $builder->orderBy('id', 'ASC');
-        $query = $builder->get();
-
-        return $query->getResult(); 
+    public function getMotionTagsById($motion_id = null){
+        if (!$motion_id) {
+            return null;
+        }
+        return $this->find($motion_id);
     }
-
 }

@@ -51,8 +51,10 @@ class ExtraRewardsLogModel extends Model
     protected $afterDelete    = [];
 
     // Functions
-    public function getExtraRewardsLog($userId, $rewardId)
+    public function getExtraRewardsLogDaily($userId, $rewardId)
     {
+        log_message('debug', "getExtraRewardsLogDaily($userId, $rewardId)");
+        date_default_timezone_set('Asia/Manila');
         // Get today's date in Asia/Manila timezone
         $today = date('Y-m-d');
 
@@ -65,8 +67,26 @@ class ExtraRewardsLogModel extends Model
 
         return $this->findAll();
     }
+    public function getExtraRewardsLogWeekly($userId, $rewardId)
+    {
+        log_message('debug', "getExtraRewardsLogWeekly($userId, $rewardId)");
+        date_default_timezone_set('Asia/Manila');
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+        log_message('debug', "startOfWeek: " . $startOfWeek . " endOfWeek: " . $endOfWeek);
+        // Query to get today's extra rewards log for the user
+        $this->where('user_id', $userId);
+        if ($rewardId !== "ALL") {
+            $this->where('reward_id', $rewardId);
+        }
+        $this->where('DATE(created_at) >=', $startOfWeek);
+        $this->where('DATE(created_at) <=', $endOfWeek);
+
+        return $this->findAll();
+    }
     public function insertExtraRewardLog($data)
     {
+        date_default_timezone_set('Asia/Manila');
         // Insert a new extra reward log entry
         return $this->insert($data);
     }
