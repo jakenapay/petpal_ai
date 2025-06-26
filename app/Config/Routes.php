@@ -75,7 +75,10 @@ $routes->group('api/v1', function($routes) {
     $routes->post('store/purchase/diamonds',    'Api\V1\Store\PurchaseDiamonds::index');
     $routes->post('store/gacha/pull' ,             'Api\V1\Store\Gacha::gachaPull');
     $routes->get('store/gacha/history',            'Api\V1\Store\Gacha::history');
-    
+
+    $routes->post('store/gacha/pullGacha', 'Api\V1\Store\GachaEngine::pullGacha');
+    $routes->post('store/gacha/getItems', 'Api\V1\Store\GachaEngine::getItems');
+
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');
     // $routes->get('store/cart',             'Api\V1\Store\Cart::index');
