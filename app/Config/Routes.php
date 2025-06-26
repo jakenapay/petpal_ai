@@ -57,7 +57,7 @@ $routes->group('api/v1', function($routes) {
     $routes->post('pets/(:num)/interactions',   'Api\V1\Pets\ProcessPetInteraction::index/$1');
     // $routes->get('pets/(:num)/quests/daily', 'Api\V1\Pets\PetDailyQuestStatus::index/$1');
     $routes->get('pets/(:num)/achievements', 'Api\V1\Pets\GetPetAchievements::index/$1');
-    
+    $routes->get('pets/breeds',                 'Api\V1\Pets\GetBreeds::index');
 
     // Store
     $routes->get('store/categories',       'Api\V1\Store\GetItemCategories::index');
@@ -106,7 +106,7 @@ $routes->group('api/v1', function($routes) {
     $routes->get('pets/adoption/generateName', 'Api\V1\Pets\PetAdoption::generateName');
     $routes->get('pets/adoption/cat-textures/(:num)', 'Api\V1\Pets\PetAdoption::showCatTexturebyBreed/$1');
     $routes->get('pets/adoption/dog-textures/(:num)', 'Api\V1\Pets\PetAdoption::showDogTexturebyBreed/$1');
-
+    
 
     // Constants
     $routes->get('constants/interaction-types', 'Api\V1\Constants\GetInteractions::index');

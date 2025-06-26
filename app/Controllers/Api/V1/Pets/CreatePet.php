@@ -111,6 +111,7 @@ class CreatePet extends BaseController
             'species' => $data['species'],
             'life_stage_id' => 1, // Default to 'baby' stage
             'breed' => $data['breed'] ?? null,
+            'petIconUrl' => $data['petIconUrl'] ?? null,
             'appearance' => json_encode($data['appearance']),
             'personality' => $data['personality'],
             'gender' => $data['gender']
