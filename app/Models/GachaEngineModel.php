@@ -31,7 +31,7 @@ class GachaEngineModel
                 $this->addToInventory($playerId, $r);
             }
 
-            $this->logTransaction($playerId, $poolId, $results, $totalCost);
+            // $this->logTransaction($playerId, $poolId, $results, $totalCost);
             // $this->db->transComplete();
 
             $results['new_balance'] = $this->getBalance($playerId);
