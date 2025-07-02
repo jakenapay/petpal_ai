@@ -37,7 +37,7 @@ $routes->group('api/v1', function($routes) {
 
     // Users
     $routes->get('users/profile',      'Api\V1\Users\Profile::index');
-    $routes->put('users/profile/',      'Api\V1\Users\Profile::update');
+    $routes->post('users/profile/',      'Api\V1\Users\Profile::update');
     $routes->put('users/settings',     'Api\V1\Users\Settings::update');
     $routes->get('users/get-subscription', 'Api\V1\Users\GetUserSubscription::index');
     $routes->get('users/balance',          'Api\V1\Users\GetUserBalance::index');
