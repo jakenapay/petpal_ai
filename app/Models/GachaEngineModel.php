@@ -53,24 +53,39 @@ class GachaEngineModel
 
     private function getItems($poolId)
     {
-        return $this->db->table('gacha_items')
-            ->select('id, pool_id, item_type, item_id, rarity, drop_rate, is_featured')
-            ->where('pool_id', $poolId)
+        return $this->db->table('items i')
+            ->select('i.item_id, i.pool_id, i.category_id AS item_type, i.rarity, i.drop_rate, i.is_featured, c.category_name, c.category_description, c.img_url')
+            ->join('item_categories c', 'c.category_id = i.category_id', 'left')
+            ->where('i.pool_id', $poolId)
             ->get()->getResultArray();
     }
 
     private function getDropRates($poolId)
     {
-        $rows = $this->db->table('gacha_items')
-            ->select('rarity, SUM(drop_rate) as total_rate')
+        // $rows = $this->db->table('items')
+        //     ->select('rarity, SUM(drop_rate) as total_rate')
+        //     ->where('pool_id', $poolId)
+        //     ->groupBy('rarity')
+        //     ->get()->getResultArray();
+
+        $rows = $this->db->table('items')
+            ->select('LOWER(rarity) as rarity, SUM(drop_rate) as total_rate')
             ->where('pool_id', $poolId)
-            ->groupBy('rarity')
+            ->where('rarity IS NOT NULL')
+            ->groupBy('LOWER(rarity)')
             ->get()->getResultArray();
 
         $rates = [];
+        // foreach ($rows as $r) {
+        //     $rates[$r['rarity']] = (float) $r['total_rate'];
+        // }
+
         foreach ($rows as $r) {
-            $rates[$r['rarity']] = (float) $r['total_rate'];
+            $rarity = ucfirst(strtolower($r['rarity'] ?? 'Unknown'));
+            $rates[$rarity] = (float) $r['total_rate'];
         }
+
+        log_message('error', 'DropRates Debug: ' . json_encode($rates));
         return $rates;
     }
 

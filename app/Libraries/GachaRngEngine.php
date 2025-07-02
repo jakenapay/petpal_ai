@@ -218,40 +218,93 @@ class GachaRngEngine
      * @param array $pity_data Current pity counters
      * @return array Adjusted drop rates
      */
+    // private function apply_pity_system($base_rates, $pity_data)
+    // {
+    //     $adjusted_rates = $base_rates;
+
+    //     // Soft pity: Increase Epic/Legendary rates
+    //     if ($pity_data['pulls_since_epic'] >= $this->soft_pity_threshold) {
+    //         $multiplier = min(
+    //             $this->soft_pity_multiplier,
+    //             1 + (($pity_data['pulls_since_epic'] - $this->soft_pity_threshold) * 0.1)
+    //         );
+
+    //         $adjusted_rates['Epic'] *= $multiplier;
+    //         $adjusted_rates['Legendary'] *= $multiplier;
+    //     }
+
+    //     // Hard pity: Guarantee Epic
+    //     if ($pity_data['pulls_since_epic'] >= $this->hard_pity_threshold) {
+    //         $adjusted_rates['Epic'] = max($adjusted_rates['Epic'], 50.0);
+    //         $adjusted_rates['Common'] *= 0.5;
+    //         $adjusted_rates['Uncommon'] *= 0.5;
+    //     }
+
+    //     // Legendary pity: Guarantee Legendary
+    //     if ($pity_data['pulls_since_legendary'] >= $this->legendary_pity_threshold) {
+    //         $adjusted_rates['Legendary'] = 100.0;
+    //         $adjusted_rates['Epic'] = 0.0;
+    //         $adjusted_rates['Rare'] = 0.0;
+    //         $adjusted_rates['Uncommon'] = 0.0;
+    //         $adjusted_rates['Common'] = 0.0;
+    //     }
+
+    //     // Normalize rates to ensure they sum to 100%
+    //     return $this->normalize_rates($adjusted_rates);
+    // }
+
+    private function normalize_keys(array $array)
+    {
+        $normalized = [];
+        foreach ($array as $key => $value) {
+            $normalized[ucfirst(strtolower(trim($key)))] = $value;
+        }
+        return $normalized;
+    }
+
     private function apply_pity_system($base_rates, $pity_data)
     {
-        $adjusted_rates = $base_rates;
+        $adjusted_rates = $this->normalize_keys($base_rates);
 
-        // Soft pity: Increase Epic/Legendary rates
+        // Soft pity
         if ($pity_data['pulls_since_epic'] >= $this->soft_pity_threshold) {
             $multiplier = min(
                 $this->soft_pity_multiplier,
                 1 + (($pity_data['pulls_since_epic'] - $this->soft_pity_threshold) * 0.1)
             );
 
-            $adjusted_rates['Epic'] *= $multiplier;
-            $adjusted_rates['Legendary'] *= $multiplier;
+            if (isset($adjusted_rates['Epic'])) {
+                $adjusted_rates['Epic'] *= $multiplier;
+            }
+            if (isset($adjusted_rates['Legendary'])) {
+                $adjusted_rates['Legendary'] *= $multiplier;
+            }
         }
 
-        // Hard pity: Guarantee Epic
+        // Hard pity
         if ($pity_data['pulls_since_epic'] >= $this->hard_pity_threshold) {
-            $adjusted_rates['Epic'] = max($adjusted_rates['Epic'], 50.0);
-            $adjusted_rates['Common'] *= 0.5;
-            $adjusted_rates['Uncommon'] *= 0.5;
+            $adjusted_rates['Epic'] = max($adjusted_rates['Epic'] ?? 0, 50.0);
+            foreach (['Common', 'Uncommon'] as $r) {
+                if (isset($adjusted_rates[$r])) {
+                    $adjusted_rates[$r] *= 0.5;
+                }
+            }
         }
 
-        // Legendary pity: Guarantee Legendary
+        // Legendary pity
         if ($pity_data['pulls_since_legendary'] >= $this->legendary_pity_threshold) {
-            $adjusted_rates['Legendary'] = 100.0;
-            $adjusted_rates['Epic'] = 0.0;
-            $adjusted_rates['Rare'] = 0.0;
-            $adjusted_rates['Uncommon'] = 0.0;
-            $adjusted_rates['Common'] = 0.0;
+            $adjusted_rates = [
+                'Legendary' => 100.0,
+                'Epic' => 0.0,
+                'Rare' => 0.0,
+                'Uncommon' => 0.0,
+                'Common' => 0.0,
+            ];
         }
 
-        // Normalize rates to ensure they sum to 100%
         return $this->normalize_rates($adjusted_rates);
     }
+
 
     private function normalize_rates($rates)
     {
@@ -574,8 +627,26 @@ class GachaRngEngine
         });
     }
 
+    // private function update_pity_counters(&$pity_data, $rarity)
+    // {
+    //     $pity_data['total_pulls']++;
+
+    //     if ($rarity === 'Legendary') {
+    //         $pity_data['pulls_since_legendary'] = 0;
+    //         $pity_data['pulls_since_epic'] = 0;
+    //     } elseif ($rarity === 'Epic') {
+    //         $pity_data['pulls_since_epic'] = 0;
+    //         $pity_data['pulls_since_legendary']++;
+    //     } else {
+    //         $pity_data['pulls_since_epic']++;
+    //         $pity_data['pulls_since_legendary']++;
+    //     }
+    // }
+
     private function update_pity_counters(&$pity_data, $rarity)
     {
+        $rarity = ucfirst(strtolower(trim($rarity)));
+
         $pity_data['total_pulls']++;
 
         if ($rarity === 'Legendary') {
@@ -589,6 +660,7 @@ class GachaRngEngine
             $pity_data['pulls_since_legendary']++;
         }
     }
+
 
     private function save_player_pity_data($playerId, $poolId, array $pityData): void
     {
@@ -636,9 +708,33 @@ class GachaRngEngine
         return $inventory;
     }
 
+    // private function calculate_item_value($item, $properties)
+    // {
+    //     // Calculate estimated coin value based on rarity and properties
+    //     $base_values = [
+    //         'Common' => 50,
+    //         'Uncommon' => 150,
+    //         'Rare' => 500,
+    //         'Epic' => 1500,
+    //         'Legendary' => 5000
+    //     ];
+
+    //     $base_value = $base_values[$item['rarity']] ?? 50;
+
+    //     // Add property bonuses
+    //     $property_bonus = 0;
+    //     if (isset($properties['special_effect']))
+    //         $property_bonus += 100;
+    //     if (isset($properties['color_variant']) && $properties['color_variant'] !== 'normal') {
+    //         $property_bonus += 200;
+    //     }
+
+    //     return $base_value + $property_bonus;
+    // }
+
     private function calculate_item_value($item, $properties)
     {
-        // Calculate estimated coin value based on rarity and properties
+        $rarity = ucfirst(strtolower(trim($item['rarity'])));
         $base_values = [
             'Common' => 50,
             'Uncommon' => 150,
@@ -647,18 +743,17 @@ class GachaRngEngine
             'Legendary' => 5000
         ];
 
-        $base_value = $base_values[$item['rarity']] ?? 50;
+        $base_value = $base_values[$rarity] ?? 50;
 
-        // Add property bonuses
         $property_bonus = 0;
         if (isset($properties['special_effect']))
             $property_bonus += 100;
-        if (isset($properties['color_variant']) && $properties['color_variant'] !== 'normal') {
+        if (!empty($properties['color_variant']) && $properties['color_variant'] !== 'normal')
             $property_bonus += 200;
-        }
 
         return $base_value + $property_bonus;
     }
+
 
     private function get_item_type_modifier($item, $preferences)
     {
@@ -700,13 +795,18 @@ class GachaRngEngine
         // }
     }
 
-    private function generate_uuid() {
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+    private function generate_uuid()
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
             mt_rand(0, 0xffff),
             mt_rand(0, 0x0fff) | 0x4000,
             mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
         );
     }
 
