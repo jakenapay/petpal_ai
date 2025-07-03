@@ -84,7 +84,7 @@ class Profile extends BaseController
                 $targetPath = FCPATH . 'assets/images/users';
                 $newName = $file->getRandomName();
                 $file->move($targetPath, $newName);
-                $data['profile_image'] = "assets/images/users/{$newName}";
+                $data['profile_image'] = "http://54.180.147.58/aipet/assets/images/users/{$newName}";
             }
 
             // Set up password
