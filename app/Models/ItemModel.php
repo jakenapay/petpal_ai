@@ -129,21 +129,37 @@ class ItemModel extends Model
 
     public function getItemById($itemId)
     {
-        // Get the item with category and rarity info
         $builder = $this->db->table('items');
         $builder->select('
             items.*,
             item_categories.category_name,
-            item_rarity.rarity_name
+            item_rarity.rarity_name,
+            item_accessories.id as accessory_id,
+            item_accessories.breed_id as accessory_breed_id,
+            item_accessories.subcategory_id as accessory_subcategory_id,
+            item_accessories.iconUrl as accessory_iconUrl,
+            item_accessories.AddressableURL as accessory_AddressableURL,
+            item_accessories.RGBColor as accessory_RGBColor,
+            item_subcategories.name as accessory_subcategory_name,
+            item_subcategories.id as accessory_subcategory_id
         ');
         $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
         $builder->join('item_rarity', 'items.rarity = item_rarity.rarity_id', 'left');
+        
+        // Join with item_accessories only if category_id = 1
+        $builder->join('item_accessories', 'items.item_id = item_accessories.item_id ', 'left');
+        
+        // Join with subcategories only if subcategory_id is present
+        $builder->join('item_subcategories', 'item_accessories.subcategory_id = item_subcategories.id', 'left');
+
         $builder->where('items.item_id', $itemId);
+
         $item = $builder->get()->getRowArray();
 
         if (!$item) {
             return null;
         }
+
         return $item;
     }
     public function getItemsByCategory($categoryId)
