@@ -15,6 +15,7 @@ class UserModel extends Model
         'password',
         'first_name',
         'last_name',
+        'mbti',
         'profile_image',
         'last_login',
         'status',
