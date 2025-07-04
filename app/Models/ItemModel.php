@@ -141,8 +141,11 @@ class ItemModel extends Model
             item_accessories.AddressableURL as accessory_AddressableURL,
             item_accessories.RGBColor as accessory_RGBColor,
             item_subcategories.name as accessory_subcategory_name,
-            item_subcategories.id as accessory_subcategory_id
+            item_subcategories.id as accessory_subcategory_id,
+            item_accessories.species_id as accessory_species_id,
+  
         ');
+
         $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
         $builder->join('item_rarity', 'items.rarity = item_rarity.rarity_id', 'left');
         
@@ -151,11 +154,25 @@ class ItemModel extends Model
         
         // Join with subcategories only if subcategory_id is present
         $builder->join('item_subcategories', 'item_accessories.subcategory_id = item_subcategories.id', 'left');
+        
 
         $builder->where('items.item_id', $itemId);
 
         $item = $builder->get()->getRowArray();
-
+        if ($item['accessory_species_id'] == 1) {
+            // Fetch from dogbreeds
+            $breed = $this->db->table('dogbreeds')
+                            ->where('breed_id', $item['accessory_breed_id'])
+                            ->get()
+                            ->getRowArray();
+        } else {
+            // Fetch from catbreeds
+            $breed = $this->db->table('catbreeds')
+                            ->where('breed_id', $item['accessory_breed_id'])
+                            ->get()
+                            ->getRowArray();
+        }
+        $item['breed_name'] = $breed['breed_name'] ?? null;
         if (!$item) {
             return null;
         }
