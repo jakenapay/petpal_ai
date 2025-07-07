@@ -87,7 +87,16 @@ class ItemAccessoriesModel extends Model
         foreach ($dogBreeds as $breed) {
             // Query accessories for each dog breed
             $accessories = $db->table($this->table)
-                ->select('item_accessories.id, item_accessories.item_id, item_accessories.subcategory_id, item_accessories.breed_id, item_accessories.species_id, item_accessories.iconUrl, item_accessories.AddressableURL, item_accessories.RGBColor')
+                ->select('item_accessories.id, 
+                                  item_accessories.item_id, 
+                                  items.item_name,
+                                  item_accessories.subcategory_id, 
+                                  item_accessories.breed_id, 
+                                  item_accessories.species_id, 
+                                  item_accessories.iconUrl, 
+                                  item_accessories.AddressableURL, 
+                                  item_accessories.RGBColor')
+                ->join('items', 'items.item_id = item_accessories.item_id')
                 ->where('item_accessories.species_id', 1) // Assuming 1 is for dogs
                 ->where('item_accessories.breed_id', $breed['breed_id'])
                 ->get()
@@ -111,7 +120,16 @@ class ItemAccessoriesModel extends Model
         foreach ($catBreeds as $breed) {
             // Query accessories for each cat breed
             $accessories = $db->table($this->table)
-                ->select('item_accessories.id, item_accessories.item_id, item_accessories.subcategory_id, item_accessories.breed_id, item_accessories.species_id, item_accessories.iconUrl, item_accessories.AddressableURL, item_accessories.RGBColor')
+                ->select('item_accessories.id, 
+                                  item_accessories.item_id,
+                                  items.item_name, 
+                                  item_accessories.subcategory_id, 
+                                  item_accessories.breed_id, 
+                                  item_accessories.species_id, 
+                                  item_accessories.iconUrl, 
+                                  item_accessories.AddressableURL, 
+                                  item_accessories.RGBColor')
+                ->join('items', 'items.item_id = item_accessories.item_id')
                 ->where('item_accessories.species_id', 2) // Assuming 2 is for cats
                 ->where('item_accessories.breed_id', $breed['breed_id'])
                 ->get()
