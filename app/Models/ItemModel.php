@@ -160,17 +160,18 @@ class ItemModel extends Model
 
         $item = $builder->get()->getRowArray();
         $speciesId = $item['accessory_species_id'] ?? null;
+        $breedId = $item['accessory_breed_id'] ?? null;
 
         if ($speciesId == 1) {
             // Fetch from dogbreeds
             $breed = $this->db->table('dogbreeds')
-                            ->where('breed_id', $speciesId)
+                            ->where('breed_id', $breedId)
                             ->get()
                             ->getRowArray();
         } else {
             // Fetch from catbreeds
             $breed = $this->db->table('catbreeds')
-                            ->where('breed_id', $speciesId)
+                            ->where('breed_id', $breedId)
                             ->get()
                             ->getRowArray();
         }
