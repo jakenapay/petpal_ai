@@ -6,6 +6,7 @@ use CodeIgniter\Model;
 use Exception;
 use App\Libraries\GachaRngEngine;
 use App\Models\GachaRngEngineModel;
+use App\Models\InventoryModel;
 
 class GachaEngineModel
 {
@@ -150,8 +151,27 @@ class GachaEngineModel
             'is_equipped' => 0
         ];
 
-        $this->db->table('user_inventory')->insert($data);
+        $inventoryModel = new InventoryModel();
+        $existing = $inventoryModel->checkItemInInventory($playerId, $item['item_id']);
+
+        try {
+            if ($existing) {
+                $newQuantity = $existing['quantity'] + $data['quantity'];
+
+                $inventoryModel->where('user_id', $playerId)
+                    ->where('item_id', $item['item_id'])
+                    ->set('quantity', $newQuantity)
+                    ->set('acquisition_date', $data['acquisition_date'])
+                    ->set('expiration_date', null)
+                    ->update();
+            } else {
+                $inventoryModel->insert($data);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Failed to update or insert inventory: ' . $e->getMessage());
+        }
     }
+
 
     private function logTransaction($playerId, $poolId, $results, $cost)
     {
