@@ -28,6 +28,7 @@ class GachaEngineModel
             $results = $this->rng->execute_pulls($playerId, $poolId, $pullCount, $config);
 
             foreach ($results['results'] as &$r) {
+                $this->addToObtainedGachaInventory($playerId, $r);
                 $this->addToInventory($playerId, $r);
             }
 
@@ -119,7 +120,7 @@ class GachaEngineModel
     }
 
 
-    private function addToInventory($playerId, &$item)
+    private function addToObtainedGachaInventory($playerId, &$item)
     {
         $data = [
             'id' => $this->generateUUID(),
@@ -135,7 +136,21 @@ class GachaEngineModel
         ];
 
         $this->db->table('player_inventory')->insert($data);
-        $item['inventory_id'] = $data['id'];
+    }
+
+    private function addToInventory($playerId, &$item)
+    {
+        $data = [
+            'user_id' => $playerId,
+            'item_id' => $item['item_id'],
+            'acquisition_type_id' => 4, // Gacha
+            'quantity' => 1,
+            'acquisition_date' => date('Y-m-d H:i:s'),
+            'expiration_date' => null,
+            'is_equipped' => 0
+        ];
+
+        $this->db->table('user_inventory')->insert($data);
     }
 
     private function logTransaction($playerId, $poolId, $results, $cost)
