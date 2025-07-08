@@ -11,12 +11,14 @@ class ItemAccessories extends BaseController
     public function index()
     {
         $model = new ItemAccessoriesModel();
-        $userId = authorizationCheck($this->request);
 
-        if (!$userId) {
-            return $this->response->setJSON(['error' => 'Token required or invalid'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
+        // AUTH BEARER TOKEN REMOVED
+        // $userId = authorizationCheck($this->request);
+
+        // if (!$userId) {
+        //     return $this->response->setJSON(['error' => 'Token required or invalid'])
+        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
 
         $accessories = $model->getAllAccessories();
         return $this->response->setJSON([

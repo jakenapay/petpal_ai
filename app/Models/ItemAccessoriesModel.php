@@ -53,24 +53,6 @@ class ItemAccessoriesModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
-    public function getAllAccessoriesaaa($species_type = null, $breed_name = null)
-    {
-
-        $builder = $this->builder();
-
-        if (!empty($species_type)) {
-
-        }
-
-
-        $builder->select('item_accessories.id, item_accessories.item_id, item_accessories.subcategory_id, item_accessories.breed_id, item_accessories.species_id, item_accessories.iconUrl, item_accessories.AddressableURL, item_accessories.RGBColor');
-        if ($species_type && $species_type == 'dog') {
-            $builder->where('species_id', 1);
-        } else if ($species_type && $species_type == 'cat') {
-            $builder->where('species_id', 2);
-        }
-
-    }
 
     public function getAllAccessories()
     {
