@@ -78,6 +78,7 @@ $routes->group('api/v1', function($routes) {
 
     $routes->post('store/gacha/pullGacha', 'Api\V1\Store\GachaEngine::pullGacha');
     $routes->post('store/gacha/getItems', 'Api\V1\Store\GachaEngine::getItems');
+    $routes->get('store/gacha/historyGacha/(:segment)', 'Api\V1\Store\GachaEngine::gachaHistory/$1');
 
     // $routes->get('store/products',         'Api\V1\Store\Products::index');
     // $routes->get('store/products/(:num)',  'Api\V1\Store\ProductDetails::show/$1');

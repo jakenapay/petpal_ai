@@ -99,8 +99,9 @@ class GachaEngine extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $builder = $db->table('gacha_items');
-        $builder->select('id, pool_id, item_type, item_id, rarity, drop_rate, is_featured');
+        $builder = $db->table('items');
+        $builder->select('items.item_id, items.item_name, items.pool_id, items.category_id, item_categories.category_name, items.rarity, items.drop_rate, items.is_featured');
+        $builder->join('item_categories', 'item_categories.category_id=items.category_id');
         $builder->where('pool_id', $pool_id);
 
         // Execute the query and get the result
@@ -164,6 +165,51 @@ class GachaEngine extends BaseController
         $gachaEngineModel = new GachaEngineModel();
         $pullResult = $gachaEngineModel->executePull($user_id, $pool_id, $pull_count, $cost);
         return $this->response->setJSON($pullResult);
+    }
+
+    public function gachaHistory($user_id)
+    {
+        try {
+            // Authorization check
+            $user_id = authorizationCheck($this->request);
+            if (!$user_id) {
+                return $this->response->setJSON(['error' => 'Unauthorized'])
+                    ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+            }
+
+            // Connect to the database
+            $db = \Config\Database::connect();
+            $builder = $db->table('gacha_audit_log');
+            $builder->select('gacha_audit_log.id, 
+                                      gacha_audit_log.player_id, 
+                                      gacha_audit_log.pool_id, 
+                                      gacha_audit_log.item_id, 
+                                      items.item_name,
+                                      gacha_audit_log.rarity, 
+                                      gacha_audit_log.entropy_hash, 
+                                      gacha_audit_log.server_ip, 
+                                      gacha_audit_log.user_agent, 
+                                      gacha_audit_log.created_at AS \'obtained_at\'');
+            $builder->join('items', 'items.item_id = gacha_audit_log.item_id');
+            $builder->where('player_id', $user_id);
+            $builder->orderBy('gacha_audit_log.created_at', 'DESC');
+
+            // Execute the query
+            $history = $builder->get()->getResultArray();
+
+            // Return the result as JSON
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => $history
+            ])->setStatusCode(ResponseInterface::HTTP_OK);
+        } catch (\Throwable $e) {
+            // Catch any error and return a 500 response
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Internal Server Error',
+                'message' => $e->getMessage()
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
 
