@@ -133,4 +133,9 @@ class PetModel extends Model
 
 
     }
+
+    public function isPetOwnedByUser($userId, $petId)
+    {
+        return $this->where(['pet_id' => $petId, 'user_id' => $userId])->countAllResults() > 0;
+    }
 }

@@ -20,7 +20,8 @@ class InventoryModel extends Model
         'quantity',
         'aquisition_date',
         'expiration_date',
-        'is_equipped'
+        'is_equipped',
+        'equipped_count'
     ];
 
     protected $allowedFieldsForItemList = [
@@ -270,9 +271,32 @@ class InventoryModel extends Model
         return $this->getUserInventory($user_id);
     }
 
-    public function reduceItemQuantity($user_id, $item_id, $quantity){
-        
+    public function reduceItemQuantity($user_id, $item_id, $quantity)
+    {
+
     }
 
+    public function isItemEquippable($userId, $itemId): array
+    {
+        $inv = $this->select('quantity, equipped_count')
+            ->where(['user_id' => $userId, 'item_id' => $itemId])
+            ->first();
+
+        if (!$inv) {
+            return [
+                'equippable' => false,
+                'reason' => 'Item does not exist in inventory'
+            ];
+        }
+
+        if ($inv['equipped_count'] >= $inv['quantity']) {
+            return [
+                'equippable' => false,
+                'reason' => 'No available quantity to equip'
+            ];
+        }
+
+        return ['equippable' => true];
+    }
 
 }

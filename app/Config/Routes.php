@@ -122,6 +122,7 @@ $routes->group('api/v1', function($routes) {
     $routes->get('items', 'Api\V1\Items\ListItems::index');
     $routes->get('items/categories', 'Api\V1\Items\ListItemsCategories::index');
     $routes->get('items/item-accessories', 'Api\V1\Items\ItemAccessories::index');
+    $routes->post('items/equip', 'Api\V1\Items\ItemEquipment::equipItem');
 
     //Quests (DAILY x WEEKLY x MONTHLY)
     $routes->get('quests/daily-quests', 'Api\V1\Quest\Quests::dailyQuestStatus');

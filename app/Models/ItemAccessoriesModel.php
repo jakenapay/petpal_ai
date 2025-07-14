@@ -130,5 +130,15 @@ class ItemAccessoriesModel extends Model
         ];
     }
 
+    public function getSlotTypeFromItem(int $itemId): ?string
+    {
+        $builder = $this->builder();
+        $builder->select('item_subcategories.name AS slot_type')
+                ->join('item_subcategories', 'item_subcategories.id = item_accessories.subcategory_id')
+                ->where('item_accessories.item_id', $itemId);
+        $row = $builder->get()->getRow();
+
+        return $row ? strtolower($row->slot_type) : null;
+    }
 
 }
