@@ -12,6 +12,7 @@ use App\Models\AffinityModel;
 use App\Models\SubscriptionModel;
 use App\Models\PetLifeStageModel;
 use App\Models\InteractionCategoriesModel;
+use App\Models\InventoryModel;
 use DateTime;
 
 
@@ -29,6 +30,7 @@ class ProcessPetInteraction extends BaseController
         $this->petLifeStageModel = new PetLifeStageModel();
         $this->itemsModel = new ItemModel();
         $this->interactionCategoriesModel = new InteractionCategoriesModel();
+        $this->inventoryModel = new InventoryModel();
 
     }
 
@@ -42,13 +44,19 @@ class ProcessPetInteraction extends BaseController
         return $interaction;
     }
 
-    public function getItemUsed($item_used_id){
-        $item = $this->itemsModel->getItems($item_used_id);
-        if (!$item) {
-            return $this->response->setJSON(['error' => 'Item not found'])
+    public function getItemUsed($item_used_id)
+    {
+        $items = $this->itemsModel->getItems($item_used_id);
+
+        if (empty($items)) {
+            return $this->response->setJSON(['error' => 'Items not found'])
                 ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
         }
-        return $item;
+
+        return $this->response->setJSON([
+            'success' => true,
+            'items' => $items,
+        ]);
     }
     public function getPet($pet_id){
         $pet = $this->petModel->getPetById($pet_id);
@@ -104,15 +112,101 @@ class ProcessPetInteraction extends BaseController
         return $interactionCategories;
     }
 
+    public function checkItemFromInventory($userId, $itemUsedId)
+    {
+        $item_ids = $itemUsedId;
+
+        if (empty($item_ids)) {
+            return [
+                'success' => false,
+                'error' => 'No item IDs provided',
+                'code' => 400
+            ];
+        }
+
+        $not_found = [];
+        $found_items = [];
+
+        foreach ($item_ids as $item_id) {
+            $item = $this->inventoryModel->checkItemInInventory($userId, $item_id);
+            if (!$item) {
+                $not_found[] = $item_id;
+            } else {
+                $found_items[] = $item;
+            }
+        }
+
+        if (!empty($not_found)) {
+            return [
+                'success' => false,
+                'error' => 'Some items not found in inventory',
+                'not_found' => $not_found,
+                'code' => 404
+            ];
+        }
+
+        return [
+            'success' => true,
+            'items' => $found_items,
+            'code' => 200
+        ];
+    }
+
+    public function deduceItemQuantity($userId, $itemUsedId, $quantity) {
+        //since itemusedid is array, loop each
+        $result = [];
+        foreach ($itemUsedId as $item_id) {
+            //check the item's quantity first.
+            $item = $this->inventoryModel->checkItemInInventory($userId, $item_id);
+            if (!$item) {
+                return [
+                    'success' => false,
+                    'error' => 'Item not found in inventory',
+                    'code' => 404
+                ];
+            }
+            //if the item quantity is 1, delete it from inventory
+            //else, just reduce the quantity
+            if ($item['quantity'] == 1) {
+                // UNCOMMENT THIS PART IF YOU WANT TO DELETE THE ITEM. RIGHT NOW, ITs just for testing.
+                // $this->inventoryModel->deleteItemFromInventory($userId, $item_id);
+                $result[] = [
+                    'item_id' => $item_id,
+                    'old_quantity' => $item['quantity'],
+                    'new_quantity' => 0
+                ];
+                continue;
+            }else{
+                $new_quantity = $item['quantity'] - $quantity;
+                $this->inventoryModel->reduceItemQuantity($userId, $item_id, $quantity);
+                $result[] = [
+                    'item_id' => $item_id,
+                    'old_quantity' => $item['quantity'],
+                    'new_quantity' => $new_quantity
+                ];
+            }
+        }
+        return [
+            'success' => true,
+            'message' => 'Item quantity has been reduced',
+            'code' => 200,
+            'result' => $result
+        ];
+    }
+
+
+
+
+
 
     public function index($pet_id)
     {
-        $userId = authorizationCheck($this->request);
-        if (!$userId) {
-            return $this->response->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
-        // $userId = 43;
+        // $userId = authorizationCheck($this->request);
+        // if (!$userId) {
+        //     return $this->response->setJSON(['error' => 'Unauthorized'])
+        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        // }
+        $userId = 43;
         //get the pet id from the url
         $pet_id = (int) $pet_id;
         if (!$pet_id) {
@@ -260,6 +354,25 @@ class ProcessPetInteraction extends BaseController
         // VERIFY IF THE USER HAS THE ITEM IN THEIR INVENTORY
         // IF YES, DEDUCE THE QUANTITY OF THE ITEM USED
         // -------------------------------------------------------------------------
+        $checkItems = $this->checkItemFromInventory($userId, $itemUsedId);
+
+
+        if ($checkItems['success'] != true) {
+            $db->transRollback();
+            return $this->response->setJSON(['warning' => $checkItems])
+                ->setStatusCode($checkItems['code']);
+        }
+
+        //decrease the quantity of the item used in the interaction
+        $updateItemQuantity = $this->deduceItemQuantity($userId, $itemUsedId, 1);
+
+        if ($updateItemQuantity['success'] != true) {
+            $db->transRollback();
+            return $this->response->setJSON(['warning' => $updateItemQuantity])
+                ->setStatusCode($updateItemQuantity['code']);
+        }
+        $ItemResult = $updateItemQuantity['result'];
+        // return $this->response->setJSON($ItemResult);
 
 
         // -------------------------------------------------------------------------
@@ -284,7 +397,7 @@ class ProcessPetInteraction extends BaseController
             $requiredExperience = $nextLifeStage['experience_required'] ?? null;
         } else {
             $requiredExperience = null;
-            $maxLifeStageReached = true; // No next level available
+            $maxLifeStageReached = true;
         }
         $newExperience = $currentExperience + $interactionExperience;
         $newlevel = $petLevel;
@@ -323,16 +436,7 @@ class ProcessPetInteraction extends BaseController
             $newLevel = $petLevel; // Keep the current level
             $newLifeStage = $pet['life_stage_id']; // Keep the current life stage
             $requiredExperience = null; // No next level available
-            
         }
-        
-
-        
-
-
-
-
-
 
         //-------------------------------------------------------------------------
         // GET ALL THE MULTIPLIERS
@@ -453,6 +557,7 @@ class ProcessPetInteraction extends BaseController
         ];
         return $this->response->setJSON([
             'message' => 'Pet interaction processed successfully',
+            'item_status' => $ItemResult,
             'new_pet_status' => array_merge($interactionSummary, $newPetStatus),
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
