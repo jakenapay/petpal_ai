@@ -119,6 +119,7 @@ class InventoryModel extends Model
             ->where('item_id', $item_id)
             ->first();
     }
+
     public function updateUserInventory($updateItemlist)
     {
         $user_id = $updateItemlist['user_id'];
@@ -273,7 +274,11 @@ class InventoryModel extends Model
 
     public function reduceItemQuantity($user_id, $item_id, $quantity)
     {
+        $this->where('user_id', $user_id)
+            ->where('item_id', $item_id)
+            ->decrement('quantity', $quantity);
 
+        return $this->getUserInventory($user_id);        
     }
 
     public function isItemEquippable($userId, $itemId): array
@@ -297,6 +302,13 @@ class InventoryModel extends Model
         }
 
         return ['equippable' => true];
+    }
+
+    public function deleteItemFromInventory($user_id, $item_id)
+    {
+        return $this->where('user_id', $user_id)
+            ->where('item_id', $item_id)
+            ->delete();
     }
 
 }
