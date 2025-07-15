@@ -6,13 +6,13 @@ use CodeIgniter\Model;
 
 class PetModel extends Model
 {
-    protected $table            = 'pets';
-    protected $primaryKey       = 'pet_id';
+    protected $table = 'pets';
+    protected $primaryKey = 'pet_id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id']; 
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+    protected $protectFields = true;
+    protected $allowedFields = ['user_id', 'name', 'species', 'breed', 'gender', 'appearance', 'personality', 'birthdate', 'status', 'level', 'experience', 'abilities', 'created_at', 'updated_at', 'life_stage_id'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -22,27 +22,27 @@ class PetModel extends Model
 
     // Dates
     protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $dateFormat = 'datetime';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
+    protected $validationRules = [];
+    protected $validationMessages = [];
+    protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    protected $beforeInsert = [];
+    protected $afterInsert = [];
+    protected $beforeUpdate = [];
+    protected $afterUpdate = [];
+    protected $beforeFind = [];
+    protected $afterFind = [];
+    protected $beforeDelete = [];
+    protected $afterDelete = [];
 
     // Functions
 
@@ -67,7 +67,8 @@ class PetModel extends Model
         return $this->update($petId, $data);
     }
 
-    public function getAllPets($userId){
+    public function getAllPets($userId)
+    {
         //get the tables needed.
         $pets = $this->where('user_id', $userId)->findAll();
 
@@ -79,7 +80,7 @@ class PetModel extends Model
 
         //get all pets 
 
-        foreach($pets as &$pet){
+        foreach ($pets as &$pet) {
 
             //get the pet species
             $species = $pet['species'];
@@ -87,9 +88,9 @@ class PetModel extends Model
             $appearance = json_decode($pet['appearance'], true);
 
             //get the eye color
-            if ($species === "dog"){
+            if ($species === "dog") {
                 $eyeColor = $dog_eye_color_table->where('color_id', $appearance['eye_color_id'])->get()->getRowArray();
-            }else if ($species === "cat"){
+            } else if ($species === "cat") {
                 $eyeColor = $cat_eye_color_table->where('color_id', $appearance['eye_color_id'])->get()->getRowArray();
             }
             //get the value of eye color
@@ -106,9 +107,9 @@ class PetModel extends Model
             $clothesUrl = $clothes['image_url'];
 
             //get the skin
-            if ($species === "dog"){
+            if ($species === "dog") {
                 $skin = $dog_skin_table->where('id', $appearance['skin_id'])->get()->getRowArray();
-            }else if ($species === "cat"){
+            } else if ($species === "cat") {
                 $skin = $cat_skin_table->where('id', $appearance['skin_id'])->get()->getRowArray();
             }
             //get only the image_url of the item
@@ -138,4 +139,59 @@ class PetModel extends Model
     {
         return $this->where(['pet_id' => $petId, 'user_id' => $userId])->countAllResults() > 0;
     }
+
+    public function isCorrectBreedAndSpecies($petId, $itemId)
+    {
+        $db = \Config\Database::connect();
+
+        // Get pet data
+        $pet = $this->where('pet_id', $petId)->first();
+        if (!$pet) {
+            return ['valid' => false, 'reason' => 'Pet not found'];
+        }
+
+        $speciesName = strtolower($pet['species']);
+        $breedName = strtolower($pet['breed']);
+
+        // Determine species_id and breed_id based on species
+        if ($speciesName === 'dog') {
+            $speciesId = 1;
+            $breed = $db->table('dogbreeds')
+                ->where('LOWER(breed_name)', $breedName)
+                ->get()
+                ->getRowArray();
+        } elseif ($speciesName === 'cat') {
+            $speciesId = 2;
+            $breed = $db->table('catbreeds')
+                ->where('LOWER(breed_name)', $breedName)
+                ->get()
+                ->getRowArray();
+        } else {
+            return ['valid' => false, 'reason' => 'Unsupported species'];
+        }
+
+        if (!$breed) {
+            return ['valid' => false, 'reason' => 'Breed not recognized'];
+        }
+
+        $breedId = $breed['breed_id'];
+
+        // Get item_accessory data
+        $item = $db->table('item_accessories')
+            ->where('item_id', $itemId)
+            ->get()
+            ->getRowArray();
+
+        if (!$item) {
+            return ['valid' => false, 'reason' => 'Item accessory not found'];
+        }
+
+        // Final comparison
+        if ($item['species_id'] != $speciesId || $item['breed_id'] != $breedId) {
+            return ['valid' => false, 'reason' => 'Breed or species mismatch'];
+        }
+
+        return ['valid' => true];
+    }
+
 }

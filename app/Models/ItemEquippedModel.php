@@ -44,12 +44,12 @@ class ItemEquippedModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
-    public function checkEquippedItem($userId, $petId, $slotType)
+    public function checkEquippedItem($userId, $petId, $sub_category)
     {
         $builder = $this->builder();
         $builder->where('user_id', $userId)
             ->where('pet_id', $petId)
-            ->where('slot_type', $slotType);
+            ->where('sub_category', $sub_category);
         $query = $builder->get();
         if (!$query) {
             log_message('error', 'Failed to fetch equipped item for user_id: ' . $userId);
