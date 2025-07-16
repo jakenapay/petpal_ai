@@ -64,60 +64,86 @@ class ItemEquipment extends BaseController
         $json = $this->request->getJSON();
         $items = $json->itemId ?? [];
         $petId = $json->petId ?? null;
-        $breedName = strtolower($item->breedName ?? '');
-        $addressableUrl = $item->addressableUrl ?? '';
-        $subCategory = strtolower($item->subCategory ?? '');
 
         if (!$userId) {
-            return $this->response->setJSON([
-                'message' => 'Unauthorized',
-            ])->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+            return $this->response->setJSON(['message' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
         if (!is_array($items) || count($items) === 0) {
-            return $this->response->setJSON([
-                'message' => 'Missing or invalid payload.'
-            ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+            return $this->response->setJSON(['message' => 'Missing or invalid itemId array.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        if (!isset($breedName, $addressableUrl, $subCategory)) {
-            return $this->response->setJSON([
-                'message' => 'Missing breed information or item visuals'
-            ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        if (!$petId || !is_numeric($petId)) {
+            return $this->response->setJSON(['message' => 'Missing or invalid petId.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $isPetOwned = $petModel->isPetOwnedByUser($userId, $petId);
-        if (!$isPetOwned) {
-            return $this->response->setJSON([
-                'message' => 'Pet is not owned'
-            ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        if (!$petModel->isPetOwnedByUser($userId, $petId)) {
+            return $this->response->setJSON(['message' => 'Pet is not owned by the user.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
         $db->transStart();
         $equippedResults = [];
 
         foreach ($items as $item) {
-            $itemId = $item->itemId ?? null;
-            $breedName = strtolower($item->breedName ?? null);
-            $addressableUrl = $item->addressableUrl ?? null;
-            $subCategory = strtolower($item->subCategory ?? null);
+            $breedName = strtolower($item->breedName ?? '');
+            $addressableUrl = $item->addressableUrl ?? '';
+            $subCategory = strtolower($item->subCategory ?? '');
 
-            $equipCheck = $inventoryModel->isItemEquippable($userId, $itemId);
-            if (!$equipCheck['equippable']) {
+            if (!$breedName || !$subCategory) {
                 return $this->response->setJSON([
-                    'message' => $equipCheck['reason']
+                    'message' => 'Missing breedName or subCategory in one of the items.'
                 ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
             }
 
-            $check = $petModel->isCorrectBreedAndSpecies($petId, $itemId);
-            if (!$check['valid']) {
-                return $this->response->setJSON([
-                    'message' => $check['reason']
-                ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-            }
+            // Get item accessory by addressable URL (can be null = unequip)
+            $data = $addressableUrl ? $itemAccessoriesModel->getItemByUrl($addressableUrl) : null;
+            $itemId = $data['item_id'] ?? null;
 
             $existing = $itemEquippedModel->checkEquippedItem($userId, $petId, $subCategory);
 
+            // Unequip if no itemId resolved
+            if (!$itemId) {
+                if ($existing) {
+                    $inventoryModel->where('user_id', $userId)
+                        ->where('item_id', $existing['item_id'])
+                        ->set('equipped_count', 'equipped_count - 1', false)
+                        ->update();
+
+                    $itemEquippedModel->delete($existing['id']);
+                }
+
+                $equippedResults[] = [
+                    'item_id' => null,
+                    'addressable_url' => $addressableUrl,
+                    'sub_category' => $subCategory,
+                    'breed_name' => $breedName,
+                ];
+                continue;
+            }
+
+            // Equip validation
+            $equipCheck = $inventoryModel->isItemEquippable($userId, $itemId);
+            if (!$equipCheck['equippable']) {
+                return $this->response->setJSON([
+                    'message' => $equipCheck['reason'],
+                    'item_id' => $itemId
+                ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+            }
+
+            // Check pet species & breed match
+            $check = $petModel->isCorrectBreedAndSpecies($petId, $itemId);
+            if (!$check['valid']) {
+                return $this->response->setJSON([
+                    'message' => $check['reason'],
+                    'item_id' => $itemId
+                ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+            }
+
+            // Update existing or insert new equip
             if ($existing && $existing['item_id'] != $itemId) {
                 $inventoryModel->where('user_id', $userId)
                     ->where('item_id', $existing['item_id'])
@@ -141,6 +167,7 @@ class ItemEquipment extends BaseController
                 ]);
             }
 
+            // Update equipped count for the new item
             if (!$existing || $existing['item_id'] != $itemId) {
                 $inventoryModel->where('user_id', $userId)
                     ->where('item_id', $itemId)
@@ -150,9 +177,9 @@ class ItemEquipment extends BaseController
 
             $equippedResults[] = [
                 'item_id' => $itemId,
-                'breed_name' => $breedName,
                 'addressable_url' => $addressableUrl,
                 'sub_category' => $subCategory,
+                'breed_name' => $breedName,
             ];
         }
 
@@ -160,7 +187,7 @@ class ItemEquipment extends BaseController
 
         if (!$db->transStatus()) {
             return $this->response->setJSON([
-                'message' => 'Failed to equip one or more items.',
+                'message' => 'Failed to equip or unequip item(s).',
                 'db_error' => $db->error()['message'] ?? 'Unknown DB error',
                 'equip_errors' => $itemEquippedModel->errors() ?: null,
                 'inventory_errors' => $inventoryModel->errors() ?: null,
@@ -168,10 +195,10 @@ class ItemEquipment extends BaseController
         }
 
         return $this->response->setJSON([
-            'message' => 'Items equipped successfully',
+            'message' => 'Items processed successfully',
             'equipped' => $equippedResults
         ])->setStatusCode(ResponseInterface::HTTP_OK);
-
+        
     }
 
 }

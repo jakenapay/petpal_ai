@@ -129,4 +129,8 @@ class ItemAccessoriesModel extends Model
             'cats' => $catResults
         ];
     }
+
+    public function getItemByUrl($addressableUrl) {
+       return $this->where('LOWER(addressableUrl)', strtolower(trim($addressableUrl)))->first();
+    }
 }
