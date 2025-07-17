@@ -198,7 +198,38 @@ class ItemEquipment extends BaseController
             'message' => 'Items processed successfully',
             'equipped' => $equippedResults
         ])->setStatusCode(ResponseInterface::HTTP_OK);
-        
+
+    }
+
+    public function getItemEquipped($petId)
+    {
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['message' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
+        if (!$petId || !is_numeric($petId)) {
+            return $this->response->setJSON(['message' => 'Missing or invalid petId.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $petModel = new PetModel();
+        if (!$petModel->isPetOwnedByUser($userId, $petId)) {
+            return $this->response->setJSON(['message' => 'Pet with PetID: ' . $petId . ' is not owned by user ' . $userId])
+                ->setStatusCode(ResponseInterface::HTTP_FORBIDDEN);
+        }
+
+        $itemEquippedModel = new ItemEquippedModel();
+        $equippedItems = $itemEquippedModel
+            ->where('user_id', $userId)
+            ->where('pet_id', $petId)
+            ->findAll();
+
+        return $this->response->setJSON([
+            'message' => 'Equipped items retrieved successfully.',
+            'equipped_items' => $equippedItems
+        ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
 
 }
