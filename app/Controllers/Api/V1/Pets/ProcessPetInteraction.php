@@ -201,12 +201,12 @@ class ProcessPetInteraction extends BaseController
 
     public function index($pet_id)
     {
-        // $userId = authorizationCheck($this->request);
-        // if (!$userId) {
-        //     return $this->response->setJSON(['error' => 'Unauthorized'])
-        //         ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        // }
-        $userId = 43;
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+        // $userId = 43;
         //get the pet id from the url
         $pet_id = (int) $pet_id;
         if (!$pet_id) {

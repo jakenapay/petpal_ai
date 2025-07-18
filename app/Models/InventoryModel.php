@@ -82,6 +82,8 @@ class InventoryModel extends Model
             } else {
                 $inventory[$key]['category_name'] = 'Uncategorized';
             }
+
+            $inventory[$key]['quantity'] = (int) $inventory[$key]['quantity'];
         }
 
         return $inventory;
