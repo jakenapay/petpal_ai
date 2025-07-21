@@ -40,7 +40,18 @@ class ItemModel extends Model
         'preview_3d_model',
         'attributes',
         'tags',
-        'final_price'
+        'final_price',
+        'currency_type',
+        'hunger_level',
+        'energy_level',
+        'hygiene_level',
+        'health_level',
+        'happiness_level',
+        'stress_level',
+        'affinity',
+        'experience',
+        'pool_id',
+        'drop_rate'
     ];
 
 
@@ -83,27 +94,9 @@ class ItemModel extends Model
         FROM items 
         JOIN item_categories 
         ON items.category_id = item_categories.category_id
+        WHERE items.is_deleted = 0
     ")->getResultArray();
     }
-
-    // public function getItemsByIds(array $itemIds)
-    // {
-    //     if (empty($itemIds)) {
-    //         return [];
-    //     }
-
-    //     $builder = $this->db->table('items');
-    //     $builder->select('
-    //         items.*,
-    //         item_categories.category_name,
-    //         item_rarity.rarity_name
-    //     ');
-    //     $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
-    //     $builder->join('item_rarity', 'items.rarity = item_rarity.rarity_id', 'left');
-    //     $builder->whereIn('items.item_id', $itemIds);
-
-    //     return $builder->get()->getResultArray();
-    // }
 
     public function getItems($itemIds)
     {
@@ -294,7 +287,4 @@ class ItemModel extends Model
         $builder->where('items.is_featured', 1);
         return $builder->get()->getResultArray();
     }
-
-
-
 }

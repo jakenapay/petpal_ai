@@ -111,7 +111,7 @@ class Auth extends BaseController
             'logged_in' => true
         ]);
 
-        return redirect()->to('profile')->with('success', 'Login successful');
+        return redirect()->to('main')->with('success', 'Login successful');
     }
 
     public function logout()

@@ -11,6 +11,7 @@ $routes->get('/', 'Home::index', ['filter' => 'auth']);
 $routes->get('register', 'Auth::register');
 $routes->get('login', 'Auth::login');
 $routes->get('profile', 'Users::profile', ['filter' => 'auth']);
+$routes->get('main', 'Home::index', ['filter' => 'auth']);
 
 $routes->post('register', 'Auth::registerUser');
 $routes->post('login', 'Auth::loginUser');
@@ -18,7 +19,9 @@ $routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
 
 $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 
-
+// Views for Items
+$routes->get('item/add', 'Items::itemAdd');
+$routes->post('item/add', 'Items::addItem');
 
 
 // API v1 base
@@ -124,6 +127,9 @@ $routes->group('api/v1', function($routes) {
     $routes->get('items/item-accessories', 'Api\V1\Items\ItemAccessories::index');
     $routes->post('items/equip', 'Api\V1\Items\ItemEquipment::equipItem');
     $routes->get('items/equip/(:num)', 'Api\V1\Items\ItemEquipment::getItemEquipped/$1');
+
+    // Api with frontend
+    $routes->post('items/add', 'Api\V1\Items\Items::addItem');
 
     //Quests (DAILY x WEEKLY x MONTHLY)
     $routes->get('quests/daily-quests', 'Api\V1\Quest\Quests::dailyQuestStatus');

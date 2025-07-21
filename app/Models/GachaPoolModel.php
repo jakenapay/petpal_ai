@@ -12,7 +12,18 @@ class GachaPoolModel extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = [];
+    protected $allowedFields = [
+        'name',
+        'description',
+        'image_url',
+        'start_date',
+        'end_date',
+        'is_active',
+        'type_id',
+        'pity_limit',
+        'pity_item_id',
+        'pity_reset_on_hit'
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
