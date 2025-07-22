@@ -116,6 +116,12 @@ class Login extends BaseController
         return JWT::encode($payload, $key, 'HS256');
     }
 
+    /**
+     * Apply decay to the user's pets based on the logout time.
+     * 
+     * @param array $userData User data containing logout_time and user_id.
+     * @return array|bool Decay result or false if no pets found.
+     */
     private function applyDecay($userData){
 
         //get the current time

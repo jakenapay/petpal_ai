@@ -28,7 +28,6 @@ class UserModel extends Model
         'diamonds',
         'experience',
         'user_grade',
-        
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';

@@ -42,6 +42,5 @@ class Logout extends BaseController
                     'message' => 'Logged out successfully'
                 ]);
         }
-
     }
 }

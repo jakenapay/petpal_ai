@@ -375,27 +375,6 @@ class ProcessPetInteraction extends BaseController
             $ItemResult = $updateItemQuantity['result'];
         }
         
-        // $checkItems = $this->checkItemFromInventory($userId, $itemUsedId);
-
-
-        // if ($checkItems['success'] != true) {
-        //     $db->transRollback();
-        //     return $this->response->setJSON(['warning' => $checkItems])
-        //         ->setStatusCode($checkItems['code']);
-        // }
-
-        // //decrease the quantity of the item used in the interaction
-        // $updateItemQuantity = $this->deduceItemQuantity($userId, $itemUsedId, 1);
-
-        // if ($updateItemQuantity['success'] != true) {
-        //     $db->transRollback();
-        //     return $this->response->setJSON(['warning' => $updateItemQuantity])
-        //         ->setStatusCode($updateItemQuantity['code']);
-        // }
-        // $ItemResult = $updateItemQuantity['result'];
-        // return $this->response->setJSON($ItemResult);
-
-
         // -------------------------------------------------------------------------
         // UPDATE THE PET EXPERIENCE BASED ON THE INTERACTION
         //-------------------------------------------------------------------------
