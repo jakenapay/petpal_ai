@@ -246,7 +246,7 @@ class Login extends BaseController
         $newHappiness = max(0, $statusData['happiness_level'] - $decayAmount * $multiplier);
         $newEnergy = min(100, max(0, $statusData['energy_level'] - $decayAmount * $multiplier));
         $newCleanliness = max(0, $statusData['cleanliness_level'] - $decayAmount * $multiplier);
-        $newStress = max(0, $statusData['stress_level'] + $decayAmount * $multiplier);
+        $newStress = min(100, max(0, $statusData['stress_level'] + $decayAmount * $multiplier));
         $newHealth = $statusData['health_level'];
         if($statusData['stress_level'] >=50 || $statusData['hunger_level'] <= 20 || $statusData['happiness_level'] <= 20){
             $newHealth = min(100, max(0, $statusData['health_level'] - $decayAmount * $multiplier));
