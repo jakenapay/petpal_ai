@@ -354,24 +354,45 @@ class ProcessPetInteraction extends BaseController
         // VERIFY IF THE USER HAS THE ITEM IN THEIR INVENTORY
         // IF YES, DEDUCE THE QUANTITY OF THE ITEM USED
         // -------------------------------------------------------------------------
-        $checkItems = $this->checkItemFromInventory($userId, $itemUsedId);
+        $ItemResult = [];
+        
+        // Only run deduction logic if item_used_id is a non-empty array with non-empty values
+        if (is_array($itemUsedId) && !empty(array_filter($itemUsedId))) {
+            $checkItems = $this->checkItemFromInventory($userId, $itemUsedId);
+            if ($checkItems['success'] != true) {
+                $db->transRollback();
+                return $this->response->setJSON(['warning' => $checkItems])
+                    ->setStatusCode($checkItems['code']);
+            }
 
+            $updateItemQuantity = $this->deduceItemQuantity($userId, $itemUsedId, 1);
+            if ($updateItemQuantity['success'] != true) {
+                $db->transRollback();
+                return $this->response->setJSON(['warning' => $updateItemQuantity])
+                    ->setStatusCode($updateItemQuantity['code']);
+            }
 
-        if ($checkItems['success'] != true) {
-            $db->transRollback();
-            return $this->response->setJSON(['warning' => $checkItems])
-                ->setStatusCode($checkItems['code']);
+            $ItemResult = $updateItemQuantity['result'];
         }
+        
+        // $checkItems = $this->checkItemFromInventory($userId, $itemUsedId);
 
-        //decrease the quantity of the item used in the interaction
-        $updateItemQuantity = $this->deduceItemQuantity($userId, $itemUsedId, 1);
 
-        if ($updateItemQuantity['success'] != true) {
-            $db->transRollback();
-            return $this->response->setJSON(['warning' => $updateItemQuantity])
-                ->setStatusCode($updateItemQuantity['code']);
-        }
-        $ItemResult = $updateItemQuantity['result'];
+        // if ($checkItems['success'] != true) {
+        //     $db->transRollback();
+        //     return $this->response->setJSON(['warning' => $checkItems])
+        //         ->setStatusCode($checkItems['code']);
+        // }
+
+        // //decrease the quantity of the item used in the interaction
+        // $updateItemQuantity = $this->deduceItemQuantity($userId, $itemUsedId, 1);
+
+        // if ($updateItemQuantity['success'] != true) {
+        //     $db->transRollback();
+        //     return $this->response->setJSON(['warning' => $updateItemQuantity])
+        //         ->setStatusCode($updateItemQuantity['code']);
+        // }
+        // $ItemResult = $updateItemQuantity['result'];
         // return $this->response->setJSON($ItemResult);
 
 

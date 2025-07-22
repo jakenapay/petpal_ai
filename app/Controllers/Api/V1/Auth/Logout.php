@@ -7,6 +7,9 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Logout extends BaseController
 {
+    public function __construct(){
+        date_default_timezone_set('Asia/Manila');
+    }
     public function index()
     {
         // Destroy the session to log the user out
@@ -19,5 +22,26 @@ class Logout extends BaseController
                 'status'  => 'success',
                 'message' => 'Logged out successfully'
             ]);
+    }
+    
+    public function userLogout(){
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
+        //update the user's logout_time
+        $userModel = new \App\Models\UserModel();
+        $userModel->update($userId, ['logout_time' => date('Y-m-d H:i:s')]);
+        if (!$userModel->errors()) {
+            return $this->response
+                ->setStatusCode(ResponseInterface::HTTP_OK)
+                ->setJSON([
+                    'status'  => 'success',
+                    'message' => 'Logged out successfully'
+                ]);
+        }
+
     }
 }

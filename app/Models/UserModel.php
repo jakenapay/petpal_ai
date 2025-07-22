@@ -18,6 +18,7 @@ class UserModel extends Model
         'mbti',
         'profile_image',
         'last_login',
+        'logout_time',
         'status',
         'role',
         'verification_code',
