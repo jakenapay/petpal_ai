@@ -34,12 +34,20 @@ class Items extends BaseController
             'ItemRarityData' => $ItemRarityModel->findAll(),
             'ItemTiersData' => $ItemTiersModel->findAll(),
         ];
+        return view('templates/sidebar') .
+            view('items/items', $data);
+    }
 
-        return view('items/items', $data);
+    public function itemDelete()
+    {
+        helper('url');
+        return view('templates/sidebar') .
+            view('items/delete');
     }
 
     public function addItem()
     {
+        helper('url');
         $itemModel = new ItemModel();
         $validationRules = [
             'category_id' => [
@@ -187,6 +195,7 @@ class Items extends BaseController
 
         // print_r($data);
 
+
         try {
             $insertedId = $itemModel->insert($data);
             if ($insertedId) {
@@ -206,6 +215,39 @@ class Items extends BaseController
                 ->withInput()
                 ->with('error', $e->getMessage());
         }
+    }
 
+    public function deleteItem()
+    {
+        helper('url');
+        $itemModel = new ItemModel();
+        $itemId = $this->request->getPost('item_id');
+
+
+
+        try {
+            // Check if item exists
+            $item = $itemModel->find($itemId);
+            $isDeleted = $item['is_deleted'] ?? 0;
+
+            if (!$item || $item === 0) {
+                return redirect()->back()->with('error', 'Item not found.');
+            }
+
+            if ($isDeleted) {
+                return redirect()->back()->with('error', 'Item is already deleted.');
+            }
+
+            // Soft delete (manual flag)
+            $updated = $itemModel->update($itemId, ['is_deleted' => 1]);
+
+            if ($updated) {
+                return redirect()->to('item/delete')->with('success', 'Item deleted successfully.');
+            } else {
+                return redirect()->to('item/delete')->with('error', 'Failed to delete the item.');
+            }
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }
