@@ -18,6 +18,7 @@ class UserModel extends Model
         'mbti',
         'profile_image',
         'last_login',
+        'logout_time',
         'status',
         'role',
         'verification_code',
@@ -27,7 +28,6 @@ class UserModel extends Model
         'diamonds',
         'experience',
         'user_grade',
-        
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';

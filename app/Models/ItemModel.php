@@ -51,7 +51,8 @@ class ItemModel extends Model
         'affinity',
         'experience',
         'pool_id',
-        'drop_rate'
+        'drop_rate',
+        'is_deleted',
     ];
 
 

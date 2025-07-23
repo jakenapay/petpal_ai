@@ -1,7 +1,6 @@
 <?php
 
 use CodeIgniter\Router\RouteCollection;
-
 /**
  * @var RouteCollection $routes
  */
@@ -21,7 +20,11 @@ $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 
 // Views for Items
 $routes->get('item/add', 'Items::itemAdd');
+$routes->get('item/delete', 'Items::itemDelete');
+
+// Item Controllers
 $routes->post('item/add', 'Items::addItem');
+$routes->post('item/delete', 'Items::deleteItem');
 
 
 // API v1 base
@@ -37,6 +40,7 @@ $routes->group('api/v1', function($routes) {
     $routes->post('auth/refresh-token','Api\V1\Auth\RefreshToken::index');
     $routes->post('auth/resend',       'Api\V1\Auth\Register::resendVerificationCode');
     $routes->post('auth/verify',       'Api\V1\Auth\Register::verifyEmail');
+    $routes->post('auth/userLogout', 'Api\V1\Auth\Logout::userLogout');
 
     // Users
     $routes->get('users/profile',      'Api\V1\Users\Profile::index');

@@ -47,12 +47,20 @@ class Items extends BaseController
         ];
         // echo "<pre>";
         // print_r($data['petBreedData']);
-        // echo "</pre>";
-        return view('items/items', $data);
+        // echo "</pre>";        return view('templates/sidebar') .
+            view('items/items', $data);
+    }
+
+    public function itemDelete()
+    {
+        helper('url');
+        return view('templates/sidebar') .
+            view('items/delete');
     }
 
     public function addItem()
     {
+        helper('url');
         $itemModel = new ItemModel();
         $validationRules = [
             'category_id' => [
@@ -268,6 +276,40 @@ class Items extends BaseController
             // 4. Roll back on any exception
             $db->transRollback();
             return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function deleteItem()
+    {
+        helper('url');
+        $itemModel = new ItemModel();
+        $itemId = $this->request->getPost('item_id');
+
+
+
+        try {
+            // Check if item exists
+            $item = $itemModel->find($itemId);
+            $isDeleted = $item['is_deleted'] ?? 0;
+
+            if (!$item || $item === 0) {
+                return redirect()->back()->with('error', 'Item not found.');
+            }
+
+            if ($isDeleted) {
+                return redirect()->back()->with('error', 'Item is already deleted.');
+            }
+
+            // Soft delete (manual flag)
+            $updated = $itemModel->update($itemId, ['is_deleted' => 1]);
+
+            if ($updated) {
+                return redirect()->to('item/delete')->with('success', 'Item deleted successfully.');
+            } else {
+                return redirect()->to('item/delete')->with('error', 'Failed to delete the item.');
+            }
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 }
