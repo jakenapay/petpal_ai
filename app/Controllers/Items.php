@@ -4,12 +4,17 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\AffinityModel;
+use App\Models\ItemAccessoriesModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\ItemModel;
 use App\Models\GachaPoolModel;
 use App\Models\ItemCategoriesModel;
 use App\Models\ItemRarityModel;
 use App\Models\ItemTiersModel;
+use App\Models\ItemSubCategoriesModel;
+use App\Models\PetBreedModel;
+use App\Models\SpecieModel;
+
 use Exception;
 
 class Items extends BaseController
@@ -27,14 +32,22 @@ class Items extends BaseController
         $ItemCategoriesModel = new ItemCategoriesModel();
         $ItemRarityModel = new ItemRarityModel();
         $ItemTiersModel = new ItemTiersModel();
+        $ItemSubCategoriesModel = new ItemSubCategoriesModel();
+        $petBreedModel = new PetBreedModel();
+        $specieModel = new SpecieModel();
 
         $data = [
             'poolData' => $gachaPoolModel->findAll(),
             'itemCategoriesData' => $ItemCategoriesModel->findAll(),
             'ItemRarityData' => $ItemRarityModel->findAll(),
             'ItemTiersData' => $ItemTiersModel->findAll(),
+            'ItemSubCategoriesData' => $ItemSubCategoriesModel->findAll(),
+            'petBreedData' => $petBreedModel->getBreeds(),
+            'specieData' => $specieModel->findAll(),
         ];
-
+        // echo "<pre>";
+        // print_r($data['petBreedData']);
+        // echo "</pre>";
         return view('items/items', $data);
     }
 
@@ -116,24 +129,18 @@ class Items extends BaseController
             'experience' => ['rules' => 'permit_empty|integer'],
             'pool_id' => ['rules' => 'permit_empty|string'],
             'drop_rate' => ['rules' => 'permit_empty|decimal'],
+            // Item accessories
+            'subCategory' => ['rules' => 'permit_empty|integer'],
+            'specie' => ['rules' => 'permit_empty|integer'],
+            'breed' => ['rules' => 'permit_empty|integer'],
+            'iconUrl' => ['rules' => 'permit_empty|valid_url'],
+            'addressableUrl' => ['rules' => 'permit_empty|valid_url'],
+            'rgbColor' => ['rules' => 'permit_empty'],
         ];
 
         if (!$this->validate($validationRules)) {
             return redirect()->back()->withInput()->with('error', implode(', ', $this->validator->getErrors()));
         }
-
-        // $detailImages = trim($this->request->getPost('detail_images'));
-        // if ($detailImages === '' || $detailImages === null) {
-        //     $data['detail_images'] = null;
-        // } else {
-        //     // Make sure it's valid JSON before inserting
-        //     json_decode($detailImages);
-        //     if (json_last_error() === JSON_ERROR_NONE) {
-        //         $data['detail_images'] = $detailImages;
-        //     } else {
-        //         return redirect()->back()->withInput()->with('error', 'Invalid JSON in detail_images');
-        //     }
-        // }
 
         foreach (['detail_images', 'attributes'] as $field) {
             $json = trim($this->request->getPost($field));
@@ -142,7 +149,6 @@ class Items extends BaseController
                 return redirect()->back()->withInput()->with('error', 'Invalid JSON in ' . $field);
             }
         }
-
 
         $data = [
             'category_id' => $this->request->getPost('category_id') ?: null,
@@ -186,26 +192,82 @@ class Items extends BaseController
         ];
 
         // print_r($data);
+        $dataItemAccessories = [
+            'iconURL' => $this->request->getPost('iconUrl') ?: null,
+            'AddressableURL' => $this->request->getPost('addressableUrl') ?: null,
+            'subcategory_id' => $this->request->getPost('subCategory') ?: null,
+            'breed_id' => $this->request->getPost('breed') ?: null,
+            'species_id' => $this->request->getPost('specie') ?: null,
+            'RGBColor' => $this->request->getPost('rgbColor') ?: null,
+        ];
+
+        print_r($dataItemAccessories);
+
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
         try {
+            // Insert the item first
             $insertedId = $itemModel->insert($data);
-            if ($insertedId) {
-                // Set a flash message and redirect
-                return redirect()->to('item/add')
-                    ->withInput()
-                    ->with('success', 'Item added successfully.');
-            } else {
-                // Return a JSON response for failure
-                return redirect()->to('item/add')
-                    ->withInput()
-                    ->with('error', 'Item not added.');
-            }
-        } catch (Exception $e) {
-            // Redirect back with error flash message
-            return redirect()->back()
-                ->withInput()
-                ->with('error', $e->getMessage());
-        }
 
+            if (!$insertedId) {
+                $db->transRollback();
+                return redirect()->to('item/add')->withInput()->with('error', 'Item not added.');
+            }
+
+            // If accessories data is provided, insert it
+            if (
+                !empty($dataItemAccessories['subcategory_id']) ||
+                !empty($dataItemAccessories['breed_id']) ||
+                !empty($dataItemAccessories['species_id'])
+            ) {
+                $ItemAccessoriesModel = new ItemAccessoriesModel();
+
+                // Attach the item ID to the accessories data (if needed)
+                $dataItemAccessories['item_id'] = $insertedId;
+
+                if (!empty($dataItemAccessories['RGBColor'])) {
+                    $hex = $dataItemAccessories['RGBColor'];
+
+                    if (!preg_match('/^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/', $hex)) {
+                        $db->transRollback();
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', 'Invalid RGB color format. Must be 3 or 6-digit hex code.');
+                    }
+
+                    $hex = ltrim($hex, '#');
+                    if (strlen($hex) === 3) {
+                        $hex = $hex[0] . $hex[0] .
+                            $hex[1] . $hex[1] .
+                            $hex[2] . $hex[2];
+                    }
+
+                    // Format: (R,G,B)
+                    $r = hexdec(substr($hex, 0, 2));
+                    $g = hexdec(substr($hex, 2, 2));
+                    $b = hexdec(substr($hex, 4, 2));
+
+                    $dataItemAccessories['RGBColor'] = "($r,$g,$b)";
+                }
+
+                $insertedItemAccessories = $ItemAccessoriesModel->insert($dataItemAccessories);
+
+                if (!$insertedItemAccessories) {
+                    $db->transRollback();
+                    return redirect()->to('item/add')->withInput()->with('error', 'Item accessories not added.');
+                }
+            }
+
+            // Commit if everything succeeded
+            $db->transCommit();
+            return redirect()->to('item/add')
+                ->with('success', 'Item added successfully.');
+
+        } catch (Exception $e) {
+            // 4. Roll back on any exception
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
     }
 }

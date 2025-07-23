@@ -31,9 +31,9 @@
         <form action="<?= base_url('item/add') ?>" method="post">
             <div class="row justify-content-center align-items-start m-5">
                 <!-- Column 1 -->
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label>Category ID <span class="text-danger">*</span></label>
-                    <select name="category_id" class="form-control form-control-sm">
+                    <select name="category_id" id="categorySelector" class="form-control form-control-sm">
                         <?php foreach ($itemCategoriesData as $itemCategory): ?>
                             <option value="<?= $itemCategory['category_id']; ?>"><?= $itemCategory['category_id']; ?> -
                                 <?= $itemCategory['category_name']; ?>
@@ -95,7 +95,7 @@
                 </div>
 
                 <!-- Column 2 -->
-                <div class="col-md-4">
+                <div class="col-md-3">
 
                     <label>Tier ID</label>
                     <!-- ItemTiersData -->
@@ -147,13 +147,13 @@
 
                     <label>Preview 3D Model</label>
                     <input type="text" name="preview_3d_model" class="form-control form-control-sm">
-                    
+
                     <label>Attributes</label>
                     <textarea name="attributes" class="form-control form-control-sm" placeholder="{}"></textarea>
                 </div>
 
                 <!-- Column 3 -->
-                <div class="col-md-4">
+                <div class="col-md-3">
 
                     <label>Tags</label>
                     <input type="text" name="tags" class="form-control form-control-sm" value="sample">
@@ -210,6 +210,56 @@
 
                 </div>
 
+                <!-- Column 4 for Item Accessories -->
+                <div class="col-md-3" id="accessoriesColumn">
+                    <p class="text-mute">For item category that are accessories only.</p>
+                    <label>Subcategory</label>
+                    <select name="subCategory" id="subCategory" class="form-control form-control-sm">
+                        <?php foreach ($ItemSubCategoriesData as $subCat): ?>
+                            <option value="<?= $subCat['id']; ?>"><?= $subCat['id']; ?> -
+                                <?= $subCat['name']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <label>Specie</label>
+                    <select name="specie" id="specie" class="form-control form-control-sm">
+                        <?php foreach ($specieData as $specie): ?>
+                            <option value="<?= $specie['species_id']; ?>"><?= $specie['species_id']; ?> -
+                                <?= $specie['name']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <label>Breed</label>
+                    <select name="breed" id="breed" class="form-control">
+                        <optgroup label="Cat Breeds">
+                            <?php foreach ($petBreedData['catbreeds'] as $cat): ?>
+                                <option value="<?= $cat->breed_id ?>"><?= $cat->breed_id ?> - <?= $cat->breed_name ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                        <optgroup label="Dog Breeds">
+                            <?php foreach ($petBreedData['dogbreeds'] as $dog): ?>
+                                <option value="<?= $dog->breed_id ?>"><?= $dog->breed_id ?> - <?= $dog->breed_name ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    </select>
+
+                    <label>Icon Url</label>
+                    <input type="text" name="iconUrl" id="iconUrl" class="form-control form-control-sm"
+                        placeholder="sample">
+
+                    <label>Addressable Url</label>
+                    <input type="text" name="addressableUrl" id="addressableUrl" class="form-control form-control-sm"
+                        placeholder="sample">
+
+                    <label>RGB Color</label>
+                    <input type="color" name="rgbColor" id="rgbColor" class="form-control form-control-sm" value="#ff0000">
+
+                </div>
+
                 <!-- Submit button row -->
                 <div class="col-12 d-flex justify-content-center mt-3">
                     <button type="button" class="mx-2 btn btn-danger" onclick="history.back()">Back</button>
@@ -225,6 +275,30 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
+
+    <script>
+        document.getElementById('categorySelector').addEventListener('change', function () {
+            const value = this.value;
+
+            // List of all fields to disable/enable
+            const fieldIds = ['subCategory', 'specie', 'breed', 'iconUrl', 'addressableUrl', 'rgbColor'];
+
+            // Determine if fields should be disabled (change '1' as needed)
+            const shouldDisable = (value !== '1');
+
+            // Loop through and disable/enable each field
+            fieldIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.disabled = shouldDisable;
+                }
+            });
+        });
+
+        // Optional: trigger once on load
+        document.getElementById('categorySelector').dispatchEvent(new Event('change'));
+    </script>
+
 </body>
 
 </html>

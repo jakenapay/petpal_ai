@@ -18,7 +18,7 @@ class ItemAccessoriesModel extends Model
         'subcategory_id',
         'breed_id',
         'species_id',
-        'iconUrl',
+        'iconURL',
         'AddressableURL',
         'RGBColor'
     ];
