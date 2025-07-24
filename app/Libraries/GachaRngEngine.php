@@ -184,7 +184,7 @@ class GachaRngEngine
 
         return [
             'item_id' => $selected_item['item_id'],
-            // 'name' => $selected_item['name'],
+            'item_name' => $selected_item['item_name'],
             'rarity' => $selected_rarity,
             'item_type' => $selected_item['item_type'],
             // 'image_url' => $selected_item['image_url'],

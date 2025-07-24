@@ -38,6 +38,7 @@
                 <li><a href="<?= base_url('logout'); ?>">Logout</a></li>
                 <li><a href="<?= base_url('register'); ?>">Register</a></li>
                 <li><a href="<?= base_url('item/add'); ?>">Item Add</a></li>
+                <li><a href="<?= base_url('item/delete'); ?>">Item Delete</a></li>
             </div>
             <div class="w-50">
                 <hr>
@@ -45,7 +46,6 @@
             <div class="col-md-12 p-3">
                 <h4>Under Maintenance</h4>
                 <li><a href="<?= base_url(''); ?>">Item Update</a></li>
-                <li><a href="<?= base_url(''); ?>">Item Delete</a></li>
                 <li><a href="<?= base_url(''); ?>">Item Get</a></li>
             </div>
         </div>

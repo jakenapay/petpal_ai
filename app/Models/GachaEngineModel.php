@@ -56,9 +56,10 @@ class GachaEngineModel
     private function getItems($poolId)
     {
         return $this->db->table('items i')
-            ->select('i.item_id, i.pool_id, i.category_id AS item_type, i.rarity, i.drop_rate, i.is_featured, c.category_name, c.category_description, c.img_url')
+            ->select('i.item_id, i.item_name, i.pool_id, i.category_id AS item_type, i.rarity, i.drop_rate, i.is_featured, c.category_name, c.category_description, c.img_url')
             ->join('item_categories c', 'c.category_id = i.category_id', 'left')
             ->where('i.pool_id', $poolId)
+            ->where('i.is_deleted', 0)
             ->get()->getResultArray();
     }
 
