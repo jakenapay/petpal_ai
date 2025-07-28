@@ -21,10 +21,14 @@ $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 // Views for Items
 $routes->get('item/add', 'Items::itemAdd');
 $routes->get('item/delete', 'Items::itemDelete');
+$routes->get('item/list', 'Items::itemList');
+$routes->get('item/edit/(:num)', 'Items::itemUpdate/$1');
 
 // Item Controllers
 $routes->post('item/add', 'Items::addItem');
-$routes->post('item/delete', 'Items::deleteItem');
+$routes->post('item/delete/(:num)', 'Items::deleteItem/$1');
+$routes->post('item/update/(:num)', 'Items::updateItem/$1');
+// $routes->post('item/delete', 'Items::deleteItem');
 
 
 // API v1 base
