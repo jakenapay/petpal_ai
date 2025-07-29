@@ -4,11 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Item List</title>
-
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
-
+ 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -17,80 +15,19 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="/assets/css/style.css" rel="stylesheet">
 
-    <style>
+     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f0f0;
             color: #333;
         }
-
-        .btn-orange {
-            background-color: #dd6e14;
-            color: #fff;
-            border-color: #dd6e14;
-        }
-
-        .btn-orange:hover,
-        .btn-orange:focus,
-        .btn-orange:active {
-            background-color: #af5f13ff;
-            border-color: #af5f13ff;
-            color: #fff;
-        }
-
-        #drop-zone {
-            width: 90vw;
-            /* Responsive width */
-            max-width: 300px;
-            /* Limit max size */
-            aspect-ratio: 1 / 1;
-            /* Keeps it square */
-            border: 3px dashed #999;
-            border-radius: 10px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #666;
-            transition: background 0.3s, border-color 0.3s;
-        }
-
-        #drop-zone.dragover {
-            background: #e8f5ff;
-            border-color: #2196f3;
-            color: #2196f3;
-        }
-
-        #file-input {
-            display: none;
-        }
-
-        #file-name {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #333;
-        }
-
-        /* button {
-            margin-top: 15px;
-            padding: 8px 16px;
-            border: none;
-            background: #dd6e14;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #af5f13ff;
-        } */
     </style>
 </head>
 
 <body>
+    <?= $this->include('partials/sidebar') ?>
 
     <div class="container mt-4">
         <div class="row">
@@ -595,6 +532,8 @@
 
             </div>
         </div>
+        <!-- Place for custom search bar -->
+        <div id="custom-search-bar-container" class="mb-3"></div>
         <div class="container">
             <div class="row">
                 <div class="col-md-12 m-2">
@@ -704,10 +643,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            new DataTable('#itemTable');
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -724,6 +659,103 @@
             });
         }, 5000); // 5000 milliseconds = 5 seconds
     </script>
+    <script>
+       $(document).ready(function () {
+    const table = $('#itemTable').DataTable();
+
+    setTimeout(() => {
+        const searchFilter = $('#itemTable_filter');
+        const searchInput = searchFilter.find('input');
+        if (searchInput.length) {
+            searchInput.removeClass('form-control'); // Remove Bootstrap class
+            searchInput.parent().removeClass('form-group'); // Remove wrapper class
+            searchInput.addClass('searchBar');
+            searchInput.attr('placeholder', 'Search items...');
+
+            $('#custom-search-bar-container').empty().append(searchInput.detach());
+            searchFilter.remove();
+        }
+    }, 0);
+});
+
+    </script>
+    <style>
+     #custom-search-bar-container .searchBar {
+    all: unset; /* Reset everything */
+    display: inline-block;
+    width: 260px;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #222;
+    background-color: #f8f9fa;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    transition: all 0.25s ease-in-out;
+}
+
+/* Focus effect */
+#custom-search-bar-container .searchBar:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 8px rgba(46, 125, 50, 0.5);
+}
+
+/* Force override Bootstrap */
+#custom-search-bar-container .searchBar.form-control,
+#custom-search-bar-container .searchBar.form-control:focus {
+    all: unset !important;
+    display: inline-block !important;
+}
+
+/* Table styling: Scoped to your specific ID to avoid Bootstrap overrides */
+#itemTable.dataTable {
+    all: unset; /* Reset all Bootstrap effects */
+    width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* gap between rows */
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+#itemTable.dataTable thead tr th {
+    background-color: #dd6e14;
+    color: #fff;
+    text-align: left;
+    padding: 10px;
+    border: none;
+}
+
+#itemTable.dataTable tbody tr {
+    background-color: #ffffff;
+    transition: background-color 0.2s;
+}
+
+#itemTable.dataTable tbody tr:hover {
+    background-color: #f1f8f4;
+}
+
+#itemTable.dataTable tbody td {
+    padding: 10px 12px;
+    border: none;
+}
+
+/* Optional: Custom pagination and info styling */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background-color: #dd6e14 !important;
+    color: #fff !important;
+    border-radius: 4px;
+    margin: 2px;
+    border: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #dd6e14 !important;
+}
+
+    </style>
 
     <script>
         const dropZone = document.getElementById('drop-zone');

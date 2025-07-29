@@ -5,9 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Item - PetPal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+     <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="/assets/css/style.css" rel="stylesheet">
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,68 +24,7 @@
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <!-- <h3><i class="fas fa-paw me-2"></i>PetPal</h3> -->
-        <div class="sidebar-header d-flex justify-content-between align-items-center">
-            <h3><i class="fas fa-paw me-2"></i>PetPal</h3>
-            <button id="sidebarMinimizeBtn" class="btn btn-sm btn-light d-none d-lg-inline ms-2" type="button"
-                title="Minimize Sidebar">
-                <i class="fas fa-angle-double-left"></i>
-            </button>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Main Navigation</div>
-                <a href="#" class="nav-link active">
-                    <i class="fas fa-home"></i>
-                    <span class="px-2">Dashboard</span>
-                </a>
-                <a href="<?= base_url('profile'); ?>" class="nav-link">
-                    <i class="fas fa-user"></i>
-                    <span class="px-2">Profile</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Item Management</div>
-                <a href="<?= base_url('item/list'); ?>" class="nav-link">
-                    <i class="fas fa-box"></i>
-                    <span class="px-2">Items</span>
-                </a>
-                <!-- <a href="<?= base_url('item/delete'); ?>" class="nav-link">
-                    <i class="fas fa-trash-alt"></i>
-                    <span class="px-2">Delete Item</span>
-                </a> -->
-            </div>
-
-            <!-- <div class="nav-section">
-                <div class="nav-section-title">Under Maintenance</div>
-                <a href="#" class="nav-link maintenance" title="Coming Soon">
-                    <i class="fas fa-edit"></i>
-                    <span class="px-2">Update Item</span>
-                </a>
-                <a href="#" class="nav-link maintenance" title="Coming Soon">
-                    <i class="fas fa-search"></i>
-                    <span class="px-2">Get Item</span>
-                </a>
-            </div> -->
-
-            <div class="nav-section">
-                <div class="nav-section-title">Account</div>
-                <a href="<?= base_url('register'); ?>" class="nav-link">
-                    <i class="fas fa-user-plus"></i>
-                    <span class="px-2">Register</span>
-                </a>
-                <a href="<?= base_url('logout'); ?>" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="px-2">Logout</span>
-                </a>
-            </div>
-        </nav>
-
-    </div>
+ <?= $this->include('partials/sidebar') ?>
 
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -168,71 +114,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        // Sidebar Toggle Functionality
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('show');
-            sidebarOverlay.classList.toggle('show');
-        }
-
-        function closeSidebar() {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-        }
-
-        menuToggle.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', closeSidebar);
-
-        // Close sidebar when clicking on a link (mobile)
-        const navLinks = document.querySelectorAll('.sidebar .nav-link:not(.maintenance)');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth < 992) {
-                    closeSidebar();
-                }
-            });
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) {
-                closeSidebar();
-            }
-        });
-
-        // Flash message auto-hide
-        setTimeout(function () {
-            const alerts = document.querySelectorAll('.flash-message');
-            alerts.forEach(function (el) {
-                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(-20px)';
-                setTimeout(() => el.remove(), 500);
-            });
-        }, 5000);
-
-        // Add active state to navigation
-        const currentPath = window.location.pathname;
-        const navLinksAll = document.querySelectorAll('.sidebar .nav-link');
-
-        navLinksAll.forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                document.querySelector('.nav-link.active').classList.remove('active');
-                link.classList.add('active');
-            }
-        });
-
-        document.getElementById('sidebarMinimizeBtn').addEventListener('click', function () {
-            var sidebar = document.getElementById('sidebar');
-            var mainContent = document.querySelector('.main-content');
-            sidebar.classList.toggle('minimized');
-            mainContent.classList.toggle('sidebar-minimized');
-        });
-    </script>
+ 
 </body>
 
 </html>
