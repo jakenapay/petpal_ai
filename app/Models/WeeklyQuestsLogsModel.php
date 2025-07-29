@@ -113,12 +113,13 @@ class WeeklyQuestsLogsModel extends Model
     }
 
 
-    public function updateWeeklyQuestLog($quest_id, $data)
+    public function updateWeeklyQuestLog($userId, $quest_id, $data)
     {
         $startOfWeek = date('Y-m-d', strtotime('monday this week'));
         $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
 
         return $this->where('quest_id', $quest_id)
+                    ->where('user_id', $userId)
                     ->where('DATE(created_at) >=', $startOfWeek)
                     ->where('DATE(created_at) <=', $endOfWeek)
                     ->set($data)
