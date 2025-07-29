@@ -174,7 +174,7 @@ class Quests extends BaseController
                     ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
-        $result = $dailyQuestsLogsModel->updateDailyQuestLog($questId, $data);
+        $result = $dailyQuestsLogsModel->updateDailyQuestLog($userId, $questId, $data);
         if (!$result) {
             $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to update daily quest. '])
@@ -389,7 +389,7 @@ class Quests extends BaseController
                     ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
-        $result = $weeklyQuestsLogsModel->updateWeeklyQuestLog($questId, $data);
+        $result = $weeklyQuestsLogsModel->updateWeeklyQuestLog($userId, $questId, $data);
         if (!$result) {
             $db->transRollback();
             return $this->response->setJSON(['error' => 'Failed to update weekly quest. '])

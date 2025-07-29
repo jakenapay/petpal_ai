@@ -94,7 +94,7 @@ class DailyQuestsLogsModel extends Model
                     ->countAllResults();
     }
 
-    public function updateDailyQuestLog($quest_id, $data)
+    public function updateDailyQuestLog($userId, $quest_id, $data)
     {
         log_message('info', 'Updating daily quest log for quest_id: ' . $quest_id);
         log_message('info', 'Data to update: ' . json_encode($data));
@@ -103,6 +103,7 @@ class DailyQuestsLogsModel extends Model
         // Update a specific daily quest log entry
         return $this->where('quest_id', $quest_id)
                     ->where('DATE(created_at)', $today)
+                    ->where('user_id', $userId)
                     ->set($data)
                     ->update();
     }
