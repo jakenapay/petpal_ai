@@ -48,7 +48,7 @@
                     <input type="text" name="item_name" class="form-control form-control-sm" required
                         value="<?= esc($item['item_name']) ?>">
 
-                    <input type="text" name="item_id" class="form-control form-control-sm" required
+                    <input type="hidden" name="item_id" class="form-control form-control-sm" required
                         value="<?= esc($item['item_id']) ?>">
 
                     <label>Description</label>

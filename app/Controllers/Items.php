@@ -543,4 +543,11 @@ class Items extends BaseController
         }
     }
 
+    public function itemAddXlsx()
+    {
+
+        // Receives the uploaded Excel file and processes it
+
+    }
+
 }

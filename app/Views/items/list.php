@@ -24,6 +24,69 @@
             background-color: #f0f0f0;
             color: #333;
         }
+
+        .btn-orange {
+            background-color: #dd6e14;
+            color: #fff;
+            border-color: #dd6e14;
+        }
+
+        .btn-orange:hover,
+        .btn-orange:focus,
+        .btn-orange:active {
+            background-color: #af5f13ff;
+            border-color: #af5f13ff;
+            color: #fff;
+        }
+
+        #drop-zone {
+            width: 90vw;
+            /* Responsive width */
+            max-width: 300px;
+            /* Limit max size */
+            aspect-ratio: 1 / 1;
+            /* Keeps it square */
+            border: 3px dashed #999;
+            border-radius: 10px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #666;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        #drop-zone.dragover {
+            background: #e8f5ff;
+            border-color: #2196f3;
+            color: #2196f3;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        #file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* button {
+            margin-top: 15px;
+            padding: 8px 16px;
+            border: none;
+            background: #dd6e14;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #af5f13ff;
+        } */
     </style>
 </head>
 
@@ -34,13 +97,17 @@
             <h2 class="mb-4">Item List</h2>
             <div class="col-md-12">
                 <!-- Add New Item Button triggers modal -->
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">Add New
-                    Item</button>
+                <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    <i class="fa fa-plus me-1"></i> Add New Item
+                </button>
+                <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#uploadItemModal">
+                    <i class="fa fa-upload me-1"></i> Upload File
+                </button>
 
                 <!-- Add Item Modal -->
                 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel"
                     aria-hidden="true">
-                    <div class="modal-dialog modal-xl"> <!-- Make it extra large for 4 columns -->
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                             <form action="<?= base_url('item/add') ?>" method="post">
                                 <?= csrf_field() ?>
@@ -97,8 +164,10 @@
                                             </select>
 
                                             <label>Is Buyable</label>
-                                            <input type="number" name="is_buyable" class="form-control form-control-sm"
-                                                value="1">
+                                            <select name="is_buyable" class="form-control form-control-sm">
+                                                <option value="1">Yes</option>
+                                                <option value="0" selected>No</option>
+                                            </select>
 
                                             <label>Is Consumable</label>
                                             <select name="is_consumable" class="form-control form-control-sm">
@@ -303,17 +372,240 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="modal fade" id="uploadItemModal" tabindex="-1" aria-labelledby="uploadItemModal"
+                    aria-hidden="true">
+                    <div class="modal-dialog" style="max-width: 95%; width: 95%;">
+                        <div class="modal-content">
+                            <form action="<?= base_url('item/addBulk') ?>" method="post">
+                                <?= csrf_field() ?>
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Bulk Add Items</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="table-responsive" style="max-height: 60vh; overflow:auto;">
+                                        <table class="table table-bordered align-middle text-center" id="itemsTable"
+                                            style="min-width:2200px;">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Category ID</th>
+                                                    <th>Item Name</th>
+                                                    <th>Description</th>
+                                                    <th>Image URL</th>
+                                                    <th>Base Price</th>
+                                                    <th>Rarity</th>
+                                                    <th>Is Tradable</th>
+                                                    <th>Is Buyable</th>
+                                                    <th>Is Consumable</th>
+                                                    <th>Is Stackable</th>
+                                                    <th>Duration</th>
+                                                    <th>Korean Name</th>
+                                                    <th>Tier ID</th>
+                                                    <th>Real Price</th>
+                                                    <th>Discount %</th>
+                                                    <th>Is Featured</th>
+                                                    <th>Is On Sale</th>
+                                                    <th>Quantity Available</th>
+                                                    <th>Release Date</th>
+                                                    <th>End Date</th>
+                                                    <th>Thumbnail URL</th>
+                                                    <th>Detail Images</th>
+                                                    <th>Preview 3D Model</th>
+                                                    <th>Attributes</th>
+                                                    <th>Tags</th>
+                                                    <th>Currency Type</th>
+                                                    <th>Hunger Level</th>
+                                                    <th>Energy Level</th>
+                                                    <th>Hygiene Level</th>
+                                                    <th>Health Level 1</th>
+                                                    <th>Health Level 2</th>
+                                                    <th>Happiness Level</th>
+                                                    <th>Stress Level</th>
+                                                    <th>Affinity</th>
+                                                    <th>Experience</th>
+                                                    <th>Pool ID</th>
+                                                    <th>Drop Rate</th>
+                                                    <th>Sub Category</th>
+                                                    <th>Specie</th>
+                                                    <th>Breed</th>
+                                                    <th>Icon URL</th>
+                                                    <th>Addressable URL</th>
+                                                    <th>RGB Color</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><input type="text" name="items[0][category_id]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:120px;"></td>
+                                                    <td><input type="text" name="items[0][item_name]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:150px;"></td>
+                                                    <td><input type="text" name="items[0][description]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:200px;"></td>
+                                                    <td><input type="text" name="items[0][image_url]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="number" name="items[0][base_price]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][rarity]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="checkbox" name="items[0][is_tradable]" value="1">
+                                                    </td>
+                                                    <td><input type="checkbox" name="items[0][is_buyable]" value="1">
+                                                    </td>
+                                                    <td><input type="checkbox" name="items[0][is_consumable]" value="1">
+                                                    </td>
+                                                    <td><input type="checkbox" name="items[0][is_stackable]" value="1">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][duration]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][korean_name]"
+                                                            class="form-control form-control-sm"></td>
+                                                    <td><input type="text" name="items[0][tier_id]"
+                                                            class="form-control form-control-sm"></td>
+                                                    <td><input type="number" name="items[0][real_price]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][discount_percentage]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="checkbox" name="items[0][is_featured]" value="1">
+                                                    </td>
+                                                    <td><input type="checkbox" name="items[0][is_on_sale]" value="1">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][quantity_available]"
+                                                            class="form-control form-control-sm" style="width:140px;">
+                                                    </td>
+                                                    <td><input type="date" name="items[0][release_date]"
+                                                            class="form-control form-control-sm" style="width:160px;">
+                                                    </td>
+                                                    <td><input type="date" name="items[0][end_date]"
+                                                            class="form-control form-control-sm" style="width:160px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][thumbnail_url]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="text" name="items[0][detail_images]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="text" name="items[0][preview_3d_model]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="text" name="items[0][attributes]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="text" name="items[0][tags]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:150px;"></td>
+                                                    <td><input type="text" name="items[0][currency_type]"
+                                                            class="form-control form-control-sm"></td>
+                                                    <td><input type="number" name="items[0][hunger_level]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][energy_level]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][hygiene_level]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][health_level_1]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][health_level_2]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][happiness_level]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][stress_level]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][affinity]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][experience]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][pool_id]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="number" name="items[0][drop_rate]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][sub_category]"
+                                                            class="form-control form-control-sm" style="width:150px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][specie]"
+                                                            class="form-control form-control-sm" style="width:150px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][breed]"
+                                                            class="form-control form-control-sm" style="width:150px;">
+                                                    </td>
+                                                    <td><input type="text" name="items[0][icon_url]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="text" name="items[0][addressable_url]"
+                                                            class="form-control form-control-sm"
+                                                            style="min-width:180px;"></td>
+                                                    <td><input type="text" name="items[0][rgb_color]"
+                                                            class="form-control form-control-sm" style="width:120px;">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-success btn-sm mt-2" onclick="addRow()">+ Add
+                                        Row</button>
+                                </div>
+
+                                <div class="modal-footer justify-content-center">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-orange">Save Items</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    let rowIndex = 1;
+                    function addRow() {
+                        const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+                        const newRow = table.rows[0].cloneNode(true);
+                        [...newRow.querySelectorAll('input')].forEach(input => {
+                            let name = input.name.replace(/\d+/, rowIndex);
+                            input.name = name;
+                            if (input.type !== 'checkbox') input.value = '';
+                            else input.checked = false;
+                        });
+                        table.appendChild(newRow);
+                        rowIndex++;
+                    }
+                </script>
+
+
             </div>
         </div>
         <div class="container">
             <div class="row">
                 <div class="col-md-12 m-2">
                     <?php if (session()->getFlashdata('error')): ?>
-                        <div class="alert flash-message alert-danger text-center"><?= session()->getFlashdata('error') ?></div>
-                    <?php endif; ?> 
+                        <div class="alert flash-message alert-danger text-center"><?= session()->getFlashdata('error') ?>
+                        </div>
+                    <?php endif; ?>
 
                     <?php if (session()->getFlashdata('success')): ?>
-                        <div class="alert flash-message alert-success text-center"><?= session()->getFlashdata('success') ?></div>
+                        <div class="alert flash-message alert-success text-center"><?= session()->getFlashdata('success') ?>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -357,14 +649,14 @@
                                 <form action="<?= base_url('item/delete/' . esc($item['item_id'])) ?>" method="post"
                                     style="display:inline;">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
+                                    <button type="submit" class="btn m-0 btn-sm btn-danger" data-bs-toggle="tooltip"
                                         title="Delete Item"
                                         onclick="return confirm('Are you sure you want to delete this item?');">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </form>
                                 <!-- Edit Button: Uses GET -->
-                                <a href="<?= base_url('item/edit/' . esc($item['item_id'])) ?>" class="btn btn-sm btn-success"
+                                <a href="<?= base_url('item/edit/' . esc($item['item_id'])) ?>" class="btn btn-sm btn-orange"
                                     data-bs-toggle="tooltip" title="Edit Item">
                                     <i class="fa fa-pencil"></i>
                                 </a>
@@ -431,6 +723,34 @@
                 setTimeout(() => el.remove(), 500); // remove element after fade out
             });
         }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileName = document.getElementById('file-name');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            fileName.textContent = fileInput.files[0].name;
+        });
+
+        fileInput.addEventListener('change', () => {
+            fileName.textContent = fileInput.files[0].name;
+        });
     </script>
 
 </body>

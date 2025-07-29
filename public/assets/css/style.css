@@ -23,6 +23,43 @@ body {
   padding: 1rem;
 }
 
+.btn-orange {
+  background-color: #dd6e14;
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #dd6e14;
+  --bs-btn-border-color: #dd6e14;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #dd6e14;
+  --bs-btn-hover-border-color: #dd6e14;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #dd6e14;
+  --bs-btn-active-border-color: #dd6e14;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #dd6e14;
+  --bs-btn-disabled-border-color: #dd6e14;
+}
+
+/* Active page */
+.active > .page-link,
+.page-link.active {
+  border-color: #dd6e14 !important; /* custom active border */
+  background-color: #dd6e14 !important; /* custom active background */
+  color: #fff !important; /* custom active text color */
+}
+
+/* Hover state */
+.page-link:hover {
+  background-color: #dd6e14 !important; /* custom hover background */
+  color: #fff !important; /* custom hover text color */
+}
+
+.page-link {
+    background-color: #fff !important; /* custom background */
+    color: #333 !important; /* custom text color */
+}
+
 /*Login Page Styles */
 .login-container {
   background: white;
@@ -147,7 +184,6 @@ body {
   margin-bottom: 0.5rem;
   display: block;
 }
-
 
 .form-control:focus {
   border-color: var(--primary-color);
