@@ -88,9 +88,9 @@ class Profile extends BaseController
             }
 
             $currPassword = $userModel->select('password')
-                      ->where('user_id', $userId)->first()['password'];
+                ->where('user_id', $userId)->first()['password'];
 
-            if(password_verify($data['password'], $currPassword)) {
+            if (!empty($data['password']) && password_verify($data['password'], $currPassword)) {
                 return $this->response->setJSON(['error' => 'You cannot use the same password.'])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
             }
 
@@ -120,7 +120,10 @@ class Profile extends BaseController
             return $this->response->setJSON(['success' => 'Profile updated successfully', 'user' => $updatedUser]);
 
         } catch (Exception $e) {
-            return $this->response->setJSON(['error' => 'Invalid token', 'message' => $e->getMessage()])->setStatusCode(401);
+            return $this->response->setJSON([
+                'error' => 'Update failed',
+                'message' => $e->getMessage()
+            ])->setStatusCode(400);
         }
     }
 
