@@ -409,17 +409,105 @@ class ProcessPetInteraction extends BaseController
             $newLevel = $petLevel + 1;
             $newLifeStage = $petLifeStage['stage_id'] + 1;
             $requiredExperience = $this->getPetLifeStage($newLifeStage)['experience_required'] ?? null;
+
+            // Get pet species and breed
+            $petSpecies = $pet['species'] ?? null;
+            $petBreed = $pet['breed'] ?? null;
+            $db = \Config\Database::connect();
+
+            // Determine breeds table
+            if (strtolower($petSpecies) === "dog") {
+                $builder = $db->table('dogbreeds');
+                $textureTableName = 'dog_texture';
+            } else if (strtolower($petSpecies) === "cat") {
+                $builder = $db->table('catbreeds');
+                $textureTableName = 'cat_texture';
+            } else {
+                // handle unexpected species
+                $db->transRollback();
+                return $this->response->setJSON(['error' => 'Unsupported pet species'])
+                    ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+            }
+
+            // Get breed ID
+            $builder->where('LOWER(breed_name)', strtolower($petBreed));
+            $query = $builder->get();
+            $result = $query->getResult();
+            $breed = !empty($result) ? $result[0] : null;
+            $petBreedId = $breed->breed_id ?? null;
+
+            // Get appearance
+            $petAppearance = json_decode($pet['appearance'], true);
+
+            // STEP 1: Get current texture row (by skin_id)
+            $currentTextureId = $petAppearance['skin_id'] ?? null;
+            $currentTextureRow = null;
+            if ($currentTextureId) {
+                $textureTable = $db->table($textureTableName);
+                $textureTable->where('id', $currentTextureId);
+                $currentTextureRow = $textureTable->get()->getRow();
+            }
+
+            // STEP 2: Extract color/pattern and breedNamePart from texture_name (flexible)
+            $currentTextureName = $currentTextureRow->texture_name ?? null;
+            $colorPattern = '';
+            $breedNamePart = '';
+            if ($currentTextureName) {
+                $parts = explode('_', $currentTextureName);
+                if (count($parts) >= 3) {
+                    $breedNamePart = $parts[count($parts) - 1];
+                    $colorPattern = implode('_', array_slice($parts, 1, count($parts) - 2));
+                    // This will be 'BLACK', 'LIGHT_BROWN', etc.
+                }
+                else {
+                    // fallback for unexpected formats
+                    $colorPattern = '';
+                    $breedNamePart = '';
+                }
+            }
+
+            // STEP 3: Get the life stage name
+            $lifeStageTable = $db->table('pet_life_stages');
+            $lifeStageTable->where('stage_id', $newLifeStage);
+            $lifeStageQuery = $lifeStageTable->get();
+            $lifeStage = $lifeStageQuery->getRow();
+            $stageName = $lifeStage->stage_name ?? null;
+
+            // $stageName = $this->getLifeStageName($newLifeStage); // E.g. returns 'Teen'
+            $expectedTextureName = "{$stageName}_{$colorPattern}_{$breedNamePart}";
+
+            // STEP 4: Find the matching texture in new life stage with same color
+            $textureTable = $db->table($textureTableName);
+            $textureTable->where('breed_id', $petBreedId);
+            $textureTable->where('life_stage_id', $newLifeStage);
+            $textureTable->where('texture_name', $expectedTextureName);
+            $newTextureRow = $textureTable->get()->getRow();
+
+            // STEP 5: Update appearance
+            if ($newTextureRow) {
+                $petAppearance['skin_id'] = $newTextureRow->id;
+            } else {
+                // fallback: if not found, keep current skin_id or handle error
+                // Optionally log this event
+            }
+            $newPetAppearance = json_encode($petAppearance);
+
+            // STEP 6: Update the pet
             $result = $this->petModel->updatePet($pet_id, [
                 'experience' => $newExperience,
                 'level' => $newLevel,
-                'life_stage_id' => $newLifeStage
+                'life_stage_id' => $newLifeStage,
+                'appearance' => $newPetAppearance
             ]);
             if (!$result) {
                 $db->transRollback();
                 return $this->response->setJSON(['error' => 'Failed to update pet level'])
                     ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
-        }else if ($currentExperience < $requiredExperience && !$maxLifeStageReached) {
+        }
+
+        
+        else if ($currentExperience < $requiredExperience && !$maxLifeStageReached) {
             //if the current experience is less than the required experience, then just update the experience
             $result = $this->petModel->updatePet($pet_id, [
                 'experience' => $newExperience,
