@@ -50,6 +50,7 @@ class AdoptionModel extends Model
         $db = \Config\Database::connect();
         $builder = $db->table('cat_texture');
         $builder->where('breed_id', $breed_id);
+        $builder->where('life_stage_id', 1);
         $builder->orderBy('id', 'ASC');
         $query = $builder->get();
 
@@ -60,6 +61,7 @@ class AdoptionModel extends Model
         $db = \Config\Database::connect();
         $builder = $db->table('dog_texture');
         $builder->where('breed_id', $breed_id);
+        $builder->where('life_stage_id', 1);
         $builder->orderBy('id', 'ASC');
         $query = $builder->get();
 
