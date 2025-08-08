@@ -28,10 +28,17 @@ class Town extends BaseController
         }
         
         $userModel = new UserModel();
+        //get the current user coins
+        $userBalance = $userModel->getUserBalance($userId);
+        if (!$userBalance) {
+            return $this->response->setJSON(['error' => 'User balance not found'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+        $userCoins = $userBalance['coins'];
+        $updatedCoins = $userCoins + $coinAmount;
+        $result = $userModel->updateCoins($userId, $updatedCoins);
         
-        $updateCoins = $userModel->updateCoins($userId, $coinAmount);
-        
-        if(!$updateCoins){
+        if(!$result){
             return $this->response->setJSON([
                 'message' => 'Failed to update coins',
             ])
@@ -40,7 +47,8 @@ class Town extends BaseController
 
         return $this->response->setJSON([
             'message' => 'Chest was successfully opened.',
-            'data' => $updateCoins
+            'new_user_coins' => $updatedCoins,
+            'user_id' => $userId
         ])
         ->setStatusCode(ResponseInterface::HTTP_OK);
 
