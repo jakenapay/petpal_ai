@@ -24,4 +24,22 @@ class TextToMotion extends BaseController
             return $this->response->setStatusCode(ResponseInterface::HTTP_NOT_FOUND, 'API not found');
         }
     }
+
+    public function updateCurrentApi(){
+        $model = new \App\Models\TextToMotionModel();
+
+        $input = $this->request->getJSON();
+        $newIpAddress = $input->new_api ?? null;
+        
+        $result = $model->updateIpAddress(1, $newIpAddress);
+        if ($result) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'API version updated successfully',
+                'new_ip_address' => $newIpAddress
+            ]);
+        } else {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST, 'Failed to update API version');
+        }
+    }
 }

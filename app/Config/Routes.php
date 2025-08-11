@@ -164,7 +164,8 @@ $routes->group('api/v1', function($routes) {
     $routes->get('town/claimChest', 'Api\V1\Users\Town::getChest');
 
     //TextToMotionAPI
-    $routes->get('text-to-motion/currentAPI', 'Api\V1\Motion\TextToMotion::getCurrentApi');
+    $routes->get('text-to-motion/currentAPI', 'Api\V1\TTM\TextToMotion::getCurrentApi');
+    $routes->put('text-to-motion/updateAPI', 'Api\V1\TTM\TextToMotion::updateCurrentApi');
 
 
 });
