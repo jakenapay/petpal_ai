@@ -61,5 +61,11 @@ class PetLifeStageModel extends Model
         $lifeStage = $this->where('stage_id', $stageId)->first();
         return $lifeStage ?: null;
     }
+    
+    public function getPetLifestageName($stageId)
+    {
+        $lifeStage = $this->getPetLifeStageByID($stageId);
+        return $lifeStage ? $lifeStage['name'] : null;
+    }   
 
 }

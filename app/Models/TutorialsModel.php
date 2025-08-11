@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class AdoptionModel extends Model
+class TutorialsModel extends Model
 {
-    protected $table            = 'adoptionmodel';
+    protected $table            = 'tutorials';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -44,28 +44,8 @@ class AdoptionModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //Functions
-
-    public function getCatTexture($breed_id){
-        $db = \Config\Database::connect();
-        $builder = $db->table('cat_texture');
-        $builder->where('breed_id', $breed_id);
-        $builder->where('life_stage_id', 1);
-        $builder->orderBy('id', 'ASC');
-        $query = $builder->get();
-
-        return $query->getResult(); 
+    public function getTutorials()
+    {
+        return $this->findAll();
     }
-
-    public function getDogTexture($breed_id){
-        $db = \Config\Database::connect();
-        $builder = $db->table('dog_texture');
-        $builder->where('breed_id', $breed_id);
-        $builder->where('life_stage_id', 1);
-        $builder->orderBy('id', 'ASC');
-        $query = $builder->get();
-
-        return $query->getResult(); 
-    }
-
 }

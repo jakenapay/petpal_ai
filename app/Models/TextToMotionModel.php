@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class AdoptionModel extends Model
+class TextToMotionModel extends Model
 {
-    protected $table            = 'adoptionmodel';
+    protected $table            = 'ttm_ip_address';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = ['ip_addr', 'old_ipaddr'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,28 +44,21 @@ class AdoptionModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    //Functions
-
-    public function getCatTexture($breed_id){
-        $db = \Config\Database::connect();
-        $builder = $db->table('cat_texture');
-        $builder->where('breed_id', $breed_id);
-        $builder->where('life_stage_id', 1);
-        $builder->orderBy('id', 'ASC');
-        $query = $builder->get();
-
-        return $query->getResult(); 
-    }
-
-    public function getDogTexture($breed_id){
-        $db = \Config\Database::connect();
-        $builder = $db->table('dog_texture');
-        $builder->where('breed_id', $breed_id);
-        $builder->where('life_stage_id', 1);
-        $builder->orderBy('id', 'ASC');
-        $query = $builder->get();
-
-        return $query->getResult(); 
+    public function updateIpAddress($id, $newIpAddress)
+    {
+        //get the old ip address
+        $oldIpAddress = $this->find($id)['ip_addr'] ?? null;
+        //update the ip address
+        $newip = $this->update($id, ['ip_addr' => $newIpAddress]);
+        //replace the old ip address
+        $oldip = $this->update($id, ['old_ipaddr' => $oldIpAddress]);
+        if(!$newip){
+            return false;
+        }
+        if(!$oldip){
+            return false;
+        }
+        return true;
     }
 
 }

@@ -67,7 +67,6 @@ $routes->group('api/v1', function($routes) {
     $routes->get('users/inventory/category/(:num)',        'Api\V1\Users\GetUserInventory::getCategorizedItemsFromInventory/$1');
     $routes->get('users/level',            'Api\V1\Users\GetUserLevel::index');
     
-    
     // Pets
     $routes->get('pets',                        'Api\V1\Pets\ListPets::index');
     $routes->post('pets',                       'Api\V1\Pets\CreatePet::index');
@@ -171,5 +170,15 @@ $routes->group('api/v1', function($routes) {
     $routes->post('motions/save-motion', 'Api\V1\Motion\SaveMotions::index');
     $routes->delete('motions/delete-motion/(:num)', 'Api\V1\Motion\DeleteMotions::index/$1');
 
-    
+    // TOWN
+    $routes->get('town/claimChest', 'Api\V1\Users\Town::getChest');
+
+    //TextToMotionAPI
+    $routes->get('text-to-motion/currentAPI', 'Api\V1\TTM\TextToMotion::getCurrentApi');
+    $routes->put('text-to-motion/updateAPI', 'Api\V1\TTM\TextToMotion::updateCurrentApi');
+
+    // Tutorial Endpoints
+    $routes->get('tutorials', 'Api\V1\Tutorials\Tutorials::index');
+    $routes->get('tutorials/user-logs', 'Api\V1\Tutorials\Tutorials::getUserTutorialLogs');
+    $routes->post('tutorials/complete', 'Api\V1\Tutorials\Tutorials::completeTutorial');
 });
