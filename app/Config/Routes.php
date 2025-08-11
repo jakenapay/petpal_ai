@@ -167,5 +167,8 @@ $routes->group('api/v1', function($routes) {
     $routes->get('text-to-motion/currentAPI', 'Api\V1\TTM\TextToMotion::getCurrentApi');
     $routes->put('text-to-motion/updateAPI', 'Api\V1\TTM\TextToMotion::updateCurrentApi');
 
-
+    // Tutorial Endpoints
+    $routes->get('tutorials', 'Api\V1\Tutorials\Tutorials::index');
+    $routes->get('tutorials/user-logs', 'Api\V1\Tutorials\Tutorials::getUserTutorialLogs');
+    $routes->post('tutorials/complete', 'Api\V1\Tutorials\Tutorials::completeTutorial');
 });
