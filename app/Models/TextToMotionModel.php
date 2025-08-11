@@ -52,10 +52,13 @@ class TextToMotionModel extends Model
         $newip = $this->update($id, ['ip_addr' => $newIpAddress]);
         //replace the old ip address
         $oldip = $this->update($id, ['old_ipaddr' => $oldIpAddress]);
-        if ($newip && $oldip) {
-            return true;
+        if(!$newip){
+            return false;
         }
-        return false;
+        if(!$oldip){
+            return false;
+        }
+        return true;
     }
 
 }
