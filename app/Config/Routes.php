@@ -19,17 +19,27 @@ $routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
 $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 
 // Views for Items
-$routes->get('item/add', 'Items::itemAdd');
-$routes->post('item/addXlsx', 'Items::itemAddXlsx');
-$routes->get('item/delete', 'Items::itemDelete');
-$routes->get('item/list', 'Items::itemList');
-$routes->get('item/edit/(:num)', 'Items::itemUpdate/$1');
+$routes->get('item/add', 'Items::itemAdd', ['filter' => 'auth']);
+$routes->post('item/addXlsx', 'Items::itemAddXlsx', ['filter' => 'auth']);
+$routes->get('item/delete', 'Items::itemDelete', ['filter' => 'auth']);
+$routes->get('item/list', 'Items::itemList', ['filter' => 'auth']);
+$routes->get('item/edit/(:num)', 'Items::itemUpdate/$1', ['filter' => 'auth']);
 
 // Item Controllers
-$routes->post('item/add', 'Items::addItem');
-$routes->post('item/delete/(:num)', 'Items::deleteItem/$1');
-$routes->post('item/update/(:num)', 'Items::updateItem/$1');
+$routes->post('item/add', 'Items::addItem', ['filter' => 'auth']);
+$routes->post('item/delete/(:num)', 'Items::deleteItem/$1', ['filter' => 'auth']);
+$routes->post('item/update/(:num)', 'Items::updateItem/$1', ['filter' => 'auth']);
 // $routes->post('item/delete', 'Items::deleteItem');
+
+// Views for Users
+$routes->get('users/list', 'Users::index', ['filter' => 'auth']);
+$routes->post('user/add', 'Users::add', ['filter' => 'auth']); // Add user
+$routes->post('user/delete/(:num)', 'Users::delete/$1', ['filter' => 'auth']); // delete user not yet working
+$routes->get('user/edit/(:num)', 'Users::edit/$1', ['filter' => 'auth']);
+
+// User Controllers
+$routes->post('user/update/(:num)', 'Users::update/$1', ['filter' => 'auth']);
+
 
 
 // API v1 base

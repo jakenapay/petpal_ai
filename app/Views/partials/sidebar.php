@@ -33,12 +33,16 @@
         </div>
 
         <div class="nav-section">
-            <div class="nav-section-title">Item Management</div>
+            <div class="nav-section-title">Management</div>
             <a href="<?= base_url('item/list'); ?>" class="nav-link">
                 <i class="fas fa-box"></i>
                 <span class="px-2">Items</span>
             </a>
-        </div>
+            <a href="<?= base_url('users/list'); ?>" class="nav-link">
+                <i class="fas fa-group"></i>
+                <span class="px-3">Users</span>
+            </a>
+        </div> 
 
         <div class="nav-section">
             <div class="nav-section-title">Account</div>
