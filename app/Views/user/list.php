@@ -70,12 +70,14 @@
                                                 <div class="col-md-6">
                                                     <label>First Name</label>
                                                     <input type="text" name="firstname"
-                                                        class="form-control form-control-sm" required placeholder="Enter first name">
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter first name">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label>Last Name</label>
                                                     <input type="text" name="lastname"
-                                                        class="form-control form-control-sm" required placeholder="Enter last name">
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter last name">
                                                 </div>
                                             </div>
 
@@ -83,12 +85,14 @@
                                                 <div class="col-md-6">
                                                     <label>Username</label>
                                                     <input type="text" name="username"
-                                                        class="form-control form-control-sm" required placeholder="Enter username">
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter username">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label>Email</label>
                                                     <input type="email" name="email"
-                                                        class="form-control form-control-sm" required placeholder="Enter email">
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter email">
                                                 </div>
                                             </div>
 
@@ -96,7 +100,8 @@
                                                 <div class="col-md-6">
                                                     <label>Password</label>
                                                     <input type="password" name="password"
-                                                        class="form-control form-control-sm" placeholder="Enter password">
+                                                        class="form-control form-control-sm"
+                                                        placeholder="Enter password">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label>Role</label>
@@ -114,30 +119,53 @@
                                                     <label>MBTI</label>
                                                     <select name="mbti" class="form-control form-control-sm">
                                                         <option value="" selected disabled>Select MBTI</option>
-                                                        <option value="ENFJ">ENFJ - Protagonist (Charismatic and inspiring leaders, able to mesmerize their listeners)</option>
-                                                        <option value="ENFP">ENFP - Campaigner (Enthusiastic, creative and sociable free spirits, who can always find a reason to smile)</option>
-                                                        <option value="ENTJ">ENTJ - Commander (Bold, imaginative and strong-willed leaders, always finding a way)</option>
-                                                        <option value="ENTP">ENTP - Debater (Smart and curious thinkers who cannot resist an intellectual challenge)</option>
-                                                        <option value="ESFJ">ESFJ - Consul (Extraordinarily caring, social and popular people, always eager to help)</option>
-                                                        <option value="ESFP">ESFP - Entertainer (Spontaneous, energetic and enthusiastic people – life is never boring around them)</option>
-                                                        <option value="ESTJ">ESTJ - Executive (Excellent administrators, unsurpassed at managing things – or people)</option>
-                                                        <option value="ESTP">ESTP - Entrepreneur (Smart, energetic and very perceptive people, who truly enjoy living on the edge)</option>
-                                                        <option value="INFJ">INFJ - Advocate (Quiet and mystical, yet very inspiring and tireless idealists)</option>
-                                                        <option value="INFP">INFP - Mediator (Poetic, kind and altruistic people, always eager to help a good cause)</option>
-                                                        <option value="INTJ">INTJ - Architect (Imaginative and strategic thinkers, with a plan for everything)</option>
-                                                        <option value="INTP">INTP - Logician (Innovative inventors with an unquenchable thirst for knowledge)</option>
-                                                        <option value="ISFJ">ISFJ - Defender (Very dedicated and warm protectors, always ready to defend their loved ones)</option>
-                                                        <option value="ISFP">ISFP - Adventurer (Flexible and charming artists, always ready to explore and experience something new)</option>
-                                                        <option value="ISTJ">ISTJ - Logistician (Practical and fact-minded individuals, whose reliability cannot be doubted)</option>
-                                                        <option value="ISTP">ISTP - Virtuoso (Bold and practical experimenters, masters of all kinds of tools)</option>
+                                                        <option value="ENFJ">ENFJ - Protagonist (Charismatic and
+                                                            inspiring leaders, able to mesmerize their listeners)
+                                                        </option>
+                                                        <option value="ENFP">ENFP - Campaigner (Enthusiastic, creative
+                                                            and sociable free spirits, who can always find a reason to
+                                                            smile)</option>
+                                                        <option value="ENTJ">ENTJ - Commander (Bold, imaginative and
+                                                            strong-willed leaders, always finding a way)</option>
+                                                        <option value="ENTP">ENTP - Debater (Smart and curious thinkers
+                                                            who cannot resist an intellectual challenge)</option>
+                                                        <option value="ESFJ">ESFJ - Consul (Extraordinarily caring,
+                                                            social and popular people, always eager to help)</option>
+                                                        <option value="ESFP">ESFP - Entertainer (Spontaneous, energetic
+                                                            and enthusiastic people – life is never boring around them)
+                                                        </option>
+                                                        <option value="ESTJ">ESTJ - Executive (Excellent administrators,
+                                                            unsurpassed at managing things – or people)</option>
+                                                        <option value="ESTP">ESTP - Entrepreneur (Smart, energetic and
+                                                            very perceptive people, who truly enjoy living on the edge)
+                                                        </option>
+                                                        <option value="INFJ">INFJ - Advocate (Quiet and mystical, yet
+                                                            very inspiring and tireless idealists)</option>
+                                                        <option value="INFP">INFP - Mediator (Poetic, kind and
+                                                            altruistic people, always eager to help a good cause)
+                                                        </option>
+                                                        <option value="INTJ">INTJ - Architect (Imaginative and strategic
+                                                            thinkers, with a plan for everything)</option>
+                                                        <option value="INTP">INTP - Logician (Innovative inventors with
+                                                            an unquenchable thirst for knowledge)</option>
+                                                        <option value="ISFJ">ISFJ - Defender (Very dedicated and warm
+                                                            protectors, always ready to defend their loved ones)
+                                                        </option>
+                                                        <option value="ISFP">ISFP - Adventurer (Flexible and charming
+                                                            artists, always ready to explore and experience something
+                                                            new)</option>
+                                                        <option value="ISTJ">ISTJ - Logistician (Practical and
+                                                            fact-minded individuals, whose reliability cannot be
+                                                            doubted)</option>
+                                                        <option value="ISTP">ISTP - Virtuoso (Bold and practical
+                                                            experimenters, masters of all kinds of tools)</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label>Profile Image URL</label>
                                                     <input type="file" name="profileImage" accept="image/*"
                                                         class="form-control form-control-sm"
-                                                        placeholder="https://example.com/image.jpg"
-                                                        disabled>
+                                                        placeholder="https://example.com/image.jpg" disabled>
                                                 </div>
                                             </div>
                                         </div>
@@ -429,32 +457,33 @@
                             <td><?= esc($user['last_name']) ?></td>
                             <td>
                                 <?php
-                                    $status = strtolower($user['status']);
-                                    $statusColor = 'secondary';
-                                    if ($status === 'active') {
-                                        $statusColor = 'success';
-                                    } elseif ($status === 'inactive') {
-                                        $statusColor = 'danger';
-                                    } elseif ($status === 'suspended') {
-                                        $statusColor = 'warning';
-                                    }
+                                $status = strtolower($user['status']);
+                                $statusColor = 'secondary';
+                                if ($status === 'active') {
+                                    $statusColor = 'success';
+                                } elseif ($status === 'inactive') {
+                                    $statusColor = 'danger';
+                                } elseif ($status === 'suspended') {
+                                    $statusColor = 'warning';
+                                }
                                 ?>
                                 <span class="text-capitalize badge bg-<?= $statusColor ?>"><?= esc($user['status']) ?></span>
                             </td>
                             <td>
                                 <?php
-                                    $role = strtolower($user['role']);
-                                    $roleColor = 'secondary';
-                                    if ($role === 'admin') {
-                                        $roleColor = 'danger';
-                                    } elseif ($role === 'moderator') {
-                                        $roleColor = 'primary';
-                                    } elseif ($role === 'user') {
-                                        $roleColor = 'warning';
-                                    }
+                                $role = strtolower($user['role']);
+                                $roleColor = 'secondary';
+                                if ($role === 'admin') {
+                                    $roleColor = 'danger';
+                                } elseif ($role === 'moderator') {
+                                    $roleColor = 'primary';
+                                } elseif ($role === 'user') {
+                                    $roleColor = 'warning';
+                                }
                                 ?>
                                 <span class="text-capitalize badge bg-<?= $roleColor ?>"><?= esc($user['role']) ?></span>
-                            </td></td>
+                            </td>
+                            </td>
                             <td>
                                 <?php if (!empty($user['profile_image'])): ?>
                                     <img src="<?= esc($user['profile_image']) ?>" alt="User's Profile" width="40">
@@ -476,7 +505,11 @@
                                     data-bs-toggle="tooltip" title="Edit User">
                                     <i class="fa fa-pencil"></i>
                                 </a>
-
+                                <!-- Inventory Button: Uses GET -->
+                                <a href="<?= base_url('user/inventory/' . esc($user['user_id'])) ?>" class="btn btn-sm btn-success"
+                                    data-bs-toggle="tooltip" title="User Inventory">
+                                    <i class="fa fa-box"></i>
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

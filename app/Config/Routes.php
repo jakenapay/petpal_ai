@@ -36,6 +36,7 @@ $routes->get('users/list', 'Users::index', ['filter' => 'auth']);
 $routes->post('user/add', 'Users::add', ['filter' => 'auth']); // Add user
 $routes->post('user/delete/(:num)', 'Users::delete/$1', ['filter' => 'auth']); // delete user not yet working
 $routes->get('user/edit/(:num)', 'Users::edit/$1', ['filter' => 'auth']);
+$routes->get('user/inventory/(:num)', 'Users::inventory/$1', ['filter' => 'auth']);
 
 // User Controllers
 $routes->post('user/update/(:num)', 'Users::update/$1', ['filter' => 'auth']);

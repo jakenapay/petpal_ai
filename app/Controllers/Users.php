@@ -289,7 +289,7 @@ class Users extends BaseController
                     ]
                 ],
                 'status' => [
-                    'rules' => 'required|in_list[active,inactive]',
+                    'rules' => 'required|in_list[active,inactive,suspended]',
                     'errors' => [
                         'required' => 'Status is required.',
                         'in_list' => 'Status must be either active or inactive.'
@@ -365,4 +365,28 @@ class Users extends BaseController
             return;
         }
     }
+
+    public function inventory($userId) {
+        $userModel = new UserModel();
+        $inventoryModel = new \App\Models\InventoryModel();
+        $user = $userModel->find($userId);
+        if (!$user) {
+            return redirect()->to('users/list')->with('error', 'User not found.');
+        }
+
+        // Get user inventory
+        $inventory = $inventoryModel->getUserInventory($userId);
+        $data = [
+            'user' => $user,
+            'inventory' => $inventory
+        ];
+
+        // print_r($data);
+        return view('user/inventory', $data);
+    }
+
+
+
+
+
 }

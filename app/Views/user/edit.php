@@ -187,7 +187,7 @@
                                     <option value="" disabled>Select Role</option>
                                     <option value="admin" <?= ($user['role'] == 'admin') ? 'selected' : '' ?>>Admin
                                     </option>
-                                    <option value="moderator" <?= ($user['role'] == 'Moderator') ? 'selected' : '' ?>>
+                                    <option value="moderator" <?= ($user['role'] == 'moderator') ? 'selected' : '' ?>>
                                         Moderator
                                     </option>
                                     <option value="user" <?= ($user['role'] == 'user') ? 'selected' : '' ?>>User</option>
@@ -260,7 +260,7 @@
                         <hr>
                         <!-- Submit button row -->
                         <div class="col-12 d-flex justify-content-center mt-3">
-                            <a href="<?= base_url('item') ?>" class="mx-2 btn btn-danger">Back</a>
+                            <a href="javascript:history.back()" class="mx-2 btn btn-danger">Back</a>
                             <button type="submit" class="mx-2 btn btn-orange">Update</button>
                         </div>
                     </div>
