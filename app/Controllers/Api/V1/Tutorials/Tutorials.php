@@ -15,13 +15,40 @@ class Tutorials extends BaseController
     }
     public function index()
     {
+        // AUTHORIZATION CHECK
+        $userId = authorizationCheck($this->request);
+        if (!$userId) {
+            return $this->response->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
         $model = new TutorialsModel();
         $tutorials = $model->getTutorials();
+        if (!$tutorials) {
+            return $this->response->setJSON(['message' => 'No tutorials found']);
+        }
+        $tutorialLogsModel = new TutorialLogsModel();
+        $tutorialLogs = $tutorialLogsModel->getUserTutorialLog($userId);
+
+        $tutorialStatus = [];
+        foreach ($tutorialLogs as $logs) {
+            $tutorialStatus[$logs['tutorial_id']] = $logs['is_done'] ? 'complete' : 'incomplete';
+        }
+
+        //combine the tutorial and status
+        $combined = [];
+        foreach ($tutorials as $tutorial) {
+            $combined[] = [
+                'id'     => $tutorial['id'],
+                'name'  => $tutorial['name'],
+                'status' => $tutorialStatus[$tutorial['id']] ?? 'incomplete',
+            ];
+        }
 
         return $this->response->setJSON(
             [
                 'message' => 'Tutorials retrieved successfully',
-                'data'    => $tutorials
+                'tutorials' => $combined,
             ]
         );
     }
