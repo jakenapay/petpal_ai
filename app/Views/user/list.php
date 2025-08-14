@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Item List</title>
+    <title>Users List</title>
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- 
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -16,12 +16,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="<?= base_url('/assets/css/style.css') ?>" rel="stylesheet">
-     <style>
+    <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f0f0;
             color: #333;
         }
+
         .form-control {
             padding: 5px 15px !important;
             font-size: 14px;
@@ -38,22 +39,22 @@
 
     <div class="container mt-4">
         <div class="row">
-            <h2 class="mb-4">Item List</h2>
+            <h2 class="mb-4">Users List</h2>
             <div class="col-md-12">
                 <!-- Add New Item Button triggers modal -->
                 <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#addItemModal">
-                    <i class="fa fa-plus me-1"></i> Add New Item
+                    <i class="fa fa-plus me-1"></i> Create New User
                 </button>
-                <button class="disabled btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#uploadItemModal">
-                    <i class="fa fa-upload me-1"></i> Upload Bulk
-                </button>
+                <!-- <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#uploadItemModal">
+                    <i class="fa fa-upload me-1"></i> Upload Many 
+                </button> -->
 
                 <!-- Add Item Modal -->
                 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
-                            <form action="<?= base_url('item/add') ?>" method="post">
+                            <form action="<?= base_url('user/add') ?>" enctype="multipart/form-data" method="post">
                                 <?= csrf_field() ?>
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="addItemModalLabel">Add New Item</h5>
@@ -61,256 +62,121 @@
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
+                                    <!-- start of row -->
                                     <div class="row justify-content-center align-items-start g-4">
-                                        <!-- Column 1 -->
-                                        <div class="col-md-3">
-                                            <label>Category ID <span class="text-danger">*</span></label>
-                                            <select name="category_id" id="categorySelector"
-                                                class="form-control form-control-sm">
-                                                <?php foreach ($itemCategoriesData as $itemCategory): ?>
-                                                    <option value="<?= $itemCategory['category_id']; ?>">
-                                                        <?= $itemCategory['category_id']; ?> -
-                                                        <?= $itemCategory['category_name']; ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
+                                        <!-- start of main col -->
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label>First Name</label>
+                                                    <input type="text" name="firstname"
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter first name">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label>Last Name</label>
+                                                    <input type="text" name="lastname"
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter last name">
+                                                </div>
+                                            </div>
 
-                                            <label>Item Name <span class="text-danger">*</span></label>
-                                            <input type="text" name="item_name" class="form-control form-control-sm"
-                                                required placeholder="Sample Item">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label>Username</label>
+                                                    <input type="text" name="username"
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter username">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label>Email</label>
+                                                    <input type="email" name="email"
+                                                        class="form-control form-control-sm" required
+                                                        placeholder="Enter email">
+                                                </div>
+                                            </div>
 
-                                            <label>Description</label>
-                                            <textarea name="description" class="form-control form-control-sm"
-                                                placeholder="Sample Description"></textarea>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label>Password</label>
+                                                    <input type="password" name="password"
+                                                        class="form-control form-control-sm"
+                                                        placeholder="Enter password">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label>Role</label>
+                                                    <select name="role" class="form-control form-control-sm">
+                                                        <option value="" selected disabled>Select Role</option>
+                                                        <option value="admin">Admin</option>
+                                                        <option value="moderator">Moderator</option>
+                                                        <option value="user">User</option>
+                                                    </select>
+                                                </div>
+                                            </div>
 
-                                            <label>Image URL</label>
-                                            <input type="text" name="image_url" class="form-control form-control-sm"
-                                                placeholder="https://example.com/image.jpg">
-
-                                            <label>Base Price <span class="text-danger">*</span></label>
-                                            <input type="number" name="base_price" class="form-control form-control-sm"
-                                                required value="100">
-
-                                            <label>Rarity <span class="text-danger">*</span></label>
-                                            <select name="rarity" class="form-control form-control-sm">
-                                                <?php foreach ($ItemRarityData as $itemRarity): ?>
-                                                    <option value="<?= $itemRarity['rarity_id']; ?>">
-                                                        <?= $itemRarity['rarity_id']; ?> -
-                                                        <?= $itemRarity['rarity_name']; ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-
-                                            <label>Is Tradable</label>
-                                            <select name="is_tradable" class="form-control form-control-sm">
-                                                <option value="1" selected>Yes</option>
-                                                <option value="0">No</option>
-                                            </select>
-
-                                            <label>Is Buyable</label>
-                                            <select name="is_buyable" class="form-control form-control-sm">
-                                                <option value="1">Yes</option>
-                                                <option value="0" selected>No</option>
-                                            </select>
-
-                                            <label>Is Consumable</label>
-                                            <select name="is_consumable" class="form-control form-control-sm">
-                                                <option value="1">Yes</option>
-                                                <option value="0" selected>No</option>
-                                            </select>
-
-                                            <label>Is Stackable</label>
-                                            <select name="is_stackable" class="form-control form-control-sm">
-                                                <option value="1" selected>Yes</option>
-                                                <option value="0">No</option>
-                                            </select>
-
-                                            <label>Duration</label>
-                                            <input type="number" name="duration" class="form-control form-control-sm"
-                                                value="0">
-
-                                            <label>Korean Name</label>
-                                            <input type="text" name="korean_name" class="form-control form-control-sm"
-                                                value="샘플아이템">
-                                        </div>
-
-                                        <!-- Column 2 -->
-                                        <div class="col-md-3">
-                                            <label>Tier ID</label>
-                                            <select name="tier_id" class="form-control form-control-sm">
-                                                <?php foreach ($ItemTiersData as $itemTier): ?>
-                                                    <option value="<?= $itemTier['tier_id']; ?>">
-                                                        <?= $itemTier['tier_id']; ?> - <?= $itemTier['tier_name']; ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-
-                                            <label>Real Price</label>
-                                            <input type="number" step="0.01" name="real_price"
-                                                class="form-control form-control-sm" value="0.00">
-
-                                            <label>Discount Percentage</label>
-                                            <input type="number" name="discount_percentage"
-                                                class="form-control form-control-sm" value="0">
-
-                                            <label>Is Featured</label>
-                                            <select name="is_featured" class="form-control form-control-sm">
-                                                <option value="1">Yes</option>
-                                                <option value="0" selected>No</option>
-                                            </select>
-
-                                            <label>Is On Sale</label>
-                                            <select name="is_on_sale" class="form-control form-control-sm">
-                                                <option value="1">Yes</option>
-                                                <option value="0" selected>No</option>
-                                            </select>
-
-                                            <label>Quantity Available</label>
-                                            <input type="number" name="quantity_available"
-                                                class="form-control form-control-sm" value="0">
-
-                                            <label>Release Date</label>
-                                            <input type="datetime-local" name="release_date"
-                                                class="form-control form-control-sm" value="<?= date('Y-m-d\TH:i') ?>">
-
-                                            <label>End Date</label>
-                                            <input type="datetime-local" name="end_date"
-                                                class="form-control form-control-sm">
-
-                                            <label>Thumbnail URL</label>
-                                            <input type="text" name="thumbnail_url" class="form-control form-control-sm"
-                                                value="https://example.com/thumb.jpg">
-
-                                            <label>Detail Images</label>
-                                            <input type="text" name="detail_images"
-                                                class="form-control form-control-sm">
-
-                                            <label>Preview 3D Model</label>
-                                            <input type="text" name="preview_3d_model"
-                                                class="form-control form-control-sm">
-
-                                            <label>Attributes</label>
-                                            <textarea name="attributes" class="form-control form-control-sm"
-                                                placeholder="{}"></textarea>
-                                        </div>
-
-                                        <!-- Column 3 -->
-                                        <div class="col-md-3">
-                                            <label>Tags</label>
-                                            <input type="text" name="tags" class="form-control form-control-sm"
-                                                value="sample">
-
-                                            <label>Currency Type</label>
-                                            <select name="currency_type" class="form-control form-control-sm">
-                                                <option value="coins" selected>Coins</option>
-                                                <option value="diamonds">Diamonds</option>
-                                            </select>
-
-                                            <label>Hunger Level</label>
-                                            <input type="number" step="0.01" max="100" name="hunger_level"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Energy Level</label>
-                                            <input type="number" step="0.01" max="100" name="energy_level"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Hygiene Level</label>
-                                            <input type="number" step="0.01" max="100" name="hygiene_level"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Health Level</label>
-                                            <input type="number" step="0.01" max="100" name="health_level"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Happiness Level</label>
-                                            <input type="number" step="0.01" max="100" name="happiness_level"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Stress Level</label>
-                                            <input type="number" step="0.01" max="100" name="stress_level"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Affinity</label>
-                                            <input type="number" step="0.01" max="100" name="affinity"
-                                                class="form-control form-control-sm mb-3" value="5">
-
-                                            <label>Experience</label>
-                                            <input type="number" max="100" name="experience"
-                                                class="form-control form-control-sm mb-3" value="0">
-
-                                            <label>Pool ID</label>
-                                            <select name="pool_id" class="form-control form-control-sm mb-3">
-                                                <option value="">No Pool ID</option>
-                                                <?php foreach ($poolData as $pool): ?>
-                                                    <option value="<?= $pool['id']; ?>"><?= $pool['name']; ?> -
-                                                        <?= $pool['id']; ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-
-                                            <label>Drop Rate</label>
-                                            <input type="number" step="0.001" max="100" name="drop_rate"
-                                                class="form-control form-control-sm mb-3" value="0.000">
-                                        </div>
-
-                                        <!-- Column 4 for Item Accessories -->
-                                        <div class="col-md-3" id="accessoriesColumn">
-                                            <p class="text-mute">For item category that are accessories only.</p>
-                                            <label>Subcategory</label>
-                                            <select name="subCategory" id="subCategory"
-                                                class="form-control form-control-sm">
-                                                <?php foreach ($ItemSubCategoriesData as $subCat): ?>
-                                                    <option value="<?= $subCat['id']; ?>"><?= $subCat['id']; ?> -
-                                                        <?= $subCat['name']; ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-
-                                            <label>Specie</label>
-                                            <select name="specie" id="specie" class="form-control form-control-sm">
-                                                <?php foreach ($specieData as $specie): ?>
-                                                    <option value="<?= $specie['species_id']; ?>">
-                                                        <?= $specie['species_id']; ?> - <?= $specie['name']; ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-
-                                            <label>Breed</label>
-                                            <select name="breed" id="breed" class="form-control">
-                                                <optgroup label="Cat Breeds">
-                                                    <?php foreach ($petBreedData['catbreeds'] as $cat): ?>
-                                                        <option value="<?= $cat->breed_id ?>"><?= $cat->breed_id ?> -
-                                                            <?= $cat->breed_name ?>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label>MBTI</label>
+                                                    <select name="mbti" class="form-control form-control-sm">
+                                                        <option value="" selected disabled>Select MBTI</option>
+                                                        <option value="ENFJ">ENFJ - Protagonist (Charismatic and
+                                                            inspiring leaders, able to mesmerize their listeners)
                                                         </option>
-                                                    <?php endforeach; ?>
-                                                </optgroup>
-                                                <optgroup label="Dog Breeds">
-                                                    <?php foreach ($petBreedData['dogbreeds'] as $dog): ?>
-                                                        <option value="<?= $dog->breed_id ?>"><?= $dog->breed_id ?> -
-                                                            <?= $dog->breed_name ?>
+                                                        <option value="ENFP">ENFP - Campaigner (Enthusiastic, creative
+                                                            and sociable free spirits, who can always find a reason to
+                                                            smile)</option>
+                                                        <option value="ENTJ">ENTJ - Commander (Bold, imaginative and
+                                                            strong-willed leaders, always finding a way)</option>
+                                                        <option value="ENTP">ENTP - Debater (Smart and curious thinkers
+                                                            who cannot resist an intellectual challenge)</option>
+                                                        <option value="ESFJ">ESFJ - Consul (Extraordinarily caring,
+                                                            social and popular people, always eager to help)</option>
+                                                        <option value="ESFP">ESFP - Entertainer (Spontaneous, energetic
+                                                            and enthusiastic people – life is never boring around them)
                                                         </option>
-                                                    <?php endforeach; ?>
-                                                </optgroup>
-                                            </select>
-
-                                            <label>Icon Url</label>
-                                            <input type="text" name="iconUrl" id="iconUrl"
-                                                class="form-control form-control-sm" placeholder="sample">
-
-                                            <label>Addressable Url</label>
-                                            <input type="text" name="addressableUrl" id="addressableUrl"
-                                                class="form-control form-control-sm" placeholder="sample">
-
-                                            <label>RGB Color</label>
-                                            <input type="color" name="rgbColor" id="rgbColor"
-                                                class="form-control form-control-sm" value="#ff0000">
+                                                        <option value="ESTJ">ESTJ - Executive (Excellent administrators,
+                                                            unsurpassed at managing things – or people)</option>
+                                                        <option value="ESTP">ESTP - Entrepreneur (Smart, energetic and
+                                                            very perceptive people, who truly enjoy living on the edge)
+                                                        </option>
+                                                        <option value="INFJ">INFJ - Advocate (Quiet and mystical, yet
+                                                            very inspiring and tireless idealists)</option>
+                                                        <option value="INFP">INFP - Mediator (Poetic, kind and
+                                                            altruistic people, always eager to help a good cause)
+                                                        </option>
+                                                        <option value="INTJ">INTJ - Architect (Imaginative and strategic
+                                                            thinkers, with a plan for everything)</option>
+                                                        <option value="INTP">INTP - Logician (Innovative inventors with
+                                                            an unquenchable thirst for knowledge)</option>
+                                                        <option value="ISFJ">ISFJ - Defender (Very dedicated and warm
+                                                            protectors, always ready to defend their loved ones)
+                                                        </option>
+                                                        <option value="ISFP">ISFP - Adventurer (Flexible and charming
+                                                            artists, always ready to explore and experience something
+                                                            new)</option>
+                                                        <option value="ISTJ">ISTJ - Logistician (Practical and
+                                                            fact-minded individuals, whose reliability cannot be
+                                                            doubted)</option>
+                                                        <option value="ISTP">ISTP - Virtuoso (Bold and practical
+                                                            experimenters, masters of all kinds of tools)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label>Profile Image URL</label>
+                                                    <input type="file" name="profileImage" accept="image/*"
+                                                        class="form-control form-control-sm"
+                                                        placeholder="https://example.com/image.jpg" disabled>
+                                                </div>
+                                            </div>
                                         </div>
+                                        <!-- end of main col -->
                                     </div>
+                                    <!-- end of row -->
                                 </div>
                                 <div class="modal-footer justify-content-center">
                                     <button type="button" class="mx-2 btn btn-secondary"
                                         data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="mx-2 btn btn-orange">Add Item</button>
+                                    <button type="submit" class="mx-2 btn btn-orange">Create</button>
                                 </div>
                             </form>
                         </div>
@@ -549,6 +415,16 @@
                         </div>
                     <?php endif; ?>
 
+                    <?php if (session()->getFlashdata('errors')): ?>
+                        <div class="alert flash-message alert-danger text-center">
+                            <ul class="mb-0">
+                                <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                                    <li><?= esc($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if (session()->getFlashdata('success')): ?>
                         <div class="alert flash-message alert-success text-center"><?= session()->getFlashdata('success') ?>
                         </div>
@@ -559,54 +435,81 @@
         <table id="itemTable" class="table table-sm table-bordered table-striped text-center">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Rarity</th>
-                    <th>Category</th>
-                    <th>Real Price</th>
-                    <th>Final Price</th>
-                    <th>Currency</th>
-                    <th>Image</th>
-                    <th>Buyable</th>
-                    <th>Deleted</th>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Status</th>
+                    <th>Role</th>
+                    <th>Profile</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($items)): ?>
-                    <?php foreach ($items as $item): ?>
+                <?php if (!empty($users)): ?>
+                    <?php foreach ($users as $user): ?>
                         <tr>
-                            <td><?= esc($item['item_id']) ?></td>
-                            <td><?= esc($item['item_name']) ?></td>
-                            <td><?= esc($item['rarity']) ?></td>
-                            <td><?= esc($item['category_id']) ?></td>
-                            <td><?= esc($item['real_price']) ?></td>
-                            <td><?= esc($item['final_price']) ?></td>
-                            <td><?= esc($item['currency_type']) ?></td>
+                            <td><?= esc($user['user_id']) ?></td>
+                            <td><?= esc($user['username']) ?></td>
+                            <td><?= esc($user['email']) ?></td>
+                            <td><?= esc($user['first_name']) ?></td>
+                            <td><?= esc($user['last_name']) ?></td>
                             <td>
-                                <?php if (!empty($item['image_url'])): ?>
-                                    <img src="<?= esc($item['image_url']) ?>" alt="Item" width="40">
+                                <?php
+                                $status = strtolower($user['status']);
+                                $statusColor = 'secondary';
+                                if ($status === 'active') {
+                                    $statusColor = 'success';
+                                } elseif ($status === 'inactive') {
+                                    $statusColor = 'danger';
+                                } elseif ($status === 'suspended') {
+                                    $statusColor = 'warning';
+                                }
+                                ?>
+                                <span class="text-capitalize badge bg-<?= $statusColor ?>"><?= esc($user['status']) ?></span>
+                            </td>
+                            <td>
+                                <?php
+                                $role = strtolower($user['role']);
+                                $roleColor = 'secondary';
+                                if ($role === 'admin') {
+                                    $roleColor = 'danger';
+                                } elseif ($role === 'moderator') {
+                                    $roleColor = 'primary';
+                                } elseif ($role === 'user') {
+                                    $roleColor = 'warning';
+                                }
+                                ?>
+                                <span class="text-capitalize badge bg-<?= $roleColor ?>"><?= esc($user['role']) ?></span>
+                            </td>
+                            </td>
+                            <td>
+                                <?php if (!empty($user['profile_image'])): ?>
+                                    <img src="<?= esc($user['profile_image']) ?>" alt="User's Profile" width="40">
                                 <?php endif; ?>
                             </td>
-                            <td><?= $item['is_buyable'] ? 'Yes' : 'No' ?></td>
-                            <td><?= $item['is_deleted'] ? 'Yes' : 'No' ?></td>
                             <td>
                                 <!-- Delete Button: Uses POST -->
-                                <form action="<?= base_url('item/delete/' . esc($item['item_id'])) ?>" method="post"
+                                <form action="<?= base_url('user/delete/' . esc($user['user_id'])) ?>" method="post"
                                     style="display:inline;">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="btn m-0 btn-sm btn-danger" data-bs-toggle="tooltip"
-                                        title="Delete Item"
-                                        onclick="return confirm('Are you sure you want to delete this item?');">
+                                        title="Delete User"
+                                        onclick="return confirm('Are you sure you want to delete this user?');">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </form>
                                 <!-- Edit Button: Uses GET -->
-                                <a href="<?= base_url('item/edit/' . esc($item['item_id'])) ?>" class="btn btn-sm btn-orange"
-                                    data-bs-toggle="tooltip" title="Edit Item">
+                                <a href="<?= base_url('user/edit/' . esc($user['user_id'])) ?>" class="btn btn-sm btn-orange"
+                                    data-bs-toggle="tooltip" title="Edit User">
                                     <i class="fa fa-pencil"></i>
                                 </a>
-
+                                <!-- Inventory Button: Uses GET -->
+                                <a href="<?= base_url('user/inventory/' . esc($user['user_id'])) ?>" class="btn btn-sm btn-success"
+                                    data-bs-toggle="tooltip" title="User Inventory">
+                                    <i class="fa fa-box"></i>
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -667,101 +570,103 @@
         }, 5000); // 5000 milliseconds = 5 seconds
     </script>
     <script>
-       $(document).ready(function () {
-    const table = $('#itemTable').DataTable();
+        $(document).ready(function () {
+            const table = $('#itemTable').DataTable();
 
-    setTimeout(() => {
-        const searchFilter = $('#itemTable_filter');
-        const searchInput = searchFilter.find('input');
-        if (searchInput.length) {
-            searchInput.removeClass('form-control'); // Remove Bootstrap class
-            searchInput.parent().removeClass('form-group'); // Remove wrapper class
-            searchInput.addClass('searchBar');
-            searchInput.attr('placeholder', 'Search items...');
+            setTimeout(() => {
+                const searchFilter = $('#itemTable_filter');
+                const searchInput = searchFilter.find('input');
+                if (searchInput.length) {
+                    searchInput.removeClass('form-control'); // Remove Bootstrap class
+                    searchInput.parent().removeClass('form-group'); // Remove wrapper class
+                    searchInput.addClass('searchBar');
+                    searchInput.attr('placeholder', 'Search items...');
 
-            $('#custom-search-bar-container').empty().append(searchInput.detach());
-            searchFilter.remove();
-        }
-    }, 0);
-});
+                    $('#custom-search-bar-container').empty().append(searchInput.detach());
+                    searchFilter.remove();
+                }
+            }, 0);
+        });
 
     </script>
     <style>
-     #custom-search-bar-container .searchBar {
-    all: unset; /* Reset everything */
-    display: inline-block;
-    width: 260px;
-    padding: 10px 14px;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #222;
-    background-color: #f8f9fa;
-    border: 2px solid #4CAF50;
-    border-radius: 8px;
-    outline: none;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-    transition: all 0.25s ease-in-out;
-}
+        #custom-search-bar-container .searchBar {
+            all: unset;
+            /* Reset everything */
+            display: inline-block;
+            width: 260px;
+            padding: 10px 14px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #222;
+            background-color: #f8f9fa;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+            transition: all 0.25s ease-in-out;
+        }
 
-/* Focus effect */
-#custom-search-bar-container .searchBar:focus {
-    border-color: #2e7d32;
-    box-shadow: 0 0 8px rgba(46, 125, 50, 0.5);
-}
+        /* Focus effect */
+        #custom-search-bar-container .searchBar:focus {
+            border-color: #2e7d32;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.5);
+        }
 
-/* Force override Bootstrap */
-#custom-search-bar-container .searchBar.form-control,
-#custom-search-bar-container .searchBar.form-control:focus {
-    all: unset !important;
-    display: inline-block !important;
-}
+        /* Force override Bootstrap */
+        #custom-search-bar-container .searchBar.form-control,
+        #custom-search-bar-container .searchBar.form-control:focus {
+            all: unset !important;
+            display: inline-block !important;
+        }
 
-/* Table styling: Scoped to your specific ID to avoid Bootstrap overrides */
-#itemTable.dataTable {
-    all: unset; /* Reset all Bootstrap effects */
-    width: 100% !important;
-    border-collapse: separate;
-    border-spacing: 0 8px; /* gap between rows */
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 14px;
-    color: #333;
-}
+        /* Table styling: Scoped to your specific ID to avoid Bootstrap overrides */
+        #itemTable.dataTable {
+            all: unset;
+            /* Reset all Bootstrap effects */
+            width: 100% !important;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            /* gap between rows */
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
 
-#itemTable.dataTable thead tr th {
-    background-color: #dd6e14;
-    color: #fff;
-    text-align: left;
-    padding: 10px;
-    border: none;
-}
+        #itemTable.dataTable thead tr th {
+            background-color: #dd6e14;
+            color: #fff;
+            text-align: left;
+            padding: 10px;
+            border: none;
+        }
 
-#itemTable.dataTable tbody tr {
-    background-color: #ffffff;
-    transition: background-color 0.2s;
-}
+        #itemTable.dataTable tbody tr {
+            background-color: #ffffff;
+            transition: background-color 0.2s;
+        }
 
-#itemTable.dataTable tbody tr:hover {
-    background-color: #f1f8f4;
-}
+        #itemTable.dataTable tbody tr:hover {
+            background-color: #f1f8f4;
+        }
 
-#itemTable.dataTable tbody td {
-    padding: 10px 12px;
-    border: none;
-}
+        #itemTable.dataTable tbody td {
+            padding: 10px 12px;
+            border: none;
+        }
 
-/* Optional: Custom pagination and info styling */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    background-color: #dd6e14 !important;
-    color: #fff !important;
-    border-radius: 4px;
-    margin: 2px;
-    border: none !important;
-}
+        /* Optional: Custom pagination and info styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background-color: #dd6e14 !important;
+            color: #fff !important;
+            border-radius: 4px;
+            margin: 2px;
+            border: none !important;
+        }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #dd6e14 !important;
-}
-
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: #dd6e14 !important;
+        }
     </style>
 
     <script>

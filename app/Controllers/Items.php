@@ -115,7 +115,9 @@ class Items extends BaseController
             'petBreedData' => $petBreedModel->getBreeds(),
             'specieData' => $specieModel->findAll(),
         ];
-        $data['items'] = $itemModel->findAll();
+        $data['items'] = $itemModel->select('*, item_categories.category_name AS category_id')
+            ->join('item_categories', 'item_categories.category_id = items.category_id')
+            ->findAll();
         return view('items/list', $data);
     }
 
