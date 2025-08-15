@@ -16,6 +16,7 @@ class UserModel extends Model
         'first_name',
         'last_name',
         'mbti',
+        'birth_date',
         'profile_image',
         'last_login',
         'logout_time',
@@ -77,7 +78,6 @@ class UserModel extends Model
         // Get required XP for next level
         $userNextLevel = $userLevelModel->getUserRequiredExperience($userLevel + 1);
         if (!$userNextLevel) {
-            log_message('error', 'User level not found for user ID: ' . $user_id);
             return false;
         }
 
