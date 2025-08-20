@@ -25,8 +25,11 @@ class Register extends BaseController
         $username        = trim($json['username'] ?? '');
         $firstName       = trim($json['first_name'] ?? '');
         $lastName        = trim($json['last_name'] ?? '');
+        $birthMonth      = trim($json['birth_month'] ?? '');
+        $birthDay        = trim($json['birth_day'] ?? '');
+        $birthYear       = trim($json['birth_year'] ?? '');
 
-        if (!$email || !$password || !$confirmPassword || !$username || !$firstName || !$lastName) {
+        if (!$email || !$password || !$confirmPassword || !$username || !$firstName || !$lastName || !$birthMonth || !$birthDay || !$birthYear) {
             return $this->response->setJSON([
                 'error' => 'All fields are required.'
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
@@ -90,6 +93,7 @@ class Register extends BaseController
             'last_name'  => $lastName,
             'status'     => 'inactive',
             'role'       => 'user',
+            'birth_date' => date('Y-m-d', strtotime("$birthYear-$birthMonth-$birthDay")),
             'verification_code' => $verificationCode,
             'verification_expiration_date' => date('Y-m-d H:i:s', strtotime('+5 minutes'))
         ];

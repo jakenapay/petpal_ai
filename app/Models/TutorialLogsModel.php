@@ -7,7 +7,7 @@ use App\Models\TutorialsModel;
 
 class TutorialLogsModel extends Model
 {
-    protected $table            = 'tutoriallogs';
+    protected $table            = 'tutorial_logs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -17,7 +17,7 @@ class TutorialLogsModel extends Model
         'user_id',
         'tutorial_id',
         'is_done',
-        'completed_at'
+        'date_completed'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -67,7 +67,7 @@ class TutorialLogsModel extends Model
                 'tutorial_id'   => $log['tutorial_id'],
                 'tutorial_name' => $tutorialNames[$log['tutorial_id']] ?? 'Unknown',
                 'is_done'       => $log['is_done'],
-                'completed_at'  => $log['completed_at']
+                'date_completed'  => $log['date_completed']
             ];
         }
         return $tutorialLogs;
@@ -79,7 +79,7 @@ class TutorialLogsModel extends Model
             'user_id'      => $userId,
             'tutorial_id'  => $tutorialId,
             'is_done'      => 1,
-            'completed_at' => date('Y-m-d H:i:s')
+            'date_completed' => date('Y-m-d H:i:s')
         ]);
     }
 }
