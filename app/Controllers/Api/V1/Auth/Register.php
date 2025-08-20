@@ -305,7 +305,7 @@ class Register extends BaseController
 
     public function setDefaultItems($user_id){
         //life stage id is default to 1 since this is registration.
-        $life_stage_id = 2;
+        $life_stage_id = 1;
         $defaultItemsModel = new DefaultItemsModel();
         $defaultItems = $defaultItemsModel->getDefaultItems($life_stage_id);
         
