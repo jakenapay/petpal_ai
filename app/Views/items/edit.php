@@ -23,6 +23,15 @@
         textarea.form-control {
             margin-bottom: 1rem;
         }
+
+        .form-control {
+            padding: 5px 15px !important;
+            font-size: 14px;
+        }
+
+        .modal-body .form-control {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -264,12 +273,13 @@
                         <?php endforeach; ?>
                     </select>
 
-                    <label>Breed</label>
+                    <label>Breed <span class="fst-italic text-danger">Current: <?= esc($ItemAccessoriesData['breedName'] ?? '') ?></span></label>
                     <select name="breed" id="breed" class="form-control">
+                        <option value="" selected>Select breed</option>
                         <optgroup label="Cat Breeds">
                             <?php foreach ($petBreedData['catbreeds'] as $cat): ?>
                                 <option value="<?= $cat->breed_id ?>"
-                                    <?= isset($itemAccessories['breed_id']) && $cat->breed_id == $itemAccessories['breed_id'] ? 'selected' : '' ?>>
+                                    <?= isset($ItemAccessoriesData['breed_id']) && $cat->breed_name == $ItemAccessoriesData['breedName'] ? 'selected' : '' ?>>
                                     <?= $cat->breed_id ?> - <?= $cat->breed_name ?>
                                 </option>
                             <?php endforeach; ?>
@@ -277,7 +287,7 @@
                         <optgroup label="Dog Breeds">
                             <?php foreach ($petBreedData['dogbreeds'] as $dog): ?>
                                 <option value="<?= $dog->breed_id ?>"
-                                    <?= isset($itemAccessories['breed_id']) && $dog->breed_id == $itemAccessories['breed_id'] ? 'selected' : '' ?>>
+                                    <?= isset($ItemAccessoriesData['breedName']) && $dog->breed_name == $ItemAccessoriesData['breedName'] ? 'selected' : '' ?>>
                                     <?= $dog->breed_id ?> - <?= $dog->breed_name ?>
                                 </option>
                             <?php endforeach; ?>
@@ -286,22 +296,22 @@
 
                     <label>Icon Url</label>
                     <input type="text" name="iconUrl" id="iconUrl" class="form-control form-control-sm"
-                        value="<?= esc($itemAccessories['iconURL'] ?? '') ?>">
+                        value="<?= esc($ItemAccessoriesData['iconUrl'] ?? '') ?>">
 
                     <label>Addressable Url</label>
                     <input type="text" name="addressableUrl" id="addressableUrl" class="form-control form-control-sm"
-                        value="<?= esc($itemAccessories['AddressableURL'] ?? '') ?>">
+                        value="<?= esc($ItemAccessoriesData['AddressableURL'] ?? '') ?>">
 
                     <label>RGB Color</label>
                     <input type="color" name="rgbColor" id="rgbColor" class="form-control form-control-sm"
-                        value="<?= esc($itemAccessories['RGBColor'] ?? '#ff0000') ?>">
+                        value="<?= esc($ItemAccessoriesData['RGBColor'] ?? '#ff0000') ?>">
 
                 </div>
 
                 <!-- Submit button row -->
                 <div class="col-12 d-flex justify-content-center mt-3">
-                    <a href="<?= base_url('item') ?>" class="mx-2 btn btn-danger">Back</a>
-                    <button type="submit" class="mx-2 btn btn-primary">Update Item</button>
+                    <a href="<?= base_url('item/list') ?>" class="mx-2 btn btn-danger">Back</a>
+                    <button type="submit" class="mx-2 btn btn-orange">Update Item</button>
                 </div>
             </div>
         </form>

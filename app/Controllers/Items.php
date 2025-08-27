@@ -66,11 +66,47 @@ class Items extends BaseController
         $ItemSubCategoriesModel = new ItemSubCategoriesModel();
         $petBreedModel = new PetBreedModel();
         $specieModel = new SpecieModel();
+        $ItemAccessoriesModel = new ItemAccessoriesModel();
 
         // Fetch item data
         $itemData = $itemModel->find($itemId);
+        // print_r($itemData['category_id']);
         if (!$itemData) {
             return redirect()->to('item/list')->with('error', 'Item not found.');
+        }
+
+        // if $itemData['category_id'] == 1 then select in the ItemAccessoriesModel
+        if ($itemData['category_id'] == 1) {
+            $db = \Config\Database::connect();
+            $itemAccessoryData = $ItemAccessoriesModel->select('*, item_subcategories.name, species.name AS specie_name')
+                ->join('item_subcategories', 'item_subcategories.id = item_accessories.subcategory_id')
+                ->join('species', 'species.species_id = item_accessories.species_id')
+                ->where('item_accessories.item_id', $itemId)
+                ->first();
+            // print_r($itemAccessoryData);
+            if ($itemAccessoryData) {
+                $specieName = $itemAccessoryData['specie_name']; // or ->specie_id
+                if ($specieName == "Dog") {
+                    // Find the breed name in dogbreeds table
+                    $breedRow = $db->table('dogbreeds')
+                        ->select('dogbreeds.breed_name')
+                        ->where('dogbreeds.breed_id', $itemAccessoryData['breed_id'])
+                        ->get()
+                        ->getRowArray();
+
+                    $itemAccessoryData['breedName'] = $breedRow['breed_name'] ?? null;
+                }
+                else if ($specieName == "Cat") {
+                    // Find the breed name in catbreeds table
+                    $breedRow = $db->table('catbreeds')
+                        ->select('catbreeds.breed_name')
+                        ->where('catbreeds.breed_id', $itemAccessoryData['breed_id'])
+                        ->get()
+                        ->getRowArray();
+
+                    $itemAccessoryData['breedName'] = $breedRow['breed_name'] ?? null;
+                }
+            }
         }
 
         $data = [
@@ -82,6 +118,7 @@ class Items extends BaseController
             'ItemSubCategoriesData' => $ItemSubCategoriesModel->findAll(),
             'petBreedData' => $petBreedModel->getBreeds(),
             'specieData' => $specieModel->findAll(),
+            'ItemAccessoriesData' => $itemAccessoryData ?? null,
         ];
 
         return view('items/edit', $data);

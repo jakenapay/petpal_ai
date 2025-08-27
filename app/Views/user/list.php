@@ -57,7 +57,7 @@
                             <form action="<?= base_url('user/add') ?>" enctype="multipart/form-data" method="post">
                                 <?= csrf_field() ?>
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addItemModalLabel">Add New Item</h5>
+                                    <h5 class="modal-title" id="addItemModalLabel">Add User</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>

@@ -222,7 +222,15 @@
                         <?php endforeach; ?>
                     </select>
 
-                    <label>Specie</label>
+                    <label>Specie (Current: 
+                        <?php 
+                            if (isset($currentSpecie)) {
+                                echo htmlspecialchars($currentSpecie['species_id'] . ' - ' . $currentSpecie['name']);
+                            } else {
+                                echo 'None';
+                            }
+                        ?>
+                    )</label>
                     <select name="specie" id="specie" class="form-control form-control-sm">
                         <?php foreach ($specieData as $specie): ?>
                             <option value="<?= $specie['species_id']; ?>"><?= $specie['species_id']; ?> -

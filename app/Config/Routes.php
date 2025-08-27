@@ -18,6 +18,8 @@ $routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
 
 $routes->post('editProfile', 'Users::editProfile', ['filter' => 'auth']);
 
+// ====================================================================
+
 // Views for Items
 $routes->get('item/add', 'Items::itemAdd', ['filter' => 'auth']);
 $routes->post('item/addXlsx', 'Items::itemAddXlsx', ['filter' => 'auth']);
@@ -25,11 +27,15 @@ $routes->get('item/delete', 'Items::itemDelete', ['filter' => 'auth']);
 $routes->get('item/list', 'Items::itemList', ['filter' => 'auth']);
 $routes->get('item/edit/(:num)', 'Items::itemUpdate/$1', ['filter' => 'auth']);
 
+// ====================================================================
+
 // Item Controllers
 $routes->post('item/add', 'Items::addItem', ['filter' => 'auth']);
 $routes->post('item/delete/(:num)', 'Items::deleteItem/$1', ['filter' => 'auth']);
 $routes->post('item/update/(:num)', 'Items::updateItem/$1', ['filter' => 'auth']);
 // $routes->post('item/delete', 'Items::deleteItem');
+
+// ====================================================================
 
 // Views for Users
 $routes->get('users/list', 'Users::index', ['filter' => 'auth']);
@@ -41,6 +47,21 @@ $routes->get('user/inventory/(:num)', 'Users::inventory/$1', ['filter' => 'auth'
 // User Controllers
 $routes->post('user/update/(:num)', 'Users::update/$1', ['filter' => 'auth']);
 
+// ====================================================================
+
+// Views for gacha
+$routes->get('gacha/list', 'Gacha::list', ['filter' => 'auth']);
+
+// ====================================================================
+
+// Views for pets
+$routes->get('pets/list', 'Pets::list', ['filter' => 'auth']);
+$routes->get('pets/edit/(:num)', 'Pets::edit/$1', ['filter' => 'auth']);
+
+// Pets Controllers
+$routes->post('pets/update/(:num)', 'Pets::update/$1', ['filter' => 'auth']);
+
+// ====================================================================
 
 
 // API v1 base

@@ -38,9 +38,17 @@
                 <i class="fas fa-box"></i>
                 <span class="px-2">Items</span>
             </a>
+            <a href="<?= base_url('gacha/list'); ?>" class="nav-link">
+                <i class="fas fa-dice"></i>
+                <span class="px-3">Gacha</span>
+            </a>
             <a href="<?= base_url('users/list'); ?>" class="nav-link">
                 <i class="fas fa-group"></i>
                 <span class="px-3">Users</span>
+            </a>
+            <a href="<?= base_url('pets/list'); ?>" class="nav-link">
+                <i class="fas fa-paw"></i>
+                <span class="px-3">Pets</span>
             </a>
         </div> 
 

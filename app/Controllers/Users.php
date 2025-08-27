@@ -360,13 +360,15 @@ class Users extends BaseController
             return;
         } else {
             $dbError = $userModel->errors() ?: ['db' => $userModel->db->error()['message']];
-            session()->setFlashdata('error', 'Unable to update user: ' . implode(', ', $dbError));
+            // session()->setFlashdata('error', 'Unable to update user: ' . implode(', ', $dbError));
+            session()->setFlashdata('error', 'Unable to update user. Please try again.');
             $this->response->redirect(previous_url());
             return;
         }
     }
 
-    public function inventory($userId) {
+    public function inventory($userId)
+    {
         $userModel = new UserModel();
         $inventoryModel = new \App\Models\InventoryModel();
         $user = $userModel->find($userId);
