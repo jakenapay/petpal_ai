@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\UserModel;
+use App\Models\ItemModel;
 
 class Users extends BaseController
 {
@@ -370,25 +371,129 @@ class Users extends BaseController
     public function inventory($userId)
     {
         $userModel = new UserModel();
+        $itemModel = new ItemModel();
         $inventoryModel = new \App\Models\InventoryModel();
         $user = $userModel->find($userId);
+
+        $fieldsToRemove = ['password', 'role', 'coins', 'diamonds', 'user_grade', 'experience', 'reward_point', 'birth_date', 'mbti', 'email', 'otp', 'otp_expires', 'verification_code', 'verification_expiration_date', 'total_real_money_spent', 'created_at', 'updated_at', 'last_login', 'logout_time'];
+
+        foreach ($fieldsToRemove as $field) {
+            unset($user[$field]);
+        }
+
         if (!$user) {
             return redirect()->to('users/list')->with('error', 'User not found.');
         }
+
+        // Get acquisitions table
+        $db = \Config\Database::connect();
+        $getAcquisitions = $db->table('acquisition_types')->get()->getResultArray();
 
         // Get user inventory
         $inventory = $inventoryModel->getUserInventory($userId);
         $data = [
             'user' => $user,
-            'inventory' => $inventory
+            'inventory' => $inventory,
+            'allItems' => $itemModel->findAll(),
+            'allAcquisitions' => $getAcquisitions
         ];
 
-        // print_r($data);
+        // print_r($user);
         return view('user/inventory', $data);
     }
 
+    public function deleteInventoryItem($itemId)
+    {
+        $inventoryModel = new \App\Models\InventoryModel();
 
+        if (empty($itemId)) {
+            return redirect()->back()->with('error', 'Invalid item ID.');
+        }
 
+        // Attempt to delete the item
+        $db = \Config\Database::connect();
 
+        // start transactions
+        $db->transStart();
+        if ($inventoryModel->delete($itemId)) {
+            $db->transComplete();
+            return redirect()->back()->with('success', 'Item deleted successfully from inventory.');
+        } else {
+            $db->transRollback();
+            return redirect()->back()->with('error', 'Unable to delete item from inventory.');
+        }
+    }
+
+    public function addInventoryItem()
+    {
+        $inventoryModel = new \App\Models\InventoryModel();
+
+        $data = [
+            'user_id' => trim($this->request->getPost('user_id')),
+            'item_id' => trim($this->request->getPost('item_id')),
+            'acquisition_type_id' => trim($this->request->getPost('acquisition')),
+            'quantity' => trim($this->request->getPost('quantity')),
+            'acquisition_date' => trim($this->request->getPost('acquisition_date')),
+            'expiration_date' => !empty(trim($this->request->getPost('expiration_date'))) ? trim($this->request->getPost('expiration_date')) : null,
+        ];
+
+        // Validate the data
+        if (
+            !$this->validate([
+                'user_id' => [
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'User ID is required.',
+                        'integer' => 'User ID must be a valid number.'
+                    ]
+                ],
+                'item_id' => [
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'Please select an item.',
+                        'integer' => 'Invalid item selected.'
+                    ]
+                ],
+                'acquisition' => [
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'Please select how the item was acquired.',
+                        'integer' => 'Invalid acquisition type selected.'
+                    ]
+                ],
+                'quantity' => [
+                    'rules' => 'required|integer|greater_than[0]',
+                    'errors' => [
+                        'required' => 'Quantity is required.',
+                        'integer' => 'Quantity must be a whole number.',
+                        'greater_than' => 'Quantity must be at least 1.'
+                    ]
+                ],
+                'acquisition_date' => [
+                    'rules' => 'required|valid_date',
+                    'errors' => [
+                        'required' => 'Acquisition date is required.',
+                        'valid_date' => 'Please enter a valid acquisition date.'
+                    ]
+                ],
+            ])
+        ) {
+            $errorMessages = $this->validator->getErrors();
+            $errorString = implode('<br>', $errorMessages);
+            return redirect()->back()->withInput()->with('error', $errorString);
+        }
+
+        // Insert the inventory item with transaction
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        if ($inventoryModel->insert($data)) {
+            $db->transComplete();
+            return redirect()->back()->with('success', 'Item added to inventory successfully.');
+        } else {
+            $db->transRollback();
+            return redirect()->back()->with('error', 'Unable to add item to inventory.');
+        }
+    }
 
 }
