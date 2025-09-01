@@ -95,8 +95,7 @@ class Items extends BaseController
                         ->getRowArray();
 
                     $itemAccessoryData['breedName'] = $breedRow['breed_name'] ?? null;
-                }
-                else if ($specieName == "Cat") {
+                } else if ($specieName == "Cat") {
                     // Find the breed name in catbreeds table
                     $breedRow = $db->table('catbreeds')
                         ->select('catbreeds.breed_name')
@@ -195,7 +194,7 @@ class Items extends BaseController
             'is_tradable' => [
                 'rules' => 'required|in_list[0,1]',
                 'errors' => [
-                    'in_list' => 'Invalid value for is_tradable.',
+                    'in_list' => 'Invalid value for Is Tradable.',
                 ]
             ],
             'is_buyable' => ['rules' => 'required|in_list[0,1]'],
@@ -242,7 +241,7 @@ class Items extends BaseController
             'specie' => ['rules' => 'permit_empty|integer'],
             'breed' => ['rules' => 'permit_empty|integer'],
             'iconUrl' => ['rules' => 'permit_empty|valid_url'],
-            'addressableUrl' => ['rules' => 'permit_empty|valid_url'],
+            'addressableUrl' => ['rules' => 'permit_empty'],
             'rgbColor' => ['rules' => 'permit_empty'],
         ];
 
@@ -266,7 +265,7 @@ class Items extends BaseController
             'base_price' => $this->request->getPost('base_price') ?: null,
             'rarity' => $this->request->getPost('rarity') ?: null,
             'is_tradable' => $this->request->getPost('is_tradable') ?: null,
-            'is_buyable' => $this->request->getPost('is_buyable') ?: null,
+            'is_buyable' => $this->request->getPost('is_buyable') ?: 0,
             'is_consumable' => $this->request->getPost('is_consumable') ?: null,
             'is_stackable' => $this->request->getPost('is_stackable') ?: null,
             'duration' => $this->request->getPost('duration') ?: null,
@@ -319,8 +318,19 @@ class Items extends BaseController
             $insertedId = $itemModel->insert($data);
 
             if (!$insertedId) {
+                // Get the actual database error for logging only
+                $dbError = $itemModel->errors();
+                $dbMessage = $itemModel->db->error();
+
+                // Log the errors for debugging (keep this for developers)
+                log_message('error', 'Item insert failed. Model errors: ' . print_r($dbError, true));
+                log_message('error', 'Database error: ' . print_r($dbMessage, true));
+                log_message('error', 'Data being inserted: ' . print_r($data, true));
+
                 $db->transRollback();
-                return redirect()->to('item/list')->withInput()->with('error', 'Item not added.');
+
+                // Show user-friendly error message
+                return redirect()->to('item/list')->withInput()->with('error', 'Unable to add item. Please check all required fields and try again.');
             }
 
             // If accessories data is provided, insert it
@@ -362,8 +372,19 @@ class Items extends BaseController
                 $insertedItemAccessories = $ItemAccessoriesModel->insert($dataItemAccessories);
 
                 if (!$insertedItemAccessories) {
+                    // Get detailed error information for logging only
+                    $accessoryErrors = $ItemAccessoriesModel->errors();
+                    $accessoryDbError = $ItemAccessoriesModel->db->error();
+
+                    // Log the errors for debugging (keep this for developers)
+                    log_message('error', 'Item accessories insert failed. Model errors: ' . print_r($accessoryErrors, true));
+                    log_message('error', 'Item accessories database error: ' . print_r($accessoryDbError, true));
+                    log_message('error', 'Accessories data being inserted: ' . print_r($dataItemAccessories, true));
+
                     $db->transRollback();
-                    return redirect()->to('item/list')->withInput()->with('error', 'Item accessories not added.');
+
+                    // Show user-friendly error message
+                    return redirect()->to('item/list')->withInput()->with('error', 'Item was created but accessories could not be added. Please edit the item to add accessory details.');
                 }
             }
 
@@ -462,7 +483,7 @@ class Items extends BaseController
             'specie' => ['rules' => 'permit_empty|integer'],
             'breed' => ['rules' => 'permit_empty|integer'],
             'iconUrl' => ['rules' => 'permit_empty|valid_url'],
-            'addressableUrl' => ['rules' => 'permit_empty|valid_url'],
+            'addressableUrl' => ['rules' => 'permit_empty'],
             'rgbColor' => ['rules' => 'permit_empty'],
         ];
 
