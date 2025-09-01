@@ -78,6 +78,9 @@ $routes->group('api/v1', function($routes) {
     $routes->post('auth/resend',       'Api\V1\Auth\Register::resendVerificationCode');
     $routes->post('auth/verify',       'Api\V1\Auth\Register::verifyEmail');
     $routes->post('auth/userLogout', 'Api\V1\Auth\Logout::userLogout');
+    $routes->post('auth/forgot', 'Api\V1\Auth\ResetPassword::index');
+    $routes->post('auth/forgot/verify', 'Api\V1\Auth\ResetPassword::verifyOtp');
+    $routes->post('auth/forgot/reset', 'Api\V1\Auth\ResetPassword::resetPassword');
 
     // Users
     $routes->get('users/profile',      'Api\V1\Users\Profile::index');

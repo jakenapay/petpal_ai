@@ -22,6 +22,8 @@ class UserModel extends Model
         'logout_time',
         'status',
         'role',
+        'otp',
+        'otp_expires',
         'verification_code',
         'verification_expiration_date',
         'number_of_pets',
