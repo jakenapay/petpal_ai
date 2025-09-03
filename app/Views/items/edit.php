@@ -286,7 +286,7 @@
                         </optgroup>
                         <optgroup label="Dog Breeds">
                             <?php foreach ($petBreedData['dogbreeds'] as $dog): ?>
-                                <option value="<?= $dog->breed_id ?>"
+                                <option value="<?= $dog->breed_id ?>" 
                                     <?= isset($ItemAccessoriesData['breedName']) && $dog->breed_name == $ItemAccessoriesData['breedName'] ? 'selected' : '' ?>>
                                     <?= $dog->breed_id ?> - <?= $dog->breed_name ?>
                                 </option>

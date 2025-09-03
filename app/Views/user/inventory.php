@@ -81,7 +81,7 @@
                                                 <?php endforeach; ?>
                                             </select>
 
-                                            <label>Acquisiutions</label>
+                                            <label>Acquisitions</label>
                                             <select name="acquisition" class="form-control form-control-sm">
                                                 <option value="" disabled selected>Select acquisition type</option>
                                                 <?php foreach ($allAcquisitions as $acquisition): ?>
@@ -102,7 +102,7 @@
 
                                             <label>Expiration Date</label>
                                             <input type="date" name="expiration_date"
-                                                class="form-control form-control-sm" >
+                                                class="form-control form-control-sm">
                                         </div>
 
                                     </div>
@@ -166,9 +166,10 @@
                                 <?php endif; ?>
                             </td>
                             <td><?= date('Y-m-d', strtotime(esc($item['acquisition_date']))) ?></td>
-                            <td><?= !empty($item['expiration_date']) ? date('Y-m-d', strtotime($item['expiration_date'])) : '-' ?></td>
+                            <td><?= !empty($item['expiration_date']) ? date('Y-m-d', strtotime($item['expiration_date'])) : '-' ?>
+                            </td>
                             <td class="text-center"><?= esc($item['equipped_count'] ?? '-') ?></td>
-                            <td>
+                            <td class="d-flex justify-content-center gap-1">
                                 <!-- Delete Button: Uses POST -->
                                 <form action="<?= base_url('user/item/delete/' . esc($item['id'])) ?>" method="post"
                                     style="display:inline;">
@@ -180,11 +181,10 @@
                                     </button>
                                 </form>
                                 <!-- Edit Button: Uses GET -->
-                                <!-- <a href="<?= base_url('item/edit/' . esc($item['item_id'])) ?>" class="btn btn-sm btn-orange"
+                                <a href="<?= base_url('user/item/edit/' . esc($item['id'])) ?>" class="btn btn-sm btn-orange"
                                     data-bs-toggle="tooltip" title="Edit Item">
                                     <i class="fa fa-pencil"></i>
-                                </a> -->
-                                
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

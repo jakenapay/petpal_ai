@@ -240,7 +240,7 @@ class Items extends BaseController
             'subCategory' => ['rules' => 'permit_empty|integer'],
             'specie' => ['rules' => 'permit_empty|integer'],
             'breed' => ['rules' => 'permit_empty|integer'],
-            'iconUrl' => ['rules' => 'permit_empty|valid_url'],
+            'iconUrl' => ['rules' => 'permit_empty'],
             'addressableUrl' => ['rules' => 'permit_empty'],
             'rgbColor' => ['rules' => 'permit_empty'],
         ];
@@ -300,7 +300,7 @@ class Items extends BaseController
 
         // print_r($data);
         $dataItemAccessories = [
-            'iconURL' => $this->request->getPost('iconUrl') ?: null,
+            'iconUrl' => $this->request->getPost('iconUrl') ?: null,
             'AddressableURL' => $this->request->getPost('addressableUrl') ?: null,
             'subcategory_id' => $this->request->getPost('subCategory') ?: null,
             'breed_id' => $this->request->getPost('breed') ?: null,
@@ -308,7 +308,7 @@ class Items extends BaseController
             'RGBColor' => $this->request->getPost('rgbColor') ?: null,
         ];
 
-        print_r($dataItemAccessories);
+        log_message('debug', 'Item Accessories Data: ' . print_r($dataItemAccessories, true));
 
         $db = \Config\Database::connect();
         $db->transBegin();
@@ -482,7 +482,7 @@ class Items extends BaseController
             'subCategory' => ['rules' => 'permit_empty|integer'],
             'specie' => ['rules' => 'permit_empty|integer'],
             'breed' => ['rules' => 'permit_empty|integer'],
-            'iconUrl' => ['rules' => 'permit_empty|valid_url'],
+            'iconUrl' => ['rules' => 'permit_empty'],
             'addressableUrl' => ['rules' => 'permit_empty'],
             'rgbColor' => ['rules' => 'permit_empty'],
         ];
@@ -542,7 +542,7 @@ class Items extends BaseController
         ];
 
         $dataItemAccessories = [
-            'iconURL' => $this->request->getPost('iconUrl'),
+            'iconUrl' => $this->request->getPost('iconUrl'),
             'AddressableURL' => $this->request->getPost('addressableUrl'),
             'subcategory_id' => $this->request->getPost('subCategory'),
             'breed_id' => $this->request->getPost('breed'),

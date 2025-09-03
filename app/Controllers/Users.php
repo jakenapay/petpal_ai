@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\UserModel;
 use App\Models\ItemModel;
+use App\Models\InventoryModel;
 
 class Users extends BaseController
 {
@@ -27,7 +28,7 @@ class Users extends BaseController
 
     public function profile()
     {
-        $userModel = new \App\Models\UserModel();
+        $userModel = new UserModel();
         $userId = session()->get('user_id');
         $user = $userModel->find($userId);
 
@@ -45,7 +46,7 @@ class Users extends BaseController
             return redirect()->to('/profile');
         }
 
-        $userModel = new \App\Models\UserModel();
+        $userModel = new UserModel();
         $userId = $this->request->getPost('user_id');
 
         // Gather form data
@@ -372,7 +373,7 @@ class Users extends BaseController
     {
         $userModel = new UserModel();
         $itemModel = new ItemModel();
-        $inventoryModel = new \App\Models\InventoryModel();
+        $inventoryModel = new InventoryModel();
         $user = $userModel->find($userId);
 
         $fieldsToRemove = ['password', 'role', 'coins', 'diamonds', 'user_grade', 'experience', 'reward_point', 'birth_date', 'mbti', 'email', 'otp', 'otp_expires', 'verification_code', 'verification_expiration_date', 'total_real_money_spent', 'created_at', 'updated_at', 'last_login', 'logout_time'];
@@ -404,7 +405,7 @@ class Users extends BaseController
 
     public function deleteInventoryItem($itemId)
     {
-        $inventoryModel = new \App\Models\InventoryModel();
+        $inventoryModel = new InventoryModel();
 
         if (empty($itemId)) {
             return redirect()->back()->with('error', 'Invalid item ID.');
@@ -426,7 +427,7 @@ class Users extends BaseController
 
     public function addInventoryItem()
     {
-        $inventoryModel = new \App\Models\InventoryModel();
+        $inventoryModel = new InventoryModel();
 
         $data = [
             'user_id' => trim($this->request->getPost('user_id')),
@@ -493,6 +494,123 @@ class Users extends BaseController
         } else {
             $db->transRollback();
             return redirect()->back()->with('error', 'Unable to add item to inventory.');
+        }
+    }
+
+    public function editInventoryItem($itemId)
+    {
+        $db = \Config\Database::connect();
+        $inventoryModel = new InventoryModel();
+        $userModel = new UserModel();
+
+        if (empty($itemId)) {
+            return redirect()->back()->with('error', 'Item not found.');
+        }
+
+        $inventoryItemData = $inventoryModel->select('user_inventory.*, items.item_name')
+            ->join('items', 'user_inventory.item_id = items.item_id', 'left')
+            ->where('user_inventory.id', $itemId)
+            ->first();
+
+        if (!$inventoryItemData['user_id']) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        $user = $userModel->select('username')->find($inventoryItemData['user_id']);
+        $getAcquisitions = $db->table('acquisition_types')->get()->getResultArray();
+
+        // TESTING
+        // echo '<pre>';
+        // print_r($inventoryItemData);
+        // echo '</pre>';
+
+        if (!$inventoryItemData) {
+            return redirect()->back()->with('error', 'Item not found in inventory.');
+        }
+
+        $data = [
+            'inventoryItemData' => $inventoryItemData,
+            'allAcquisitions' => $getAcquisitions,
+            'user' => $user
+        ];
+
+        return view('user/editInventory', $data);
+    }
+
+    public function updateInventoryItem($itemId)
+    {
+        $inventoryModel = new InventoryModel();
+        $db = \Config\Database::connect();
+
+        if (empty($itemId)) {
+            return redirect()->back()->with('error', 'Item not found.');
+        }
+
+        // Gather form data
+        $data = [
+            'user_id' => trim($this->request->getPost('user_id')),
+            'item_id' => trim($this->request->getPost('item_id')),
+            'acquisition_type_id' => trim($this->request->getPost('acquisition_type_id')),
+            'quantity' => trim($this->request->getPost('quantity')),
+            'acquisition_date' => trim($this->request->getPost('acquisition_date')),
+            'expiration_date' => !empty(trim($this->request->getPost('expiration_date'))) ? trim($this->request->getPost('expiration_date')) : null,
+        ];
+
+        // Validate the data
+        if (
+            !$this->validate([
+                'user_id' => [
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'User ID is required.',
+                        'integer' => 'User ID must be a valid number.'
+                    ]
+                ],
+                'item_id' => [
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'Please select an item.',
+                        'integer' => 'Invalid item selected.'
+                    ]
+                ],
+                'acquisition_type_id' => [
+                    'rules' => 'required|integer',
+                    'errors' => [
+                        'required' => 'Please select how the item was acquired.',
+                        'integer' => 'Invalid acquisition type selected.'
+                    ]
+                ],
+                'quantity' => [
+                    'rules' => 'required|integer|greater_than_equal_to[0]',
+                    'errors' => [
+                        'required' => 'Quantity is required.',
+                        'integer' => 'Quantity must be a whole number.',
+                        'greater_than_equal_to' => 'Quantity cannot be negative.'
+                    ]
+                ],
+                'acquisition_date' => [
+                    'rules' => 'required|valid_date',
+                    'errors' => [
+                        'required' => 'Acquisition date is required.',
+                        'valid_date' => 'Please enter a valid acquisition date.'
+                    ]
+                ],
+            ])
+        ) {
+            $errorMessages = $this->validator->getErrors();
+            $errorString = implode('<br>', $errorMessages);
+            return redirect()->back()->withInput()->with('error', $errorString);
+        }
+
+        $db->transStart();
+        if ($inventoryModel->update($itemId, $data)) {
+            $db->transComplete();
+            return redirect()->back()->with('success', 'Inventory item updated successfully.');
+        } else {
+            $db->transRollback();
+            $dbError = $inventoryModel->errors() ?: ['db' => $inventoryModel->db->error()['message']];
+            log_message('error', 'Inventory update error: ' . implode(', ', $dbError));
+            return redirect()->back()->withInput()->with('error', 'Unable to update inventory item. Please try again.');
         }
     }
 

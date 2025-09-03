@@ -45,6 +45,8 @@ $routes->get('user/edit/(:num)', 'Users::edit/$1', ['filter' => 'auth']);
 $routes->get('user/inventory/(:num)', 'Users::inventory/$1', ['filter' => 'auth']);
 $routes->post('user/item/delete/(:num)', 'Users::deleteInventoryItem/$1', ['filter' => 'auth']);
 $routes->post('user/item/add', 'Users::addInventoryItem', ['filter' => 'auth']);
+$routes->get('user/item/edit/(:num)', 'Users::editInventoryItem/$1', ['filter' => 'auth']);
+$routes->post('user/item/edit/(:num)', 'Users::updateInventoryItem/$1', ['filter' => 'auth']);
 
 // User Controllers
 $routes->post('user/update/(:num)', 'Users::update/$1', ['filter' => 'auth']);
