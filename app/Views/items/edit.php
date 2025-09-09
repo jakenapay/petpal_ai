@@ -255,7 +255,7 @@
                     <select name="subCategory" id="subCategory" class="form-control form-control-sm">
                         <?php foreach ($ItemSubCategoriesData as $subCat): ?>
                             <option value="<?= $subCat['id']; ?>"
-                                <?= isset($itemAccessories['subcategory_id']) && $subCat['id'] == $itemAccessories['subcategory_id'] ? 'selected' : '' ?>>
+                                <?= isset($ItemAccessoriesData['subcategory_id']) && $subCat['id'] == $ItemAccessoriesData['subcategory_id'] ? 'selected' : '' ?>>
                                 <?= $subCat['id']; ?> -
                                 <?= $subCat['name']; ?>
                             </option>
@@ -266,7 +266,7 @@
                     <select name="specie" id="specie" class="form-control form-control-sm">
                         <?php foreach ($specieData as $specie): ?>
                             <option value="<?= $specie['species_id']; ?>"
-                                <?= isset($itemAccessories['species_id']) && $specie['species_id'] == $itemAccessories['species_id'] ? 'selected' : '' ?>>
+                                <?= isset($ItemAccessoriesData['species_id']) && $specie['species_id'] == $ItemAccessoriesData['species_id'] ? 'selected' : '' ?>>
                                 <?= $specie['species_id']; ?> -
                                 <?= $specie['name']; ?>
                             </option>
