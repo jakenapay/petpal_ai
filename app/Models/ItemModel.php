@@ -185,6 +185,7 @@ class ItemModel extends Model
         ');
         $builder->join('item_categories', 'items.category_id = item_categories.category_id', 'left');
         $builder->where('items.category_id', $categoryId);
+        $builder->where('items.is_deleted', 0);
         $builder->where('items.is_buyable', 1);
 
         $items = $builder->get()->getResultArray();

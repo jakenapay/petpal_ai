@@ -19,16 +19,16 @@ class Register extends BaseController
     {
         $json = $this->request->getJSON(true);
 
-        $email           = trim($json['email'] ?? '');
-        $password        = $json['password'] ?? '';
+        $email = trim($json['email'] ?? '');
+        $password = $json['password'] ?? '';
         $confirmPassword = $json['confirm_password'] ?? '';
-        $username        = trim($json['username'] ?? '');
-        $firstName       = trim($json['first_name'] ?? '');
-        $lastName        = trim($json['last_name'] ?? '');
-        $birthMonth      = trim($json['birth_month'] ?? '');
-        $birthDay        = trim($json['birth_day'] ?? '');
-        $birthYear       = trim($json['birth_year'] ?? '');
-        $gender          = trim($json['gender'] ?? '');
+        $username = trim($json['username'] ?? '');
+        $firstName = trim($json['first_name'] ?? '');
+        $lastName = trim($json['last_name'] ?? '');
+        $birthMonth = trim($json['birth_month'] ?? '');
+        $birthDay = trim($json['birth_day'] ?? '');
+        $birthYear = trim($json['birth_year'] ?? '');
+        $gender = trim($json['gender'] ?? '');
 
         if (!$email || !$password || !$confirmPassword || !$username || !$firstName || !$lastName || !$birthMonth || !$birthDay || !$birthYear || !$gender) {
             return $this->response->setJSON([
@@ -43,17 +43,17 @@ class Register extends BaseController
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        // Validate first name: only letters allowed
-        if (!preg_match('/^[a-zA-Z]+$/', $firstName)) {
+        // Validate first name
+        if (!preg_match("/^[a-zA-Z\s'-]+$/", $firstName)) {
             return $this->response->setJSON([
-                'error' => 'First name must contain only letters.'
+                'error' => 'First name contains invalid characters.'
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        // Validate last name: only letters allowed
-        if (!preg_match('/^[a-zA-Z]+$/', $lastName)) {
+        // Validate last name
+        if (!preg_match("/^[a-zA-Z\s'-]+$/", $lastName)) {
             return $this->response->setJSON([
-                'error' => 'Last name must contain only letters.'
+                'error' => 'Last name contains invalid characters.'
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
@@ -73,28 +73,28 @@ class Register extends BaseController
 
         if ($userModel->where('email', $email)->first()) {
             return $this->response->setJSON([
-            'error' => 'Email already exists.'
+                'error' => 'Email already exists.'
             ])->setStatusCode(ResponseInterface::HTTP_CONFLICT);
         }
-        
+
         if ($userModel->where('username', $username)->first()) {
             return $this->response->setJSON([
-            'error' => 'Username already exists.'
+                'error' => 'Username already exists.'
             ])->setStatusCode(ResponseInterface::HTTP_CONFLICT);
         }
-        
+
 
         $verificationCode = random_int(100000, 999999);
 
         $userData = [
-            'email'      => $email,
-            'username'   => $username,
-            'password'   => password_hash($password, PASSWORD_DEFAULT),
+            'email' => $email,
+            'username' => $username,
+            'password' => password_hash($password, PASSWORD_DEFAULT),
             'first_name' => $firstName,
-            'last_name'  => $lastName,
-            'status'     => 'inactive',
-            'role'       => 'user',
-            'gender'     => $gender,
+            'last_name' => $lastName,
+            'status' => 'inactive',
+            'role' => 'user',
+            'gender' => $gender,
             'birth_date' => date('Y-m-d', strtotime("$birthYear-$birthMonth-$birthDay")),
             'verification_code' => $verificationCode,
             'verification_expiration_date' => date('Y-m-d H:i:s', strtotime('+5 minutes'))
@@ -131,10 +131,10 @@ class Register extends BaseController
 
 
             $db->transComplete();
-            
-        } catch (\Exception $e) { 
+
+        } catch (\Exception $e) {
             log_message('error', 'Registration error: ' . $e->getMessage());
-            $db->transRollback();          
+            $db->transRollback();
             return $this->response->setJSON([
                 'error' => 'Registration failed. Please try again.'
             ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
@@ -212,8 +212,7 @@ class Register extends BaseController
 
         if (!$emailService->send()) {
             return false;
-        }
-        else{
+        } else {
             return true;
         }
     }
@@ -285,7 +284,7 @@ class Register extends BaseController
         $lastSent = strtotime($user['verification_expiration_date'] ?? '1970-01-01') - 300;
         $now = time();
 
-        if (($now - $lastSent) < 60) { 
+        if (($now - $lastSent) < 60) {
             return $this->response->setJSON([
                 'error' => 'Please wait before requesting another code.'
             ])->setStatusCode(ResponseInterface::HTTP_TOO_MANY_REQUESTS);
@@ -309,12 +308,13 @@ class Register extends BaseController
         ])->setStatusCode(ResponseInterface::HTTP_OK);
     }
 
-    public function setDefaultItems($user_id){
+    public function setDefaultItems($user_id)
+    {
         //life stage id is default to 1 since this is registration.
         $life_stage_id = 1;
         $defaultItemsModel = new DefaultItemsModel();
         $defaultItems = $defaultItemsModel->getDefaultItems($life_stage_id);
-        
+
         if (empty($defaultItems || !$defaultItems)) {
             return false;
         }
@@ -322,12 +322,13 @@ class Register extends BaseController
         $inventoryModel = new InventoryModel();
         $result = $inventoryModel->addDefaultItems($user_id, $defaultItems);
         if (!$result) {
-            return false; 
+            return false;
         }
         return true;
     }
 
-    public function defaultSubscriptions($userId){
+    public function defaultSubscriptions($userId)
+    {
         $subscriptionModel = new SubscriptionModel();
         $defaultSubscriptions = $subscriptionModel->defaultUserSubscription($userId);
         if (!$defaultSubscriptions) {

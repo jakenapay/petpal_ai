@@ -36,13 +36,15 @@ class Auth extends BaseController
         $password = $this->request->getPost('password');
         $pass_confirm = $this->request->getPost('pass_confirm');
         $first_name = htmlspecialchars(trim($this->request->getPost('first_name')), ENT_QUOTES, 'UTF-8');
-        if (preg_match('/[^a-zA-Z]/', $first_name)) {
+        if (preg_match('/[^a-zA-Z\s\'-]/', $first_name)) {
             return redirect()->back()->with('error', 'Invalid characters in first name');
         }
+
         $last_name = htmlspecialchars(trim($this->request->getPost('last_name')), ENT_QUOTES, 'UTF-8');
-        if (preg_match('/[^a-zA-Z]/', $last_name)) {
+        if (preg_match('/[^a-zA-Z\s\'-]/', $last_name)) {
             return redirect()->back()->with('error', 'Invalid characters in last name');
         }
+
 
         // Validate email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -56,11 +58,11 @@ class Auth extends BaseController
 
         // Create data array with bcrypt password hashing
         $data = [
-            'username'   => $username,
-            'email'      => $email,
-            'password'   => password_hash($password, PASSWORD_BCRYPT),
+            'username' => $username,
+            'email' => $email,
+            'password' => password_hash($password, PASSWORD_BCRYPT),
             'first_name' => $first_name,
-            'last_name'  => $last_name
+            'last_name' => $last_name
         ];
 
         if ($userModel->insert($data)) {
@@ -100,10 +102,10 @@ class Auth extends BaseController
 
         // Set session data
         session()->set([
-            'user_id'   => $user['user_id'],
-            'username'  => $user['username'],
-            'email'     => $user['email'],
-            'first_name'=> $user['first_name'],
+            'user_id' => $user['user_id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'first_name' => $user['first_name'],
             'last_name' => $user['last_name'],
             'profile_image' => $user['profile_image'],
             'status' => $user['status'],
