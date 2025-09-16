@@ -13,6 +13,9 @@ use App\Models\SubscriptionModel;
 use App\Models\PetLifeStageModel;
 use App\Models\InteractionCategoriesModel;
 use App\Models\InventoryModel;
+use App\Models\DefaultItemsModel;
+
+
 use DateTime;
 
 
@@ -31,8 +34,10 @@ class ProcessPetInteraction extends BaseController
         $this->itemsModel = new ItemModel();
         $this->interactionCategoriesModel = new InteractionCategoriesModel();
         $this->inventoryModel = new InventoryModel();
-
+        $this->defaultItemsModel = new DefaultItemsModel();
     }
+
+
 
 
     public function getInteraction($interaction_id){
@@ -152,7 +157,8 @@ class ProcessPetInteraction extends BaseController
         ];
     }
 
-    public function deduceItemQuantity($userId, $itemUsedId, $quantity) {
+    public function deduceItemQuantity($userId, $itemUsedId, $quantity) 
+    {
         //since itemusedid is array, loop each
         $result = [];
         foreach ($itemUsedId as $item_id) {
@@ -194,10 +200,39 @@ class ProcessPetInteraction extends BaseController
         ];
     }
 
+    public function handleDefaultLifestageItems($newLifeStage){
+        //get the default items for the new life stage
+        $defaultItems = $this->defaultItemsModel->getDefaultItems($newLifeStage);
+        if (empty($defaultItems)) {
+            return [];
+        }
+        return $defaultItems;
 
+    }
 
-
-
+    public function addDefaultItemsToInventory($user_id, $defaultItems){
+        foreach ($defaultItems as $item) {
+            //check if the item already exists in the inventory
+            $existingItem = $this->inventoryModel->getInventoryItem($user_id, $item['item_id']);
+            if ($existingItem) {
+                //if exists, just update the quantity
+                $new_quantity = $existingItem['quantity'] + 1;
+                $this->inventoryModel->updateItemQuantity($user_id, $item['item_id'], $new_quantity);
+            }else{
+                //if not exists, insert the item
+                $inventoryData = [
+                    'user_id' => $user_id,
+                    'item_id' => $item['item_id'],
+                    'quantity' => 1,
+                    'acquired_from' => 'Life Stage Upgrade',
+                    'acquired_at' => date('Y-m-d H:i:s'),
+                ];
+                $this->inventoryModel->addItemToInventory($inventoryData);
+            }
+        }
+        return true;
+        
+    }
 
     public function index($pet_id)
     {
@@ -410,6 +445,7 @@ class ProcessPetInteraction extends BaseController
             $newLifeStage = $petLifeStage['stage_id'] + 1;
             $requiredExperience = $this->getPetLifeStage($newLifeStage)['experience_required'] ?? null;
 
+
             // Get pet species and breed
             $petSpecies = $pet['species'] ?? null;
             $petBreed = $pet['breed'] ?? null;
@@ -491,6 +527,18 @@ class ProcessPetInteraction extends BaseController
                 // Optionally log this event
             }
             $newPetAppearance = json_encode($petAppearance);
+
+            // additional: give the pet's default items for the new life stage
+            $defaultItems = $this->handleDefaultLifestageItems($newLifeStage);
+
+            if (!empty($defaultItems)) {
+                $this->addDefaultItemsToInventory($userId, $defaultItems);
+            }else{
+                //rollback and return error
+                $db->transRollback();
+                return $this->response->setJSON(['error' => 'Failed to get default items for the new life stage'])
+                    ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
 
             // STEP 6: Update the pet
             $result = $this->petModel->updatePet($pet_id, [
