@@ -200,7 +200,9 @@ $routes->group('api/v1', function($routes) {
     $routes->delete('motions/delete-motion/(:num)', 'Api\V1\Motion\DeleteMotions::index/$1');
 
     // TOWN
-    $routes->get('town/claimChest', 'Api\V1\Users\Town::getChest');
+    $routes->post('town/claimChest', 'Api\V1\Users\Town::getChest');
+    $routes->post('town/betLost', 'Api\V1\Users\Town::betLost');
+    
 
     //TextToMotionAPI
     $routes->get('text-to-motion/currentAPI', 'Api\V1\TTM\TextToMotion::getCurrentApi');
