@@ -190,14 +190,61 @@ class ItemModel extends Model
 
         $items = $builder->get()->getResultArray();
 
-        // Attach effects to each item
-        // foreach ($items as &$item) {
-        //     $effects = $this->db->table('item_effects')
-        //         ->where('effect_id', $item['effect_id'])
-        //         ->get()
-        //         ->getResultArray();
-        //     $item['effects'] = $effects;
-        // }
+        //get the name of the species thru species_id from the species table
+        foreach ($items as &$item) {
+            $speciesId = $item['species_id'] ?? null;
+            if (empty($speciesId) || $speciesId == 0) {
+            $item['species_name'] = 'Any';
+            } else {
+            $species = $this->db->table('species')
+                ->where('species_id', $speciesId)
+                ->get()
+                ->getRowArray();
+            $item['species_name'] = $species['name'] ?? 'Any';
+            }
+        }
+
+
+        //get the name of the breed thru breed_id from the dogbreeds or catbreeds table
+        foreach ($items as &$item) {
+            $breedId = $item['breed_id'] ?? null;
+            $speciesId = $item['species_id'] ?? null;
+            if (empty($breedId) || $breedId == 0) {
+                $item['breed_name'] = 'Any';
+            } else {
+                if ($speciesId == 1) {
+                    // Fetch from dogbreeds
+                    $breed = $this->db->table('dogbreeds')
+                        ->where('breed_id', $breedId)
+                        ->get()
+                        ->getRowArray();
+                } else {
+                    // Fetch from catbreeds
+                    $breed = $this->db->table('catbreeds')
+                        ->where('breed_id', $breedId)
+                        ->get()
+                        ->getRowArray();
+                }
+                $item['breed_name'] = $breed['breed_name'] ?? 'Any';
+            }
+        }
+
+        // get the name of the lifestage thru life_stage_id from the lifestages table
+        foreach ($items as &$item) {
+            $lifestageId = $item['life_stage_id'] ?? null;
+            if (empty($lifestageId) || $lifestageId == 0) {
+                $item['lifestage_name'] = 'Any';
+            } else {
+                $lifestage = $this->db->table('pet_life_stages')
+                    ->where('stage_id', $lifestageId)
+                    ->get()
+                    ->getRowArray();
+                $item['lifestage_name'] = $lifestage['stage_name'] ?? 'Any';
+            }
+        }
+
+
+
         return $items;
     }
 
