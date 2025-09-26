@@ -42,7 +42,8 @@ class Register extends BaseController
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        if (!in_array($gender, [0, 1], true)) {
+        $genderCheck = array_key_exists('gender', $json) ? (int) $json['gender'] : null;
+        if (!in_array($genderCheck, [0, 1], true)) {
             return $this->response->setJSON([
                 'error' => 'Invalid gender value.'
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
