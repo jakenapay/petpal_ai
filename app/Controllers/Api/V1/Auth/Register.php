@@ -30,9 +30,21 @@ class Register extends BaseController
         $birthYear = trim($json['birth_year'] ?? '');
         $gender = trim($json['gender'] ?? '');
 
-        if (!$email || !$password || !$confirmPassword || !$username || !$firstName || !$lastName || !$birthMonth || !$birthDay || !$birthYear || !$gender) {
+        if (!$email || !$password || !$confirmPassword || !$username || !$firstName || !$lastName || !$birthMonth || !$birthDay || !$birthYear) {
             return $this->response->setJSON([
                 'error' => 'All fields are required.'
+            ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        if ($gender === null) {
+            return $this->response->setJSON([
+                'error' => 'Gender is required.'
+            ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        if (!in_array($gender, [0, 1], true)) {
+            return $this->response->setJSON([
+                'error' => 'Invalid gender value.'
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
