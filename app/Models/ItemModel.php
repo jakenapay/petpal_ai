@@ -89,14 +89,66 @@ class ItemModel extends Model
     // Functions
     public function getItemsWithCategory()
     {
-        return $this->db->query("
-        SELECT items.*, 
-        item_categories.category_name
-        FROM items 
-        JOIN item_categories 
-        ON items.category_id = item_categories.category_id
-        WHERE items.is_deleted = 0
-    ")->getResultArray();
+        $result = $this->db->query("
+            SELECT items.*, 
+            item_categories.category_name
+            FROM items 
+            JOIN item_categories 
+            ON items.category_id = item_categories.category_id
+            WHERE items.is_deleted = 0
+        ")->getResultArray();
+        //get the name of the species thru species_id from the species table
+        foreach ($result as &$item) {
+            $speciesId = $item['species_id'] ?? null;
+            if (empty($speciesId) || $speciesId == 0) {
+                $item['species_name'] = 'Any';
+            } else {
+                $species = $this->db->table('species')
+                    ->where('species_id', $speciesId)
+                    ->get()
+                    ->getRowArray();
+                $item['species_name'] = $species['name'] ?? 'Any';
+            }
+        }
+        //get the name of the breed thru breed_id from the dogbreeds or catbreeds table
+        foreach ($result as &$item) {
+            $breedId = $item['breed_id'] ?? null;
+            $speciesId = $item['species_id'] ?? null;
+            if (empty($breedId) || $breedId == 0) {
+                $item['breed_name'] = 'Any';
+            } else {
+                if ($speciesId == 1) {
+                    // Fetch from dogbreeds
+                    $breed = $this->db->table('dogbreeds')
+                        ->where('breed_id', $breedId)
+                        ->get()
+                        ->getRowArray();
+                } else {
+                    // Fetch from catbreeds
+                    $breed = $this->db->table('catbreeds')
+                        ->where('breed_id', $breedId)
+                        ->get()
+                        ->getRowArray();
+                }
+                $item['breed_name'] = $breed['breed_name'] ?? 'Any';
+            }
+        }
+        // get the name of the lifestage thru life_stage_id from the lifestages table
+        foreach ($result as &$item) {
+            $lifestageId = $item['life_stage_id'] ?? null;
+            if (empty($lifestageId) || $lifestageId == 0) {
+                $item['lifestage_name'] = 'Any';
+            } else {
+                $lifestage = $this->db->table('pet_life_stages')
+                    ->where('stage_id', $lifestageId)
+                    ->get()
+                    ->getRowArray();
+                $item['lifestage_name'] = $lifestage['stage_name'] ?? 'Any';
+            }
+        }
+
+        
+        return $result;
     }
 
     public function getItems($itemIds)
